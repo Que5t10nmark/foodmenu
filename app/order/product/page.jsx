@@ -68,76 +68,85 @@ export default function ProductPage() {
         ))}
 
         <Link href={`/order/cart/cart_detail/${seatId}`}>
-        <div className="px-4 py-1 rounded-full border whitespace-nowrap">
-          รายการสั่งซื้อ
-        </div>
+          <div className="px-4 py-1 rounded-full border whitespace-nowrap">
+            รายการสั่งซื้อ
+          </div>
         </Link>
-
-      </div> 
+      </div>
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow z-50">
           {message}
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="space-y-4">
         {sortedProducts.map((p) => {
           const isOutOfStock = p.product_status !== "มีสินค้า";
           return (
             <div
               key={p.product_id}
-              className={`border rounded-xl shadow-sm p-2 flex flex-col transform transition-transform ${
+              className={`flex items-center border rounded-xl shadow-sm p-4 transition-transform ${
                 isOutOfStock
-                  ? "bg-gray-200 cursor-not-allowed"
-                  : "cursor-pointer hover:scale-101"
+                  ? "bg-gray-100 cursor-not-allowed"
+                  : "bg-white hover:shadow-md"
               }`}
               onClick={() => {
                 if (!isOutOfStock) handleDetail(p);
               }}
             >
-              <div
-                className={`text-center font-bold mb-2 ${
-                  isOutOfStock ? "text-gray-500" : ""
-                }`}
-              >
-                {p.product_name}
-              </div>
-              <div className="relative w-full h-40">
+              {/* รูปสินค้า */}
+              <div className="relative w-24 h-24 flex-shrink-0 rounded overflow-hidden">
                 {p.product_image ? (
                   <Image
-                    src={"/uploads/" + p.product_image}
+                    src={`/uploads/${p.product_image}`}
                     alt={p.product_name}
                     fill
-                    className={`object-cover rounded ${
+                    className={`object-cover ${
                       isOutOfStock ? "opacity-50" : ""
                     }`}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm">
                     No Image
                   </div>
                 )}
               </div>
-              <div
-                className={`mt-2 text-center font-semibold ${
-                  isOutOfStock ? "text-gray-500" : "text-green-600"
-                }`}
-              >
-                ฿{p.product_price}
+
+              {/* ข้อมูลสินค้า */}
+              <div className="ml-4 flex-grow">
+                <div
+                  className={`font-semibold text-base ${
+                    isOutOfStock ? "text-gray-500" : "text-black"
+                  }`}
+                >
+                  {p.product_name}
+                </div>
+                {/* <div className="text-gray-500 text-sm line-clamp-2">
+                  {p.product_description || "-"}
+                </div> */}
+                <div
+                  className={`mt-1 font-bold text-lg ${
+                    isOutOfStock ? "text-gray-500" : "text-green-600"
+                  }`}
+                >
+                  ฿{p.product_price}
+                </div>
               </div>
 
+              {/* ปุ่มเพิ่มลงตะกร้า */}
               <button
                 disabled={isOutOfStock}
-                className={`mt-2 py-1 rounded ${
-                  isOutOfStock
-                    ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-orange-500 text-white"
-                }`}
                 onClick={(e) => {
+                  e.stopPropagation();
                   if (!isOutOfStock) handleAddToCart(p, e);
                 }}
+                className={`ml-4 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                  isOutOfStock
+                    ? "bg-gray-300 text-white cursor-not-allowed"
+                    : "bg-orange-500 text-white hover:bg-orange-600"
+                }`}
               >
-                {isOutOfStock ? "❌ ไม่มีสินค้า" : "เพิ่มในตะกร้า"}
+                {isOutOfStock ? "❌ หมด" : "เพิ่มลงตะกร้า"}
               </button>
             </div>
           );
