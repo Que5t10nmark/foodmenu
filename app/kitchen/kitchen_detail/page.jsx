@@ -4,10 +4,15 @@ import { useEffect, useState } from "react";
 export default function FinishedOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(""); // เพิ่ม state วันที่
 
   useEffect(() => {
     const fetchFinishedOrders = () => {
-      fetch("/api/purchase?status=เสร็จแล้ว")
+      const params = new URLSearchParams();
+      params.append("status", "เสร็จแล้ว");
+      if (selectedDate) params.append("date", selectedDate); // ส่งวันที่ถ้ามี
+
+      fetch(`/api/purchase?${params.toString()}`)
         .then((res) => res.json())
         .then((data) => {
           setOrders(data);
@@ -19,15 +24,14 @@ export default function FinishedOrdersPage() {
         });
     };
 
-    fetchFinishedOrders(); // โหลดครั้งแรก
+    fetchFinishedOrders();
 
-    const interval = setInterval(fetchFinishedOrders, 2000); // รีเฟรชทุก 2 วินาที
-    return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูก unmount
-  }, []);
+    const interval = setInterval(fetchFinishedOrders, 2000);
+    return () => clearInterval(interval);
+  }, [selectedDate]); // reload เมื่อเปลี่ยนวันที่
 
   if (loading) return <div className="p-6 text-center">กำลังโหลด...</div>;
 
-  // แบ่งกลุ่มตามโต๊ะ
   const groupedOrders = orders.reduce((acc, order) => {
     if (!acc[order.seat_id]) acc[order.seat_id] = [];
     acc[order.seat_id].push(order);
@@ -36,10 +40,34 @@ export default function FinishedOrdersPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">📦 คำสั่งซื้อที่เสร็จแล้ว</h1>
+      <h1 className="text-2xl font-bold mb-4">📦 คำสั่งซื้อที่เสร็จแล้ว</h1>
+
+      {/* 🎯 ตัวเลือกวันที่ */}
+      <div className="mb-6 flex items-center gap-4">
+        <label htmlFor="date" className="font-semibold">
+          เลือกวันที่:
+        </label>
+        <input
+          id="date"
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="border rounded px-3 py-1"
+        />
+        {selectedDate && (
+          <button
+            onClick={() => setSelectedDate("")}
+            className="text-sm text-blue-600 underline"
+          >
+            ล้างวันที่
+          </button>
+        )}
+      </div>
 
       {Object.keys(groupedOrders).length === 0 ? (
-        <div className="text-center text-gray-500">ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว</div>
+        <div className="text-center text-gray-500">
+          {selectedDate ? "ไม่มีคำสั่งซื้อในวันที่เลือก" : "ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว"}
+        </div>
       ) : (
         Object.keys(groupedOrders).map((seatId) => (
           <div key={seatId} className="mb-6">

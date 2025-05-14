@@ -50,14 +50,27 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     const status = req.nextUrl.searchParams.get("status");
+    const date = req.nextUrl.searchParams.get("date");
 
     let query = "SELECT * FROM purchase";
+    let conditions = [];
     let params = [];
 
     if (status) {
-      query += " WHERE purchase_status = ?";
+      conditions.push("purchase_status = ?");
       params.push(status);
     }
+
+    if (date) {
+      conditions.push("DATE(purchase_date) = ?");
+      params.push(date);
+    }
+
+    if (conditions.length > 0) {
+      query += " WHERE " + conditions.join(" AND ");
+    }
+
+    query += " ORDER BY purchase_date DESC"; // เรียงตามวันที่ล่าสุด
 
     const [orders] = await db.execute(query, params);
     return new Response(JSON.stringify(orders), { status: 200 });
@@ -69,4 +82,5 @@ export async function GET(req) {
     );
   }
 }
+
 
