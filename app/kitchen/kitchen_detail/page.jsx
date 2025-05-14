@@ -5,6 +5,7 @@ export default function FinishedOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(""); // เพิ่ม state วันที่
+   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchFinishedOrders = () => {
@@ -64,9 +65,21 @@ export default function FinishedOrdersPage() {
         )}
       </div>
 
+      <div className="mb-6">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="ค้นหาโต๊ะ"
+          className="p-2 border border-gray-300 rounded w-full"
+        />
+      </div>
+
       {Object.keys(groupedOrders).length === 0 ? (
         <div className="text-center text-gray-500">
-          {selectedDate ? "ไม่มีคำสั่งซื้อในวันที่เลือก" : "ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว"}
+          {selectedDate
+            ? "ไม่มีคำสั่งซื้อในวันที่เลือก"
+            : "ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว"}
         </div>
       ) : (
         Object.keys(groupedOrders).map((seatId) => (
@@ -87,18 +100,21 @@ export default function FinishedOrdersPage() {
                     ราคา: ฿{order.product_price * order.purchase_quantity}
                   </div>
                   <ul className="text-sm mb-2">
-                    {order.purchase_size && <li>ขนาด: {order.purchase_size}</li>}
+                    {order.purchase_size && (
+                      <li>ขนาด: {order.purchase_size}</li>
+                    )}
                     {order.purchase_spiceLevel && (
                       <li>ระดับความเผ็ด: {order.purchase_spiceLevel}</li>
                     )}
-                    {order.purchase_toppings && order.purchase_toppings !== "[]" && (
-                      <li>
-                        ท็อปปิ้ง:{" "}
-                        {Array.isArray(order.purchase_toppings)
-                          ? order.purchase_toppings.join(", ")
-                          : JSON.parse(order.purchase_toppings).join(", ")}
-                      </li>
-                    )}
+                    {order.purchase_toppings &&
+                      order.purchase_toppings !== "[]" && (
+                        <li>
+                          ท็อปปิ้ง:{" "}
+                          {Array.isArray(order.purchase_toppings)
+                            ? order.purchase_toppings.join(", ")
+                            : JSON.parse(order.purchase_toppings).join(", ")}
+                        </li>
+                      )}
                     {order.purchase_description && (
                       <li>หมายเหตุ: {order.purchase_description}</li>
                     )}

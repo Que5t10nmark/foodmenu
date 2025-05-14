@@ -56,6 +56,7 @@ const ProductsPage = () => {
       setError("Error adding product: " + err.message);
     }
   };
+
   const updateProduct = async (productId, productData) => {
     try {
       const res = await fetch(`/api/product/${productId}`, {

@@ -1,5 +1,13 @@
 import db from "../../../../lib/db"; // ปรับ path ตามโปรเจกต์ของคุณ
 
+async function handleDBQuery(query, params) {
+  try {
+    const [result] = await pool.query(query, params); // ✅ รัน SQL query
+    return result; // ✅ คืนค่าผลลัพธ์จากฐานข้อมูล
+  } catch (error) {
+    throw new Error(error.message); // ✅ ส่ง error กลับไปถ้ามีปัญหา
+  }
+}
 export async function PUT(req, { params }) {
   try {
     const { id } = params;
