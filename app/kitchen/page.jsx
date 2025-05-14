@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function KitchenPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const now = new Date().toISOString();
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     const fetchOrders = () => {
@@ -20,13 +21,11 @@ export default function KitchenPage() {
         });
     };
 
-    fetchOrders(); // โหลดครั้งแรก
-
-    const interval = setInterval(fetchOrders, 2000); // โหลดซ้ำทุก 2 วิ
-
-    return () => clearInterval(interval); // เคลียร์เมื่อ component ถูก unmount
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 2000);
+    return () => clearInterval(interval);
   }, []);
-  // ฟังก์ชันสำหรับอัพเดตสถานะคำสั่งซื้อ
+
   const handleStatusUpdate = async (purchaseId, newStatus) => {
     try {
       const response = await fetch(`/api/purchase/${purchaseId}`, {
@@ -35,9 +34,7 @@ export default function KitchenPage() {
         body: JSON.stringify({ status: newStatus }),
       });
 
-      if (!response.ok) {
-        throw new Error("ไม่สามารถอัพเดตสถานะคำสั่งซื้อได้");
-      }
+      if (!response.ok) throw new Error("ไม่สามารถอัพเดตสถานะคำสั่งซื้อได้");
 
       setOrders((prev) =>
         prev.map((order) =>
@@ -46,36 +43,65 @@ export default function KitchenPage() {
             : order
         )
       );
+
+      // แสดงข้อความแจ้งเตือน
+      setMessage(`อัปเดตสถานะเป็น "${newStatus}" สำเร็จ`);
+      setTimeout(() => setMessage(null), 2000);
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการอัพเดตสถานะ:", error);
+      setMessage("เกิดข้อผิดพลาดในการอัพเดตสถานะ");
+      setTimeout(() => setMessage(null), 2000);
     }
   };
 
   if (loading) {
     return <div className="p-6 text-center text-gray-500">กำลังโหลด...</div>;
   }
-  
-  // แยกคำสั่งซื้อโดยโต๊ะ
-  const groupedOrders = orders.reduce((acc, order) => {
-    if (!acc[order.seat_id]) {
-      acc[order.seat_id] = [];
-    }
+
+  const activeOrders = orders.filter(
+    (order) =>
+      order.purchase_status !== "เสร็จแล้ว" &&
+      order.purchase_status !== "ยกเลิก"
+  );
+
+  const groupedOrders = activeOrders.reduce((acc, order) => {
+    if (!acc[order.seat_id]) acc[order.seat_id] = [];
     acc[order.seat_id].push(order);
     return acc;
   }, {});
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">🍳 คำสั่งซื้อของห้องครัว</h1>
+      {/* 🔗 ลิงก์ไปหน้ารายการเสร็จแล้ว */}
+      <div className="mb-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว</h1>
+        <Link
+          href="/kitchen/kitchen_detail"
+          className="text-blue-600 underline text-sm"
+        >
+          ดูคำสั่งซื้อที่เสร็จแล้ว
+        </Link>
+      </div>
+
+      {message && (
+        <div
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                  bg-green-700 text-white border border-green-300 px-6 py-3 
+                  rounded-xl shadow-lg z-50 animate-fade"
+        >
+          {message}
+        </div>
+      )}
 
       {Object.keys(groupedOrders).length === 0 ? (
         <div className="text-center text-gray-500">ยังไม่มีคำสั่งซื้อ</div>
       ) : (
         Object.keys(groupedOrders).map((seatId) => (
-          <div key={seatId} className="mb-6">
-            <div className="font-bold text-xl mb-4">โต๊ะ: {seatId}</div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div key={seatId} className="mb-8">
+            <div className="font-bold text-xl mb-4 bg-gray-100 p-2 rounded">
+              โต๊ะ: {seatId}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {groupedOrders[seatId].map((order) => (
                 <div
                   key={order.purchase_id}
@@ -121,9 +147,9 @@ export default function KitchenPage() {
                       {order.purchase_status}
                     </span>
                   </div>
-                  <div className="flex space-x-2 mt-2">
+                  <div className="flex space-x-2 mt-3 flex-wrap">
                     <button
-                      className="bg-blue-500 text-white px-3 py-1 rounded"
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                       onClick={() =>
                         handleStatusUpdate(order.purchase_id, "กำลังทำ")
                       }
@@ -131,12 +157,20 @@ export default function KitchenPage() {
                       กำลังทำ
                     </button>
                     <button
-                      className="bg-green-600 text-white px-3 py-1 rounded"
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
                       onClick={() =>
                         handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
                       }
                     >
                       เสร็จแล้ว
+                    </button>
+                    <button
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                      onClick={() =>
+                        handleStatusUpdate(order.purchase_id, "ยกเลิก")
+                      }
+                    >
+                      ยกเลิก
                     </button>
                   </div>
                 </div>

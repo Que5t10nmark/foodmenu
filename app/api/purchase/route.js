@@ -20,7 +20,7 @@ export async function POST(req) {
       await db.execute(
         `INSERT INTO purchase 
           (product_id, product_name, product_price, purchase_quantity, seat_id, purchase_size, purchase_spiceLevel, purchase_toppings, purchase_description, purchase_status, purchase_date) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'รอดำเนินการ', NOW())`,
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'รอดำเนินการ', CONVERT_TZ(NOW(), 'UTC', 'Asia/Bangkok'))`,
         [
           product.product_id,
           product.product_name, // เพิ่ม product_name
@@ -47,11 +47,19 @@ export async function POST(req) {
   }
 }
 
-// GET request สำหรับการดึงข้อมูลคำสั่งซื้อทั้งหมด
 export async function GET(req) {
   try {
-    const [orders] = await db.execute("SELECT * FROM purchase");
+    const status = req.nextUrl.searchParams.get("status");
 
+    let query = "SELECT * FROM purchase";
+    let params = [];
+
+    if (status) {
+      query += " WHERE purchase_status = ?";
+      params.push(status);
+    }
+
+    const [orders] = await db.execute(query, params);
     return new Response(JSON.stringify(orders), { status: 200 });
   } catch (error) {
     console.error("เกิดข้อผิดพลาด:", error);
@@ -61,3 +69,4 @@ export async function GET(req) {
     );
   }
 }
+
