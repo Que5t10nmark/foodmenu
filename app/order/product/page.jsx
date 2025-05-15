@@ -58,7 +58,7 @@ export default function ProductPage() {
             key={category}
             className={`px-4 py-1 rounded-full border whitespace-nowrap ${
               selectedCategory === category
-                ? "bg-orange-500 text-white"
+                ? "bg-green-500 text-white"
                 : "bg-white text-gray-700"
             }`}
             onClick={() => setSelectedCategory(category)}
@@ -143,7 +143,7 @@ export default function ProductPage() {
                 className={`ml-4 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   isOutOfStock
                     ? "bg-gray-300 text-white cursor-not-allowed"
-                    : "bg-orange-500 text-white hover:bg-orange-600"
+                    : "bg-green-500 text-white hover:bg-green-600"
                 }`}
               >
                 {isOutOfStock ? "❌ หมด" : "เพิ่มลงตะกร้า"}
