@@ -4,18 +4,22 @@ import { useEffect, useState } from "react";
 export default function FinishedOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(""); // เพิ่ม state วันที่
-  
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSeat, setSelectedSeat] = useState(""); // 🆕 เพิ่มตัวกรองโต๊ะ
+  const [allSeats, setAllSeats] = useState([]); // 🆕 สำหรับแสดงใน dropdown
+
   useEffect(() => {
     const fetchFinishedOrders = () => {
       const params = new URLSearchParams();
       params.append("status", "เสร็จแล้ว");
-      if (selectedDate) params.append("date", selectedDate); // ส่งวันที่ถ้ามี
+      if (selectedDate) params.append("date", selectedDate);
 
       fetch(`/api/purchase?${params.toString()}`)
         .then((res) => res.json())
         .then((data) => {
           setOrders(data);
+          const uniqueSeats = [...new Set(data.map((o) => o.seat_id))];
+          setAllSeats(uniqueSeats);
           setLoading(false);
         })
         .catch((err) => {
@@ -25,14 +29,18 @@ export default function FinishedOrdersPage() {
     };
 
     fetchFinishedOrders();
-
     const interval = setInterval(fetchFinishedOrders, 2000);
     return () => clearInterval(interval);
-  }, [selectedDate]); // reload เมื่อเปลี่ยนวันที่
+  }, [selectedDate]);
 
   if (loading) return <div className="p-6 text-center">กำลังโหลด...</div>;
 
-  const groupedOrders = orders.reduce((acc, order) => {
+  // 🧠 กรองข้อมูลตามโต๊ะที่เลือก (ถ้ามี)
+  const filteredOrders = selectedSeat
+    ? orders.filter((order) => order.seat_id === selectedSeat)
+    : orders;
+
+  const groupedOrders = filteredOrders.reduce((acc, order) => {
     if (!acc[order.seat_id]) acc[order.seat_id] = [];
     acc[order.seat_id].push(order);
     return acc;
@@ -43,7 +51,7 @@ export default function FinishedOrdersPage() {
       <h1 className="text-2xl font-bold mb-4">📦 คำสั่งซื้อที่เสร็จแล้ว</h1>
 
       {/* 🎯 ตัวเลือกวันที่ */}
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-4 flex flex-wrap items-center gap-4">
         <label htmlFor="date" className="font-semibold">
           เลือกวันที่:
         </label>
@@ -64,10 +72,39 @@ export default function FinishedOrdersPage() {
         )}
       </div>
 
+      {/* 🎯 ตัวเลือกโต๊ะ */}
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        <label htmlFor="seat" className="font-semibold">
+          เลือกโต๊ะ:
+        </label>
+        <select
+          id="seat"
+          value={selectedSeat}
+          onChange={(e) => setSelectedSeat(e.target.value)}
+          className="border rounded px-3 py-1"
+        >
+          <option value="">-- แสดงทุกโต๊ะ --</option>
+          {allSeats.map((seat) => (
+            <option key={seat} value={seat}>
+              โต๊ะ {seat}
+            </option>
+          ))}
+        </select>
+        {selectedSeat && (
+          <button
+            onClick={() => setSelectedSeat("")}
+            className="text-sm text-blue-600 underline"
+          >
+            ล้างโต๊ะ
+          </button>
+        )}
+      </div>
+
+      {/* 📦 แสดงรายการ */}
       {Object.keys(groupedOrders).length === 0 ? (
         <div className="text-center text-gray-500">
-          {selectedDate
-            ? "ไม่มีคำสั่งซื้อในวันที่เลือก"
+          {selectedDate || selectedSeat
+            ? "ไม่มีคำสั่งซื้อที่ตรงกับเงื่อนไข"
             : "ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว"}
         </div>
       ) : (
@@ -89,9 +126,7 @@ export default function FinishedOrdersPage() {
                     ราคา: ฿{order.product_price * order.purchase_quantity}
                   </div>
                   <ul className="text-sm mb-2">
-                    {order.purchase_size && (
-                      <li>ขนาด: {order.purchase_size}</li>
-                    )}
+                    {order.purchase_size && <li>ขนาด: {order.purchase_size}</li>}
                     {order.purchase_spiceLevel && (
                       <li>ระดับความเผ็ด: {order.purchase_spiceLevel}</li>
                     )}

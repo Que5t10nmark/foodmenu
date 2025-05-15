@@ -2,31 +2,58 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-export default function MyOrderPage({ params }) {
-  const seatId = params.seatId; // สมมุติว่า seatId ส่งมาจาก URL หรือ props
+export default function MyOrderPage() {
   const [orders, setOrders] = useState([]);
+  const [selectedSeat, setSelectedSeat] = useState(""); // โต๊ะที่เลือก
+  const [allSeats, setAllSeats] = useState([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
       const res = await fetch(`/api/purchase`);
       const data = await res.json();
       setOrders(data);
+
+      const seatIds = [...new Set(data.map((order) => order.seat_id))];
+      setAllSeats(seatIds);
     };
 
     fetchOrders();
-    const interval = setInterval(fetchOrders, 3000); 
+    const interval = setInterval(fetchOrders, 3000);
 
     return () => clearInterval(interval);
-  }, [seatId]);
+  }, []);
+
+  const filteredOrders = selectedSeat
+    ? orders.filter((order) => order.seat_id === selectedSeat)
+    : [];
 
   return (
     <div className="p-4 max-w-xl mx-auto">
       <h1 className="text-xl font-bold mb-4">🍽 รายการของคุณ</h1>
-      {orders.length === 0 ? (
-        <div className="text-gray-500">ยังไม่มีคำสั่งซื้อ</div>
+
+      <div className="mb-4">
+        <label className="block mb-1 font-medium">เลือกโต๊ะ</label>
+        <select
+          value={selectedSeat}
+          onChange={(e) => setSelectedSeat(e.target.value)}
+          className="w-full border rounded p-2"
+        >
+          <option value="">-- เลือกโต๊ะ --</option>
+          {allSeats.map((seatId) => (
+            <option key={seatId} value={seatId}>
+              โต๊ะ {seatId}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {selectedSeat === "" ? (
+        <div className="text-gray-500">กรุณาเลือกโต๊ะ</div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-gray-500">ยังไม่มีคำสั่งซื้อสำหรับโต๊ะนี้</div>
       ) : (
         <ul className="space-y-3">
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <li
               key={order.purchase_id}
               className="border p-4 rounded shadow bg-white"
@@ -34,17 +61,19 @@ export default function MyOrderPage({ params }) {
               <div className="font-bold">{order.product_name}</div>
               <div className="text-sm">จำนวน: {order.purchase_quantity}</div>
               <div className="text-sm">ราคา: {order.product_price} บาท</div>
-              <div className="text-sm">สถานะ: <span className="font-semibold">{order.purchase_status}</span></div>
+              <div className="text-sm">
+                สถานะ: <span className="font-semibold">{order.purchase_status}</span>
+              </div>
             </li>
           ))}
         </ul>
       )}
-          <Link href={"/order/product"} className="fixed bottom-6 left-6 z-50">
-            <button className="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg">
-              กลับ
-            </button>
-          </Link>
+
+      <Link href="/order/product" className="fixed bottom-6 left-6 z-50">
+        <button className="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg">
+          กลับ
+        </button>
+      </Link>
     </div>
-    
   );
 }
