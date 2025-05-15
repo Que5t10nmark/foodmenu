@@ -5,8 +5,7 @@ export default function FinishedOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(""); // เพิ่ม state วันที่
-   const [searchQuery, setSearchQuery] = useState("");
-
+  
   useEffect(() => {
     const fetchFinishedOrders = () => {
       const params = new URLSearchParams();
@@ -63,16 +62,6 @@ export default function FinishedOrdersPage() {
             ล้างวันที่
           </button>
         )}
-      </div>
-
-      <div className="mb-6">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="ค้นหาโต๊ะ"
-          className="p-2 border border-gray-300 rounded w-full"
-        />
       </div>
 
       {Object.keys(groupedOrders).length === 0 ? (
