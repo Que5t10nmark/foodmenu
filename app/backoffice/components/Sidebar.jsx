@@ -74,7 +74,7 @@ export default function Sidebar() {
                 href="/backoffice/reportmenu"
                 className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
               >
-                รายงานรายการอาหารรายวันหรือรายเดือน
+                รายงานประเภทอาหาร
               </Link>
               <Link
                 href="/backoffice/reportdayandmonth"

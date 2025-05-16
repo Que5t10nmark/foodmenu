@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,} from "chart.js";
+
+// ✅ ลงทะเบียน Chart.js modules
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function ProductReportPage() {
   const [products, setProducts] = useState([]);
@@ -14,7 +18,7 @@ export default function ProductReportPage() {
     fetchProducts();
   }, []);
 
-  // กลุ่มตามประเภท
+  // ✅ กลุ่มตามประเภท
   const productTypeCounts = products.reduce((acc, product) => {
     const typeName = product.product_type_name || "ไม่ระบุประเภท";
     acc[typeName] = (acc[typeName] || 0) + 1;
@@ -24,9 +28,9 @@ export default function ProductReportPage() {
   const productLabels = Object.keys(productTypeCounts);
   const counts = Object.values(productTypeCounts);
 
-  // ✅ สร้างสีแบบ HSL ไม่ซ้ำกัน
-  const colors = productLabels.map((_, i) =>
-    `hsl(${(i * 360) / productLabels.length}, 70%, 55%)`
+  // ✅ สร้างสีไม่ซ้ำกัน (HSL)
+  const colors = productLabels.map(
+    (_, i) => `hsl(${(i * 360) / productLabels.length}, 70%, 55%)`
   );
 
   const data = {
@@ -74,7 +78,7 @@ export default function ProductReportPage() {
       <div className="bg-white p-6 rounded shadow-md mb-8" style={{ height: "400px" }}>
         <Bar data={data} options={options} />
       </div>
-
+      
       <div className="bg-white p-6 rounded shadow-md overflow-x-auto">
         <h2 className="text-xl font-semibold mb-4">📋 สรุปจำนวนสินค้าแต่ละประเภท</h2>
         <table className="w-full table-auto border-collapse">
@@ -87,12 +91,7 @@ export default function ProductReportPage() {
           <tbody>
             {productLabels.map((type, index) => (
               <tr key={index} className="text-center">
-                <td
-                  className="px-4 py-2 border"
-                  // style={{ backgroundColor: colors[index], color: "#fff" }}
-                >
-                  {type}
-                </td>
+                <td className="px-4 py-2 border">{type}</td>
                 <td className="px-4 py-2 border">{counts[index]}</td>
               </tr>
             ))}
