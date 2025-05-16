@@ -6,11 +6,6 @@ import Image from "next/image";
 
 const ProductsPage = () => {
   const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const [product, setProduct] = useState([]);
   const [newProduct, setNewProduct] = useState({
     product_name: "",
@@ -29,6 +24,10 @@ const ProductsPage = () => {
   const [notification, setNotification] = useState("");
   const [productType, setProductType] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const fetchProduct = useCallback(async () => {
     setLoading(true);
@@ -69,7 +68,6 @@ const ProductsPage = () => {
       ...prev,
       [name]: type === "file" ? prev.product_image : value ?? "",
     }));
-
     if (type === "file" && files.length > 0) {
       setPreviewImage(URL.createObjectURL(files[0]));
     }
@@ -79,10 +77,8 @@ const ProductsPage = () => {
     const file = e.target.files[0];
     if (!file) return;
     setPreviewImage(URL.createObjectURL(file));
-
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -90,12 +86,8 @@ const ProductsPage = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      setNewProduct((prev) => ({
-        ...prev,
-        product_image: data.fileName,
-      }));
+      setNewProduct((prev) => ({ ...prev, product_image: data.fileName }));
     } catch (err) {
-      console.error("Error uploading file:", err);
       setError("Error uploading file: " + err.message);
       setPreviewImage(null);
     }
@@ -139,6 +131,7 @@ const ProductsPage = () => {
       product_description: "",
       product_status: true,
     });
+    setPreviewImage(null);
   };
 
   const clearForm = () => {
@@ -151,6 +144,100 @@ const ProductsPage = () => {
       product_description: "",
       product_status: "",
     });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (
+      !newProduct.product_name ||
+      !newProduct.product_type ||
+      !newProduct.product_price ||
+      !newProduct.product_size
+    ) {
+      setError("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+    const productData = {
+      ...newProduct,
+      product_status:
+        newProduct.product_status === "true" ||
+        newProduct.product_status === true,
+    };
+    try {
+      const url = isEditing
+        ? `/api/product/${newProduct.product_id}`
+        : "/api/product";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "ไม่สามารถบันทึกข้อมูลได้");
+      }
+      const data = await res.json();
+      if (isEditing) {
+        setProduct((prev) =>
+          prev.map((item) =>
+            item.product_id === newProduct.product_id
+              ? {
+                  ...productData,
+                  product_id: newProduct.product_id,
+                  product_type_name: productType.find(
+                    (type) =>
+                      type.product_type_id.toString() ===
+                      productData.product_type.toString()
+                  )?.product_type_name,
+                  product_status_name: productData.product_status
+                    ? "มีสินค้า"
+                    : "ไม่มีสินค้า",
+                }
+              : item
+          )
+        );
+      } else {
+        setProduct((prev) => [
+          ...prev,
+          {
+            ...productData,
+            product_id: data.id,
+            product_type_name: productType.find(
+              (type) =>
+                type.product_type_id.toString() ===
+                productData.product_type.toString()
+            )?.product_type_name,
+            product_status_name: productData.product_status
+              ? "มีสินค้า"
+              : "ไม่มีสินค้า",
+          },
+        ]);
+      }
+      setNotification(isEditing ? "แก้ไขข้อมูลสำเร็จ!" : "เพิ่มข้อมูลสำเร็จ!");
+      setTimeout(() => setNotification(""), 3000);
+      closeModal();
+    } catch (err) {
+      setError(
+        `Error ${isEditing ? "updating" : "adding"} product: ${err.message}`
+      );
+    }
+  };
+
+  const deleteProduct = async (productId) => {
+    try {
+      const res = await fetch(`/api/product/${productId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("ไม่สามารถลบข้อมูลได้");
+      setProduct((prev) =>
+        prev.filter((item) => item.product_id !== productId)
+      );
+      setNotification("ลบข้อมูลสำเร็จ!");
+      setTimeout(() => setNotification(""), 3000);
+    } catch (err) {
+      setError("Error deleting product: " + err.message);
+    }
   };
 
   const filteredProduct = product.filter((item) =>
@@ -245,11 +332,174 @@ const ProductsPage = () => {
           </tbody>
         </table>
       </div>
-      {isModalOpen && (
-        <Modal isOpen={isModalOpen} closeModal={closeModal}>
-          {/* Modal content form rendering here */}
-        </Modal>
-      )}
+
+      <Modal isOpen={isModalOpen} closeModal={closeModal}>
+        <h2 className="text-xl font-semibold mb-4">
+          {isEditing ? "แก้ไขรายการอาหาร" : "เพิ่มอาหารใหม่"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="product_name" className="block">
+              ชื่ออาหาร
+            </label>
+            <input
+              type="text"
+              id="product_name"
+              name="product_name"
+              value={newProduct.product_name ?? ""}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product_type" className="block">
+              ประเภทสินค้า
+            </label>
+            <select
+              id="product_type"
+              name="product_type"
+              value={newProduct.product_type ?? ""}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="">เลือกประเภทสินค้า</option>
+              {productType.length > 0 ? (
+                productType.map((product_type) => (
+                  <option
+                    key={product_type.product_type_id}
+                    value={product_type.product_type_id}
+                  >
+                    {product_type.product_type_name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>ไม่มีข้อมูลประเภทสินค้า</option>
+              )}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="product_price" className="block">
+              ราคา
+            </label>
+            <input
+              type="number"
+              id="product_price"
+              name="product_price"
+              value={newProduct.product_price || ""}
+              onChange={(e) => {
+                const value =
+                  e.target.value === "" ? "" : Number(e.target.value); // ✅ ให้แน่ใจว่าค่าเป็นตัวเลข
+                setNewProduct((prev) => ({ ...prev, product_price: value }));
+              }}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product_size" className="block">
+              ขนาด
+            </label>
+            <input
+              type="text"
+              id="product_size"
+              name="product_size"
+              value={newProduct.product_size || ""} // ✅ ป้องกัน undefined
+              onChange={(e) =>
+                setNewProduct((prev) => ({
+                  ...prev,
+                  product_size: e.target.value,
+                }))
+              }
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product_image" className="block">
+              รูปภาพ
+            </label>
+            <input
+              type="file"
+              id="product_image"
+              name="product_image"
+              accept="image/*"
+              onChange={handleFileUpload} // ✅ ใช้ฟังก์ชันอัปโหลดไฟล์ที่คุณเขียนไว้
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+            {/* {previewImage && (
+              <div className="mt-2">
+                <p className="text-gray-600">ตัวอย่างรูปภาพ:</p>
+                <Image
+                  src={previewImage}
+                  alt="Preview"
+                  width={150}
+                  height={150}
+                  className="rounded border"
+                />
+              </div>
+            )} */}
+          </div>
+
+          <div>
+            <label htmlFor="product_description" className="block">
+              คําอธิบาย
+            </label>
+            <input
+              type="text"
+              id="product_description"
+              name="product_description"
+              value={newProduct.product_description || ""}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product_status" className="block">
+              สถานะสินค้า
+            </label>
+            <select
+              id="product_status"
+              name="product_status"
+              value={String(newProduct.product_status)}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="true">มีสินค้า</option>
+              <option value="false">ไม่มีสินค้า</option>
+            </select>
+          </div>
+
+          <div className="mt-4 flex gap-4">
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-6 py-2 rounded"
+            >
+              {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
+            </button>
+            <button
+              type="button"
+              onClick={clearForm}
+              className="bg-gray-500 text-white px-6 py-2 rounded"
+            >
+              เคลียร์
+            </button>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="bg-red-500 text-white px-6 py-2 rounded"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
