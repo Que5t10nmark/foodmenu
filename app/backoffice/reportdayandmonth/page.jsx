@@ -25,15 +25,21 @@ export default function ReportByDatePage() {
     return acc;
   }, {});
 
+  const productLabels = Object.keys(productCounts);
+  const productData = Object.values(productCounts);
+
+  // ✅ สร้างสีให้แต่ละแท่ง (แบบ HSL ไม่ซ้ำกัน)
+  const colors = productLabels.map((_, i) =>
+    `hsl(${(i * 360) / productLabels.length}, 70%, 55%)`
+  );
+
   const chartData = {
-    labels: Object.keys(productCounts),
+    labels: productLabels,
     datasets: [
       {
         label: "จำนวนที่ขาย",
-        data: Object.values(productCounts),
-        backgroundColor: Object.keys(productCounts).map(
-          (_, i) => `hsl(${(i * 60) % 360}, 70%, 60%)`
-        ),
+        data: productData,
+        backgroundColor: colors,
       },
     ],
   };
