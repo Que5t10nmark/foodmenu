@@ -177,45 +177,9 @@ const ProductsPage = () => {
         const errData = await res.json();
         throw new Error(errData.message || "ไม่สามารถบันทึกข้อมูลได้");
       }
-      const data = await res.json();
-      if (isEditing) {
-        setProduct((prev) =>
-          prev.map((item) =>
-            item.product_id === newProduct.product_id
-              ? {
-                  ...productData,
-                  product_id: newProduct.product_id,
-                  product_type_name: productType.find(
-                    (type) =>
-                      type.product_type_id.toString() ===
-                      productData.product_type.toString()
-                  )?.product_type_name,
-                  product_status_name: productData.product_status
-                    ? "มีสินค้า"
-                    : "ไม่มีสินค้า",
-                }
-              : item
-          )
-        );
-      } else {
-        setProduct((prev) => [
-          ...prev,
-          {
-            ...productData,
-            product_id: data.id,
-            product_type_name: productType.find(
-              (type) =>
-                type.product_type_id.toString() ===
-                productData.product_type.toString()
-            )?.product_type_name,
-            product_status_name: productData.product_status
-              ? "มีสินค้า"
-              : "ไม่มีสินค้า",
-          },
-        ]);
-      }
+      await fetchProduct();
       setNotification(isEditing ? "แก้ไขข้อมูลสำเร็จ!" : "เพิ่มข้อมูลสำเร็จ!");
-      setTimeout(() => setNotification(""), 3000);
+      setTimeout(() => setNotification(""), 1000);
       closeModal();
     } catch (err) {
       setError(
@@ -230,11 +194,9 @@ const ProductsPage = () => {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("ไม่สามารถลบข้อมูลได้");
-      setProduct((prev) =>
-        prev.filter((item) => item.product_id !== productId)
-      );
+      await fetchProduct();
       setNotification("ลบข้อมูลสำเร็จ!");
-      setTimeout(() => setNotification(""), 3000);
+      setTimeout(() => setNotification(""), 1000);
     } catch (err) {
       setError("Error deleting product: " + err.message);
     }
@@ -432,7 +394,7 @@ const ProductsPage = () => {
               onChange={handleFileUpload} // ✅ ใช้ฟังก์ชันอัปโหลดไฟล์ที่คุณเขียนไว้
               className="w-full p-2 border border-gray-300 rounded"
             />
-            {/* {previewImage && (
+            {previewImage && (
               <div className="mt-2">
                 <p className="text-gray-600">ตัวอย่างรูปภาพ:</p>
                 <Image
@@ -443,7 +405,7 @@ const ProductsPage = () => {
                   className="rounded border"
                 />
               </div>
-            )} */}
+            )}
           </div>
 
           <div>
