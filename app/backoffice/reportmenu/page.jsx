@@ -1,10 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,} from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 // ✅ ลงทะเบียน Chart.js modules
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function ProductReportPage() {
   const [products, setProducts] = useState([]);
@@ -73,14 +88,21 @@ export default function ProductReportPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">📊 รายงานจำนวนสินค้าต่อประเภทอาหาร</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        📊 รายงานจำนวนสินค้าต่อประเภทอาหาร
+      </h1>
 
-      <div className="bg-white p-6 rounded shadow-md mb-8" style={{ height: "400px" }}>
-        <Bar data={data} options={options} />
+      <div
+        className="bg-white p-6 rounded shadow-md mb-8"
+        style={{ height: "400px" }}
+      >
+        <Bar data={data} options={options}/>
       </div>
-      
+
       <div className="bg-white p-6 rounded shadow-md overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4">📋 สรุปจำนวนสินค้าแต่ละประเภท</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          📋 สรุปจำนวนสินค้าแต่ละประเภท
+        </h2>
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr className="bg-orange-500 text-white">
