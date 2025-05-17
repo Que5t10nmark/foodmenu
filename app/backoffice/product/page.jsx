@@ -209,6 +209,7 @@ const ProductsPage = () => {
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
     )
+      // แสดงข้อความแจ้งเตือนว่าไม่สามารถลบข้อมูลได้
     .filter((item) => {
       if (selectedType === "ทั้งหมด") return true;
       return String(item.product_type) === String(selectedType);
@@ -238,7 +239,7 @@ const ProductsPage = () => {
       >
         เพิ่มรายการอาหาร
       </button>
-
+      
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           className={`px-4 py-1 rounded-full border text-sm ${
