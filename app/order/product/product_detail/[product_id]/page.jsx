@@ -54,7 +54,7 @@ function Page() {
     setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
 
     // ล้างข้อความหลัง 3 วินาที
-    setTimeout(() => setMessage(""), 3000);
+    setTimeout(() => setMessage(""), 1000);
   };
 
   return (

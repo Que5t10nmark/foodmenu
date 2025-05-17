@@ -23,6 +23,7 @@ const ProductsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState("");
   const [productType, setProductType] = useState([]);
+  const [selectedType, setSelectedType] = useState("ทั้งหมด");
   const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
@@ -202,11 +203,16 @@ const ProductsPage = () => {
     }
   };
 
-  const filteredProduct = product.filter((item) =>
-    (item?.product_name || "").toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  if (!isClient) return null;
+  const filteredProduct = product
+    .filter((item) =>
+      (item?.product_name || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    )
+    .filter((item) => {
+      if (selectedType === "ทั้งหมด") return true;
+      return String(item.product_type) === String(selectedType);
+    });
 
   return (
     <div className="p-6 max-h-screen overflow-auto">
@@ -228,10 +234,36 @@ const ProductsPage = () => {
       </div>
       <button
         onClick={() => openModal()}
-        className="bg-blue-500 text-white p-2 rounded mb-6"
+        className="bg-green-500 text-white p-2 rounded mb-6"
       >
         เพิ่มรายการอาหาร
       </button>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        <button
+          className={`px-4 py-1 rounded-full border text-sm ${
+            selectedType === "ทั้งหมด"
+              ? "bg-orange-500 text-white"
+              : "bg-white text-gray-700"
+          }`}
+          onClick={() => setSelectedType("ทั้งหมด")}
+        >
+          ทั้งหมด
+        </button>
+        {productType.map((type) => (
+          <button
+            key={type.product_type_id}
+            className={`px-4 py-1 rounded-full border text-sm ${
+              selectedType === type.product_type_id
+                ? "bg-orange-500 text-white"
+                : "bg-white text-gray-700"
+            }`}
+            onClick={() => setSelectedType(type.product_type_id)}
+          >
+            {type.product_type_name}
+          </button>
+        ))}
+      </div>
       <div className="overflow-x-auto max-h-[70vh]">
         <table className="min-w-full table-auto border-collapse border border-gray-300">
           <thead>
@@ -257,7 +289,9 @@ const ProductsPage = () => {
                 }
               >
                 <td className="px-4 py-2 border">{product.product_name}</td>
-                <td className="px-4 py-2 border">{product.product_type_name}</td>
+                <td className="px-4 py-2 border">
+                  {product.product_type_name}
+                </td>
                 <td className="px-4 py-2 border">{product.product_price}</td>
                 <td className="px-4 py-2 border">{product.product_size}</td>
                 <td className="px-4 py-2 border text-center">
@@ -273,7 +307,9 @@ const ProductsPage = () => {
                     <p className="text-gray-400">ไม่มีรูป</p>
                   )}
                 </td>
-                <td className="px-4 py-2 border">{product.product_description}</td>
+                <td className="px-4 py-2 border">
+                  {product.product_description}
+                </td>
                 <td className="px-4 py-2 border">{product.product_status}</td>
                 <td className="px-4 py-2 border">
                   <button
@@ -354,7 +390,7 @@ const ProductsPage = () => {
               value={newProduct.product_price || ""}
               onChange={(e) => {
                 const value =
-                  e.target.value === "" ? "" : Number(e.target.value); // ✅ ให้แน่ใจว่าค่าเป็นตัวเลข
+                  e.target.value === "" ? "" : Number(e.target.value); 
                 setNewProduct((prev) => ({ ...prev, product_price: value }));
               }}
               required
