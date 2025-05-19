@@ -24,6 +24,7 @@ const ProductsPage = () => {
   const [productType, setProductType] = useState([]);
   const [selectedType, setSelectedType] = useState("ทั้งหมด");
   const [previewImage, setPreviewImage] = useState(null);
+  
 
   useEffect(() => {
     setIsClient(true);
@@ -155,9 +156,11 @@ const ProductsPage = () => {
     }
     const productData = {
       ...newProduct,
-      product_status:
-        newProduct.product_status === "true" ||
-        newProduct.product_status === true,
+      product_status: Boolean(
+        newProduct.product_status === true ||
+          newProduct.product_status === "true" ||
+          newProduct.product_status === 1
+      ),
     };
     try {
       const url = isEditing
@@ -313,7 +316,11 @@ const ProductsPage = () => {
                     แก้ไข
                   </button>
                   <button
-                    onClick={() => deleteProduct(product.product_id)}
+                    onClick={() => {
+                      if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                        deleteProduct(product.product_id);
+                      }
+                    }}
                     className="bg-red-500 text-white px-4 py-2 rounded"
                   >
                     ลบ
@@ -324,7 +331,7 @@ const ProductsPage = () => {
           </tbody>
         </table>
       </div>
-      
+
       <Modal isOpen={isModalOpen} closeModal={closeModal}>
         <h2 className="text-xl font-semibold mb-4">
           {isEditing ? "แก้ไขรายการอาหาร" : "เพิ่มอาหารใหม่"}

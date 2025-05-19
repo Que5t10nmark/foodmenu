@@ -49,7 +49,7 @@ export async function POST(req) {
       !product_name ||
       !product_type ||
       !product_price ||
-       product_status === undefined
+      product_status === undefined
     ) {
       return new Response(
         JSON.stringify({ message: "❌ Missing required fields" }),
@@ -67,7 +67,7 @@ export async function POST(req) {
 
     const [result] = await pool.query(
       `INSERT INTO product 
-        // (product_name, product_type, product_price, product_image, product_description, product_status) 
+      (product_name, product_type, product_price, product_image, product_description, product_status) 
       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         product_name,
