@@ -33,6 +33,12 @@ export default function Sidebar() {
           ประเภทอาหาร
         </Link>
         <Link
+          href="/backoffice/product_option"
+          className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
+        >
+          ตัวเลือกอาหาร
+        </Link>
+        <Link
           href="/backoffice/seat"
           className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
         >

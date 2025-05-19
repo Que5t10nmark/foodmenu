@@ -6,7 +6,7 @@ export default function KitchenPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
-  
+
   useEffect(() => {
     const fetchOrders = () => {
       fetch("/api/purchase")
@@ -44,7 +44,6 @@ export default function KitchenPage() {
         )
       );
 
-      // แสดงข้อความแจ้งเตือน
       setMessage(`อัปเดตสถานะเป็น "${newStatus}" สำเร็จ`);
       setTimeout(() => setMessage(null), 2000);
     } catch (error) {
@@ -58,12 +57,14 @@ export default function KitchenPage() {
     return <div className="p-6 text-center text-gray-500">กำลังโหลด...</div>;
   }
 
+  // กรองเอาเฉพาะออเดอร์ที่ยังไม่เสร็จและไม่ถูกยกเลิก
   const activeOrders = orders.filter(
     (order) =>
       order.purchase_status !== "เสร็จแล้ว" &&
       order.purchase_status !== "ยกเลิก"
   );
 
+  // กรุ๊ปตามโต๊ะ
   const groupedOrders = activeOrders.reduce((acc, order) => {
     if (!acc[order.seat_id]) acc[order.seat_id] = [];
     acc[order.seat_id].push(order);
@@ -71,24 +72,24 @@ export default function KitchenPage() {
   }, {});
 
   return (
-    // <div className="p-6 max-w-6xl mx-auto">
     <div className="p-6 max-h-screen overflow-auto">
-      {/* 🔗 ลิงก์ไปหน้ารายการเสร็จแล้ว */}
       <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว</h1>
-        <Link
-          href="/kitchen/kitchen_detail"
-          className="text-blue-600 underline text-sm"
-        >
-          ดูคำสั่งซื้อที่เสร็จแล้ว
-        </Link>
+        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว (กรุ๊ปตามโต๊ะ)</h1>
+        <div>
+          <Link
+            href="/kitchen/kitchen_detail"
+            className="text-blue-600 underline text-sm mr-4"
+          >
+            ดูคำสั่งซื้อแบบกรุ๊ปตามสินค้า
+          </Link>
+        </div>
       </div>
 
       {message && (
         <div
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                  bg-green-700 text-white border border-green-300 px-6 py-3 
-                  rounded-xl shadow-lg z-50 animate-fade"
+          bg-green-700 text-white border border-green-300 px-6 py-3 
+          rounded-xl shadow-lg z-50 animate-fade"
         >
           {message}
         </div>
@@ -116,9 +117,7 @@ export default function KitchenPage() {
                     ราคา: ฿{order.product_price * order.purchase_quantity}
                   </div>
                   <ul className="text-sm mb-2">
-                    {order.purchase_size && (
-                      <li>ขนาด: {order.purchase_size}</li>
-                    )}
+                    {order.purchase_size && <li>ขนาด: {order.purchase_size}</li>}
                     {order.purchase_spiceLevel && (
                       <li>ระดับความเผ็ด: {order.purchase_spiceLevel}</li>
                     )}

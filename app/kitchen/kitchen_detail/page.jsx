@@ -1,25 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
-export default function FinishedOrdersPage() {
+export default function KitchenProductPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedSeat, setSelectedSeat] = useState(""); // 🆕 เพิ่มตัวกรองโต๊ะ
-  const [allSeats, setAllSeats] = useState([]); // 🆕 สำหรับแสดงใน dropdown
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    const fetchFinishedOrders = () => {
-      const params = new URLSearchParams();
-      params.append("status", "เสร็จแล้ว");
-      if (selectedDate) params.append("date", selectedDate);
-
-      fetch(`/api/purchase?${params.toString()}`)
+    const fetchOrders = () => {
+      fetch("/api/purchase")
         .then((res) => res.json())
         .then((data) => {
           setOrders(data);
-          const uniqueSeats = [...new Set(data.map((o) => o.seat_id))];
-          setAllSeats(uniqueSeats);
           setLoading(false);
         })
         .catch((err) => {
@@ -28,149 +21,190 @@ export default function FinishedOrdersPage() {
         });
     };
 
-    fetchFinishedOrders();
-    const interval = setInterval(fetchFinishedOrders, 2000);
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 2000);
     return () => clearInterval(interval);
-  }, [selectedDate]);
+  }, []);
 
-  if (loading) return <div className="p-6 text-center">กำลังโหลด...</div>;
+  const handleStatusUpdate = async (purchaseId, newStatus) => {
+    try {
+      const response = await fetch(`/api/purchase/${purchaseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-  // 🧠 กรองข้อมูลตามโต๊ะที่เลือก (ถ้ามี)
-  const filteredOrders = selectedSeat
-    ? orders.filter((order) => order.seat_id === selectedSeat)
-    : orders;
+      if (!response.ok) throw new Error("ไม่สามารถอัพเดตสถานะคำสั่งซื้อได้");
 
-  const groupedOrders = filteredOrders.reduce((acc, order) => {
-    if (!acc[order.seat_id]) acc[order.seat_id] = [];
-    acc[order.seat_id].push(order);
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.purchase_id === purchaseId
+            ? { ...order, purchase_status: newStatus }
+            : order
+        )
+      );
+
+      setMessage(`อัปเดตสถานะเป็น "${newStatus}" สำเร็จ`);
+      setTimeout(() => setMessage(null), 2000);
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการอัพเดตสถานะ:", error);
+      setMessage("เกิดข้อผิดพลาดในการอัพเดตสถานะ");
+      setTimeout(() => setMessage(null), 2000);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-6 text-center text-gray-500">กำลังโหลด...</div>;
+  }
+
+  // กรองเอาเฉพาะออเดอร์ที่ยังไม่เสร็จและไม่ถูกยกเลิก
+  const activeOrders = orders.filter(
+    (order) =>
+      order.purchase_status !== "เสร็จแล้ว" &&
+      order.purchase_status !== "ยกเลิก"
+  );
+
+  // กรุ๊ปตาม product_id
+  const groupedByProduct = activeOrders.reduce((acc, order) => {
+    if (!acc[order.product_id]) acc[order.product_id] = [];
+    acc[order.product_id].push(order);
     return acc;
   }, {});
 
   return (
     <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-2xl font-bold mb-4">📦 คำสั่งซื้อที่เสร็จแล้ว</h1>
-      {/* 🎯 ตัวเลือกวันที่ */}
-      <div className="mb-4 flex flex-wrap items-center gap-4">
-        <label htmlFor="date" className="font-semibold">
-          เลือกวันที่:
-        </label>
-        <input
-          id="date"
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="border rounded px-3 py-1"
-        />
-        {selectedDate && (
-          <button
-            onClick={() => setSelectedDate("")}
-            className="text-sm text-blue-600 underline"
+      <div className="mb-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว (กรุ๊ปตามสินค้า)</h1>
+        <div>
+          <Link
+            href="/kitchen/kitchen_detail"
+            className="text-blue-600 underline text-sm mr-4"
           >
-            ล้างวันที่
-          </button>
-        )}
-      </div>
-
-      {/* 🎯 ตัวเลือกโต๊ะ */}
-      <div className="mb-6 flex flex-wrap items-center gap-4">
-        <label htmlFor="seat" className="font-semibold">
-          เลือกโต๊ะ:
-        </label>
-        <select
-          id="seat"
-          value={selectedSeat}
-          onChange={(e) => setSelectedSeat(e.target.value)}
-          className="border rounded px-3 py-1"
-        >
-          <option value="">-- แสดงทุกโต๊ะ --</option>
-          {allSeats.map((seat) => (
-            <option key={seat} value={seat}>
-              โต๊ะ {seat}
-            </option>
-          ))}
-        </select>
-        {selectedSeat && (
-          <button
-            onClick={() => setSelectedSeat("")}
-            className="text-sm text-blue-600 underline"
-          >
-            ล้างโต๊ะ
-          </button>
-        )}
-      </div>
-
-      {Object.keys(groupedOrders).length === 0 ? (
-        <div className="text-center text-gray-500">
-          {selectedDate || selectedSeat
-            ? "ไม่มีคำสั่งซื้อที่ตรงกับเงื่อนไข"
-            : "ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว"}
+            ดูคำสั่งซื้อที่เสร็จแล้ว
+          </Link>
+          <Link href="/kitchen" className="text-blue-600 underline text-sm">
+            ดูคำสั่งซื้อแบบกรุ๊ปตามโต๊ะ
+          </Link>
         </div>
+      </div>
+
+      {message && (
+        <div
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+          bg-green-700 text-white border border-green-300 px-6 py-3 
+          rounded-xl shadow-lg z-50 animate-fade"
+        >
+          {message}
+        </div>
+      )}
+
+      {Object.keys(groupedByProduct).length === 0 ? (
+        <div className="text-center text-gray-500">ยังไม่มีคำสั่งซื้อ</div>
       ) : (
-        Object.keys(groupedOrders).map((seatId) => (
-          <div key={seatId} className="mb-8">
-            <h2 className="text-xl font-bold mb-2">โต๊ะ: {seatId}</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto border border-gray-300 rounded">
-                <thead className="bg-gray-100 text-sm">
-                  <tr>
-                    <th className="border px-3 py-2">วันที่สั่ง</th>
-                    <th className="border px-3 py-2">เมนู</th>
-                    <th className="border px-3 py-2">จำนวน</th>
-                    <th className="border px-3 py-2">ราคา</th>
-                    <th className="border px-3 py-2">รายละเอียด</th>
-                    <th className="border px-3 py-2">หมายเหตุ</th>
-                    <th className="border px-3 py-2">สถานะ</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {groupedOrders[seatId].map((order) => (
-                    <tr key={order.purchase_id} className="hover:bg-gray-50">
-                      <td className="border px-3 py-2">
-                        {new Date(order.purchase_date).toLocaleString("th-TH", {
-                          timeZone: "Asia/Bangkok",
-                        })}
-                      </td>
-                      <td className="border px-3 py-2">{order.product_name}</td>
-                      <td className="border px-3 py-2">
-                        {order.purchase_quantity}
-                      </td>
-                      <td className="border px-3 py-2">
-                        ฿{order.product_price * order.purchase_quantity}
-                      </td>
-                      <td className="border px-3 py-2">
-                        <ul className="list-disc list-inside space-y-1">
-                          {order.purchase_size && (
-                            <li>ขนาด: {order.purchase_size}</li>
-                          )}
-                          {order.purchase_spiceLevel && (
-                            <li>เผ็ด: {order.purchase_spiceLevel}</li>
-                          )}
-                          {order.purchase_toppings &&
-                            order.purchase_toppings !== "[]" && (
-                              <li>
-                                ท็อปปิ้ง:{" "}
-                                {Array.isArray(order.purchase_toppings)
-                                  ? order.purchase_toppings.join(", ")
-                                  : JSON.parse(order.purchase_toppings).join(
-                                      ", "
-                                    )}
-                              </li>
-                            )}
-                        </ul>
-                      </td>
-                      <td className="border px-3 py-2">
-                        {order.purchase_description || "-"}
-                      </td>
-                      <td className="border px-3 py-2 text-green-600 font-semibold">
-                        {order.purchase_status}
-                      </td>
+        Object.entries(groupedByProduct).map(([productId, orders]) => {
+          // รวมจำนวนและโต๊ะที่สั่ง (ไม่ซ้ำกัน)
+          const totalQuantity = orders.reduce(
+            (sum, order) => sum + order.purchase_quantity,
+            0
+          );
+          const tables = [...new Set(orders.map((o) => o.seat_id))];
+
+          // ข้อมูลสินค้าเลือก order แรกแทน
+          const orderExample = orders[0];
+
+          return (
+            <div key={productId} className="mb-10">
+              <div className="font-bold text-xl mb-3 bg-gray-100 p-2 rounded">
+                {orderExample.product_name}
+              </div>
+
+              <div className="overflow-x-auto border rounded-lg shadow">
+                <table className="min-w-full text-sm text-left">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 border-r">โต๊ะ</th>
+                      <th className="px-4 py-2 border-r">จำนวน</th>
+                      <th className="px-4 py-2 border-r">ราคา</th>
+                      <th className="px-4 py-2 border-r">ขนาด</th>
+                      <th className="px-4 py-2 border-r">ระดับความเผ็ด</th>
+                      <th className="px-4 py-2 border-r">ท็อปปิ้ง</th>
+                      <th className="px-4 py-2 border-r">หมายเหตุ</th>
+                      <th className="px-4 py-2 border-r">วันที่สั่ง</th>
+                      <th className="px-4 py-2 border-r">สถานะ</th>
+                      <th className="px-4 py-2">จัดการ</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {orders.map((order) => (
+                      <tr
+                        key={order.purchase_id}
+                        className="even:bg-gray-50 odd:bg-white"
+                      >
+                        <td className="border px-3 py-2">{order.seat_id}</td>
+                        <td className="border px-3 py-2">{order.purchase_quantity}</td>
+                        <td className="border px-3 py-2">
+                          ฿{order.product_price * order.purchase_quantity}
+                        </td>
+                        <td className="border px-3 py-2">{order.purchase_size || "-"}</td>
+                        <td className="border px-3 py-2">{order.purchase_spiceLevel || "-"}</td>
+                        <td className="border px-3 py-2 max-w-xs">
+                          {order.purchase_toppings &&
+                          order.purchase_toppings !== "[]"
+                            ? Array.isArray(order.purchase_toppings)
+                              ? order.purchase_toppings.join(", ")
+                              : JSON.parse(order.purchase_toppings).join(", ")
+                            : "-"}
+                        </td>
+                        <td className="border px-3 py-2 max-w-xs break-words">
+                          {order.purchase_description || "-"}
+                        </td>
+                        <td className="border px-3 py-2 whitespace-nowrap">
+                          {new Date(order.purchase_date).toLocaleString("th-TH", {
+                            timeZone: "Asia/Bangkok",
+                          })}
+                        </td>
+                        <td className="border px-3 py-2 text-blue-600 font-semibold">
+                          {order.purchase_status}
+                        </td>
+                        <td className="border px-3 py-2 space-x-1 flex flex-wrap">
+                          <button
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+                            onClick={() =>
+                              handleStatusUpdate(order.purchase_id, "กำลังทำ")
+                            }
+                          >
+                            กำลังทำ
+                          </button>
+                          <button
+                            className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs"
+                            onClick={() =>
+                              handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
+                            }
+                          >
+                            เสร็จแล้ว
+                          </button>
+                          <button
+                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                            onClick={() =>
+                              handleStatusUpdate(order.purchase_id, "ยกเลิก")
+                            }
+                          >
+                            ยกเลิก
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-3 text-sm text-gray-700">
+                รวมจำนวนทั้งหมด: <span className="font-semibold">{totalQuantity}</span> ชิ้น | สั่งจากโต๊ะ:{" "}
+                <span className="font-semibold">{tables.join(", ")}</span>
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );
