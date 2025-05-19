@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import { useState, useEffect, useCallback } from "react";
 import Modal from "../components/Modal";
 import Image from "next/image";
@@ -11,7 +11,6 @@ const ProductsPage = () => {
     product_name: "",
     product_type: "",
     product_price: "",
-    product_size: "",
     product_image: "",
     product_description: "",
     product_status: true,
@@ -110,7 +109,6 @@ const ProductsPage = () => {
         product_name: "",
         product_type: "",
         product_price: "",
-        product_size: "",
         product_image: "",
         product_description: "",
         product_status: true,
@@ -127,7 +125,6 @@ const ProductsPage = () => {
       product_name: "",
       product_type: "",
       product_price: "",
-      product_size: "",
       product_image: "",
       product_description: "",
       product_status: true,
@@ -140,7 +137,6 @@ const ProductsPage = () => {
       product_name: "",
       product_type: "",
       product_price: "",
-      product_size: "",
       product_image: "",
       product_description: "",
       product_status: "",
@@ -152,8 +148,7 @@ const ProductsPage = () => {
     if (
       !newProduct.product_name ||
       !newProduct.product_type ||
-      !newProduct.product_price ||
-      !newProduct.product_size
+      !newProduct.product_price
     ) {
       setError("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
@@ -209,7 +204,7 @@ const ProductsPage = () => {
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
     )
-      // แสดงข้อความแจ้งเตือนว่าไม่สามารถลบข้อมูลได้
+    // แสดงข้อความแจ้งเตือนว่าไม่สามารถลบข้อมูลได้
     .filter((item) => {
       if (selectedType === "ทั้งหมด") return true;
       return String(item.product_type) === String(selectedType);
@@ -239,10 +234,10 @@ const ProductsPage = () => {
       >
         เพิ่มรายการอาหาร
       </button>
-      
+
       <div className="flex flex-wrap gap-2 mb-4">
         <button
-          className={`px-4 py-1 rounded-full border text-sm ${
+          className={`px-4 py-2 rounded-full border text-sm ${
             selectedType === "ทั้งหมด"
               ? "bg-orange-500 text-white"
               : "bg-white text-gray-700"
@@ -254,7 +249,7 @@ const ProductsPage = () => {
         {productType.map((type) => (
           <button
             key={type.product_type_id}
-            className={`px-4 py-1 rounded-full border text-sm ${
+            className={`px-4 py-2 rounded-full border text-sm ${
               selectedType === type.product_type_id
                 ? "bg-orange-500 text-white"
                 : "bg-white text-gray-700"
@@ -272,7 +267,6 @@ const ProductsPage = () => {
               <th className="px-4 py-2 border">ชื่ออาหาร</th>
               <th className="px-4 py-2 border">ประเภทอาหาร</th>
               <th className="px-4 py-2 border">ราคา</th>
-              <th className="px-4 py-2 border">ขนาด</th>
               <th className="px-4 py-2 border">รูปภาพ</th>
               <th className="px-4 py-2 border">คําอธิบาย</th>
               <th className="px-4 py-2 border">สถานะ</th>
@@ -294,7 +288,6 @@ const ProductsPage = () => {
                   {product.product_type_name}
                 </td>
                 <td className="px-4 py-2 border">{product.product_price}</td>
-                <td className="px-4 py-2 border">{product.product_size}</td>
                 <td className="px-4 py-2 border text-center">
                   {product.product_image ? (
                     <Image
@@ -331,7 +324,7 @@ const ProductsPage = () => {
           </tbody>
         </table>
       </div>
-
+      
       <Modal isOpen={isModalOpen} closeModal={closeModal}>
         <h2 className="text-xl font-semibold mb-4">
           {isEditing ? "แก้ไขรายการอาหาร" : "เพิ่มอาหารใหม่"}
@@ -391,29 +384,9 @@ const ProductsPage = () => {
               value={newProduct.product_price || ""}
               onChange={(e) => {
                 const value =
-                  e.target.value === "" ? "" : Number(e.target.value); 
+                  e.target.value === "" ? "" : Number(e.target.value);
                 setNewProduct((prev) => ({ ...prev, product_price: value }));
               }}
-              required
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="product_size" className="block">
-              ขนาด
-            </label>
-            <input
-              type="text"
-              id="product_size"
-              name="product_size"
-              value={newProduct.product_size || ""} // ✅ ป้องกัน undefined
-              onChange={(e) =>
-                setNewProduct((prev) => ({
-                  ...prev,
-                  product_size: e.target.value,
-                }))
-              }
               required
               className="w-full p-2 border border-gray-300 rounded"
             />

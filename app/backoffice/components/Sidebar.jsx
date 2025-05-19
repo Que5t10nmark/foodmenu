@@ -71,13 +71,13 @@ export default function Sidebar() {
           {isReportOpen && (
             <div className="flex flex-col space-y-2 pl-4 mt-2">
               <Link
-                href="/backoffice/reportmenu"
+                href="/backoffice/reportdayandmonth"
                 className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
               >
-                รายงานประเภทอาหาร
+                รายงานสรุปรายการอาหารตามวันหรือเดือน
               </Link>
               <Link
-                href="/backoffice/reportdayandmonth"
+                href="/backoffice/reportmenu"
                 className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
               >
                 รายงานการขายรายวันหรือรายเดือน

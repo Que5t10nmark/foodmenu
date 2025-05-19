@@ -6,7 +6,7 @@ export default function KitchenPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
-
+  
   useEffect(() => {
     const fetchOrders = () => {
       fetch("/api/purchase")
@@ -71,7 +71,8 @@ export default function KitchenPage() {
   }, {});
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    // <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-h-screen overflow-auto">
       {/* 🔗 ลิงก์ไปหน้ารายการเสร็จแล้ว */}
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว</h1>
@@ -101,7 +102,7 @@ export default function KitchenPage() {
             <div className="font-bold text-xl mb-4 bg-gray-100 p-2 rounded">
               โต๊ะ: {seatId}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
               {groupedOrders[seatId].map((order) => (
                 <div
                   key={order.purchase_id}

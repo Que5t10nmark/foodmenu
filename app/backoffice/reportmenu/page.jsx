@@ -108,6 +108,7 @@ export default function ProductReportPage() {
             <tr className="bg-orange-500 text-white">
               <th className="px-4 py-2 border">ประเภทสินค้า</th>
               <th className="px-4 py-2 border">จำนวนเมนู</th>
+              
             </tr>
           </thead>
           <tbody>

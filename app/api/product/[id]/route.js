@@ -50,7 +50,6 @@ export async function POST(req) {
       product_name: formData.get("product_name") || "", // ✅ ชื่อสินค้า
       product_type: formData.get("product_type") || "", // ✅ ประเภทสินค้า
       product_price: formData.get("product_price") || "0", // ✅ ราคา
-      product_size: formData.get("product_size") || "", // ✅ ขนาด
       product_description: formData.get("product_description") || "", // ✅ คำอธิบาย
       product_status: formData.get("product_status") === "1" ? 1 : 0, // ✅ สถานะสินค้า (1 = มี, 0 = ไม่มี)
     };
@@ -68,14 +67,13 @@ export async function POST(req) {
     // ✅ บันทึกข้อมูลสินค้าเข้าในฐานข้อมูล
     const query = `
       INSERT INTO product 
-      (product_name, product_type, product_price, product_size, product_image, product_description, product_status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      (product_name, product_type, product_price, product_image, product_description, product_status) 
+      VALUES (?, ?, ?, ?, ?, ?)`;
 
     const params = [
       productData.product_name,
       productData.product_type,
       productData.product_price,
-      productData.product_size,
       product_image, // ✅ ใช้ชื่อไฟล์ที่อัปโหลด
       productData.product_description,
       productData.product_status,
@@ -122,7 +120,6 @@ export async function PUT(req, { params }) {
         product_name: formData.get("product_name") || "",
         product_type: formData.get("product_type") || "",
         product_price: formData.get("product_price") || "0",
-        product_size: formData.get("product_size") || "",
         product_description: formData.get("product_description") || "",
         product_status: formData.get("product_status") === "1" ? 1 : 0,
       };
@@ -150,7 +147,7 @@ export async function PUT(req, { params }) {
     const query = `
       UPDATE product 
       SET product_name = ?, product_type = ?, product_price = ?, 
-          product_size = ?, product_image = ?, product_description = ?, 
+          product_image = ?, product_description = ?, 
           product_status = ? 
       WHERE product_id = ?
     `;
@@ -159,7 +156,6 @@ export async function PUT(req, { params }) {
       productData.product_name,
       productData.product_type,
       productData.product_price,
-      productData.product_size,
       product_image,
       productData.product_description,
       productData.product_status,
