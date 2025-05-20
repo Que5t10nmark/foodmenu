@@ -44,11 +44,12 @@ export default function FinishedOrdersPage() {
     acc[order.seat_id].push(order);
     return acc;
   }, {});
+
   // 🧠 แสดงข้อมูลตามโต๊ะ
   return (
     <div className="p-6 max-h-screen overflow-auto">
       <h1 className="text-2xl font-bold mb-4">
-        รายงานสรุปราการอาหารตามวันหรือเดือน
+        รายงานสรุปรายการอาหารตามวันหรือเดือน
       </h1>
       <div className="mb-6 space-y-4 md:space-y-0 md:flex md:items-center md:gap-6">
         <div className="flex flex-col md:flex-row md:items-center gap-2">
