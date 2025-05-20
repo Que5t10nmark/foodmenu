@@ -265,7 +265,7 @@ const ProductsPage = () => {
       </div>
       <div className="overflow-x-auto max-h-[70vh]">
         <table className="min-w-full table-auto border-collapse border border-gray-300">
-          <thead>
+          <thead className="bg-gray-200">
             <tr>
               <th className="px-4 py-2 border">ชื่ออาหาร</th>
               <th className="px-4 py-2 border">ประเภทอาหาร</th>

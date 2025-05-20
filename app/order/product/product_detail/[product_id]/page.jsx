@@ -69,14 +69,15 @@ function Page() {
         <div className="bg-white rounded-xl shadow p-4">
           <h1 className="text-3xl font-bold mb-4">{product.product_name}</h1>
 
-          {/* รูปภาพสินค้า */}
-          <Image
-            src={`/uploads/${product.product_image}`}
-            alt={product.product_name || "รูปภาพสินค้า"}
-            width={400}
-            height={400}
-            className="rounded mb-4"
-          />
+          <div className="flex justify-center items-center">
+            <Image
+              src={`/uploads/${product.product_image}`}
+              alt={product.product_name || "รูปภาพสินค้า"}
+              width={250}
+              height={250}
+              className="rounded mb-4"
+            />
+          </div>
 
           {/* ระดับความเผ็ด */}
           <div className="mb-4">
@@ -123,7 +124,9 @@ function Page() {
 
           {/* คำแนะนำเพิ่มเติม */}
           <div className="mb-4">
-            <label className="block font-semibold mb-1">รายละเอียดเพิ่มเติม:</label>
+            <label className="block font-semibold mb-1">
+              รายละเอียดเพิ่มเติม:
+            </label>
             <textarea
               value={purchase_description}
               onChange={(e) => setPurchaseDescription(e.target.value)}
@@ -157,7 +160,8 @@ function Page() {
           {/* ปุ่มลอยไปยังตะกร้า */}
           <Link href={`/order/cart`} className="fixed bottom-6 right-6 z-50">
             <button className="bg-green-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-green-700 transition">
-              🛒 ไปยังตะกร้า ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+              🛒 ไปยังตะกร้า (
+              {cart.reduce((sum, item) => sum + item.quantity, 0)})
             </button>
           </Link>
         </div>

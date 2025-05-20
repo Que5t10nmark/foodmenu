@@ -74,14 +74,10 @@ export default function KitchenProductPage() {
   return (
     <div className="p-6 max-h-screen overflow-auto">
       <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว (กรุ๊ปตามสินค้า)</h1>
+        <h1 className="text-2xl font-bold">
+          🍳 คำสั่งซื้อของห้องครัว (กรุ๊ปตามเมนู)
+        </h1>
         <div>
-          <Link
-            href="/kitchen/kitchen_detail"
-            className="text-blue-600 underline text-sm mr-4"
-          >
-            ดูคำสั่งซื้อที่เสร็จแล้ว
-          </Link>
           <Link href="/kitchen" className="text-blue-600 underline text-sm">
             ดูคำสั่งซื้อแบบกรุ๊ปตามโต๊ะ
           </Link>
@@ -141,12 +137,18 @@ export default function KitchenProductPage() {
                         className="even:bg-gray-50 odd:bg-white"
                       >
                         <td className="border px-3 py-2">{order.seat_id}</td>
-                        <td className="border px-3 py-2">{order.purchase_quantity}</td>
+                        <td className="border px-3 py-2">
+                          {order.purchase_quantity}
+                        </td>
                         <td className="border px-3 py-2">
                           ฿{order.product_price * order.purchase_quantity}
                         </td>
-                        <td className="border px-3 py-2">{order.purchase_size || "-"}</td>
-                        <td className="border px-3 py-2">{order.purchase_spiceLevel || "-"}</td>
+                        <td className="border px-3 py-2">
+                          {order.purchase_size || "-"}
+                        </td>
+                        <td className="border px-3 py-2">
+                          {order.purchase_spiceLevel || "-"}
+                        </td>
                         <td className="border px-3 py-2 max-w-xs">
                           {order.purchase_toppings &&
                           order.purchase_toppings !== "[]"
@@ -159,9 +161,12 @@ export default function KitchenProductPage() {
                           {order.purchase_description || "-"}
                         </td>
                         <td className="border px-3 py-2 whitespace-nowrap">
-                          {new Date(order.purchase_date).toLocaleString("th-TH", {
-                            timeZone: "Asia/Bangkok",
-                          })}
+                          {new Date(order.purchase_date).toLocaleString(
+                            "th-TH",
+                            {
+                              timeZone: "Asia/Bangkok",
+                            }
+                          )}
                         </td>
                         <td className="border px-3 py-2 text-blue-600 font-semibold">
                           {order.purchase_status}
@@ -199,7 +204,9 @@ export default function KitchenProductPage() {
               </div>
 
               <div className="mt-3 text-sm text-gray-700">
-                รวมจำนวนทั้งหมด: <span className="font-semibold">{totalQuantity}</span> ชิ้น | สั่งจากโต๊ะ:{" "}
+                รวมจำนวนทั้งหมด:{" "}
+                <span className="font-semibold">{totalQuantity}</span> ชิ้น |
+                สั่งจากโต๊ะ:{" "}
                 <span className="font-semibold">{tables.join(", ")}</span>
               </div>
             </div>

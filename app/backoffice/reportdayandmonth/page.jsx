@@ -47,52 +47,57 @@ export default function FinishedOrdersPage() {
 
   return (
     <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-2xl font-bold mb-4">📦 คำสั่งซื้อที่เสร็จแล้ว</h1>
-      <div className="mb-4 flex flex-wrap items-center gap-4">
-        <label htmlFor="date" className="font-semibold">
-          เลือกวันที่:
-        </label>
-        <input
-          id="date"
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="border rounded px-3 py-1"
-        />
-        {selectedDate && (
-          <button
-            onClick={() => setSelectedDate("")}
-            className="text-sm text-blue-600 underline"
+      <h1 className="text-2xl font-bold mb-4">
+        รายงานสรุปราการอาหารตามวันหรือเดือน
+      </h1>
+      <div className="mb-6 space-y-4 md:space-y-0 md:flex md:items-center md:gap-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
+          <label htmlFor="date" className="font-semibold w-24">
+            เลือกวันที่:
+          </label>
+          <input
+            id="date"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="border rounded px-3 py-1 w-full md:w-auto"
+          />
+          {selectedDate && (
+            <button
+              onClick={() => setSelectedDate("")}
+              className="text-sm text-blue-600 underline mt-1 md:mt-0"
+            >
+              ล้างวันที่
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
+          <label htmlFor="seat" className="font-semibold w-24">
+            เลือกโต๊ะ:
+          </label>
+          <select
+            id="seat"
+            value={selectedSeat}
+            onChange={(e) => setSelectedSeat(e.target.value)}
+            className="border rounded px-3 py-1 w-full md:w-auto"
           >
-            ล้างวันที่
-          </button>
-        )}
-      </div>
-      <div className="mb-6 flex flex-wrap items-center gap-4">
-        <label htmlFor="seat" className="font-semibold">
-          เลือกโต๊ะ:
-        </label>
-        <select
-          id="seat"
-          value={selectedSeat}
-          onChange={(e) => setSelectedSeat(e.target.value)}
-          className="border rounded px-3 py-1"
-        >
-          <option value="">-- แสดงทุกโต๊ะ --</option>
-          {allSeats.map((seat) => (
-            <option key={seat} value={seat}>
-              โต๊ะ {seat}
-            </option>
-          ))}
-        </select>
-        {selectedSeat && (
-          <button
-            onClick={() => setSelectedSeat("")}
-            className="text-sm text-blue-600 underline"
-          >
-            ล้างโต๊ะ
-          </button>
-        )}
+            <option value="">-- แสดงทุกโต๊ะ --</option>
+            {allSeats.map((seat) => (
+              <option key={seat} value={seat}>
+                โต๊ะ {seat}
+              </option>
+            ))}
+          </select>
+          {selectedSeat && (
+            <button
+              onClick={() => setSelectedSeat("")}
+              className="text-sm text-blue-600 underline mt-1 md:mt-0"
+            >
+              ล้างโต๊ะ
+            </button>
+          )}
+        </div>
       </div>
 
       {Object.keys(groupedOrders).length === 0 ? (
