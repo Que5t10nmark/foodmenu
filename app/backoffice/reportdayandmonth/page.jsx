@@ -44,7 +44,7 @@ export default function FinishedOrdersPage() {
     acc[order.seat_id].push(order);
     return acc;
   }, {});
-
+  // 🧠 แสดงข้อมูลตามโต๊ะ
   return (
     <div className="p-6 max-h-screen overflow-auto">
       <h1 className="text-2xl font-bold mb-4">
@@ -103,7 +103,7 @@ export default function FinishedOrdersPage() {
       {Object.keys(groupedOrders).length === 0 ? (
         <div className="text-center text-gray-500">
           {selectedDate || selectedSeat
-            ? "ไม่มีคำสั่งซื้อที่ตรงกับเงื่อนไข"
+            ? "ไม่มีคำสั่งซื้อในวันที่เลือก"
             : "ยังไม่มีคำสั่งซื้อที่เสร็จแล้ว"}
         </div>
       ) : (
