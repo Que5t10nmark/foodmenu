@@ -4,35 +4,49 @@ import { useEffect, useState } from "react";
 export default function ProductOptionPage() {
   const [types, setTypes] = useState([]);
   const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(true); // เพิ่ม loading state
+
   const [form, setForm] = useState({
-    option_id: null, // เปลี่ยนจาก id เป็น option_id
+    option_id: null,
     product_type_id: "",
     option_type: "",
     option_value: "",
     option_price: 0,
   });
 
-  const fetchData = () => {
-    fetch("/api/product_type")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch product types");
-        return res.json();
-      })
-      .then(setTypes)
-      .catch(() => setTypes([]));
+  const [notification, setNotification] = useState(null);
 
-    fetch("/api/product_option")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch product options");
-        return res.json();
-      })
-      .then(setOptions)
-      .catch(() => setOptions([]));
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const resTypes = await fetch("/api/product_type");
+      if (!resTypes.ok) throw new Error("Failed to fetch product types");
+      const dataTypes = await resTypes.json();
+
+      const resOptions = await fetch("/api/product_option");
+      if (!resOptions.ok) throw new Error("Failed to fetch product options");
+      const dataOptions = await resOptions.json();
+
+      setTypes(dataTypes);
+      setOptions(dataOptions);
+    } catch {
+      setTypes([]);
+      setOptions([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,25 +56,40 @@ export default function ProductOptionPage() {
       ? `/api/product_option/${form.option_id}`
       : "/api/product_option";
 
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        product_type_id: form.product_type_id,
-        option_type: form.option_type,
-        option_value: form.option_value,
-        option_price: form.option_price,
-      }),
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_type_id: form.product_type_id,
+          option_type: form.option_type,
+          option_value: form.option_value,
+          option_price: form.option_price,
+        }),
+      });
 
-    setForm({
-      option_id: null,
-      product_type_id: "",
-      option_type: "",
-      option_value: "",
-      option_price: 0,
-    });
-    fetchData();
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "เกิดข้อผิดพลาด");
+      }
+
+      showNotification(
+        "success",
+        form.option_id ? "แก้ไขตัวเลือกสำเร็จ" : "เพิ่มตัวเลือกสำเร็จ"
+      );
+
+      setForm({
+        option_id: null,
+        product_type_id: "",
+        option_type: "",
+        option_value: "",
+        option_price: 0,
+      });
+
+      fetchData();
+    } catch (error) {
+      showNotification("error", error.message);
+    }
   };
 
   const handleEdit = (opt) => {
@@ -75,19 +104,54 @@ export default function ProductOptionPage() {
 
   const handleDelete = async (option_id) => {
     if (!confirm("ต้องการลบตัวเลือกนี้หรือไม่?")) return;
-    await fetch(`/api/product_option/${option_id}`, { method: "DELETE" });
-    fetchData();
+    try {
+      const res = await fetch(`/api/product_option/${option_id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "เกิดข้อผิดพลาดในการลบ");
+      }
+      showNotification("success", "ลบตัวเลือกสำเร็จ");
+      fetchData();
+    } catch (error) {
+      showNotification("error", error.message);
+    }
   };
+
+  if (loading) {
+    return <div className="p-6 max-w-4xl mx-auto">กำลังโหลดข้อมูล...</div>;
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">⚙️ จัดการตัวเลือกสินค้าตามประเภท</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        ⚙️ จัดการตัวเลือกสินค้าตามประเภท
+      </h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6">
+      {/* กล่องแจ้งเตือน */}
+      {notification && (
+        <div
+          className={`mb-4 p-3 rounded ${
+            notification.type === "success"
+              ? "bg-yellow-200 text-yellow-800"
+              : "bg-red-200 text-red-800"
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-4 rounded shadow mb-6"
+      >
         <div className="grid grid-cols-2 gap-4">
           <select
             value={form.product_type_id}
-            onChange={(e) => setForm({ ...form, product_type_id: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, product_type_id: e.target.value })
+            }
             className="border rounded px-3 py-2"
             required
           >
@@ -125,7 +189,10 @@ export default function ProductOptionPage() {
             placeholder="ราคาเพิ่ม"
             value={form.option_price}
             onChange={(e) =>
-              setForm({ ...form, option_price: parseFloat(e.target.value) || 0 })
+              setForm({
+                ...form,
+                option_price: parseFloat(e.target.value) || 0,
+              })
             }
             className="border rounded px-3 py-2"
             required
