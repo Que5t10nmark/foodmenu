@@ -5,7 +5,8 @@ export default function ProductOptionPage() {
   const [types, setTypes] = useState([]);
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true); // เพิ่ม loading state
-
+  const [productType, setProductType] = useState([]);
+  const [selectedType, setSelectedType] = useState("ทั้งหมด");
   const [form, setForm] = useState({
     option_id: null,
     product_type_id: "",
@@ -101,7 +102,7 @@ export default function ProductOptionPage() {
       option_price: opt.option_price,
     });
   };
-
+  
   const handleDelete = async (option_id) => {
     if (!confirm("ต้องการลบตัวเลือกนี้หรือไม่?")) return;
     try {
@@ -124,7 +125,7 @@ export default function ProductOptionPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-h-screen overflow-auto">
       <h1 className="text-2xl font-bold mb-4">
         ⚙️ จัดการตัวเลือกสินค้าตามประเภท
       </h1>
@@ -134,7 +135,7 @@ export default function ProductOptionPage() {
         <div
           className={`mb-4 p-3 rounded ${
             notification.type === "success"
-              ? "bg-yellow-200 text-yellow-800"
+              ? "bg-green-200 text-green-800"
               : "bg-red-200 text-red-800"
           }`}
         >
@@ -163,21 +164,24 @@ export default function ProductOptionPage() {
             ))}
           </select>
 
-          <select
+          <input
+            type="text"
+            list="optionTypeList"
             value={form.option_type}
             onChange={(e) => setForm({ ...form, option_type: e.target.value })}
             className="border rounded px-3 py-2"
+            placeholder="พิมพ์หรือเลือกประเภทตัวเลือก"
             required
-          >
-            <option value="">เลือกประเภทตัวเลือก</option>
-            <option value="ขนาด">ขนาด</option>
-            <option value="ความเผ็ด">ความเผ็ด</option>
-            <option value="ท็อปปิ้ง">ท็อปปิ้ง</option>
-          </select>
+          />
+          <datalist id="optionTypeList">
+            <option value="ขนาด" />
+            <option value="ความเผ็ด" />
+            <option value="ท็อปปิ้ง" />
+          </datalist>
 
           <input
             type="text"
-            placeholder="ค่า เช่น เผ็ดมาก, พิเศษ"
+            placeholder="ค่า เช่น เผ็ดมาก,เผ็ดน้อย,ไม่เผ็ด, ธรรมดา และพิเศษ"
             value={form.option_value}
             onChange={(e) => setForm({ ...form, option_value: e.target.value })}
             className="border rounded px-3 py-2"
@@ -186,6 +190,7 @@ export default function ProductOptionPage() {
 
           <input
             type="number"
+            min="0"
             placeholder="ราคาเพิ่ม"
             value={form.option_price}
             onChange={(e) =>
@@ -201,7 +206,7 @@ export default function ProductOptionPage() {
 
         <button
           type="submit"
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-300"
         >
           {form.option_id ? "💾 แก้ไขตัวเลือก" : "➕ เพิ่มตัวเลือก"}
         </button>
@@ -224,24 +229,51 @@ export default function ProductOptionPage() {
         )}
       </form>
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-2 text-left">ประเภทอาหาร</th>
-            <th className="p-2">ประเภทตัวเลือก</th>
-            <th className="p-2">ค่า</th>
-            <th className="p-2">ราคาเพิ่ม</th>
+      <h2 className="text-xl font-bold mb-4">รายการตัวเลือก</h2>
+      <div className="overflow-x-auto">
+        <div className="flex flex-wrap gap-2 mb-4">
+        <button
+          className={`px-4 py-2 rounded-full border text-sm ${
+            selectedType === "ทั้งหมด"
+              ? "bg-green-500 text-white"
+              : "bg-white text-gray-700"
+          }`}
+          onClick={() => setSelectedType("ทั้งหมด")}
+        >
+          ทั้งหมด
+        </button>
+        {productType.map((type) => (
+          <button
+            key={type.product_type_id}
+            className={`px-4 py-2 rounded-full border text-sm ${
+              selectedType === type.product_type_id
+                ? "bg-green-500 text-white"
+                : "bg-white text-gray-700"
+            }`}
+            onClick={() => setSelectedType(type.product_type_id)}
+          >
+            {type.product_type_name}
+          </button>
+        ))}
+      </div>
+      <table className="min-w-full text-sm text-left">
+        <thead className="bg-gray-200">
+          <tr>
+            <th className="p-2 text-center ">ประเภทอาหาร</th>
+            <th className="p-2 text-center">ประเภทตัวเลือก</th>
+            <th className="p-2 text-center ">ค่า</th>
+            <th className="p-2 text-center ">ราคาเพิ่ม</th>
             <th className="p-2 text-center">จัดการ</th>
           </tr>
         </thead>
         <tbody>
           {options.map((opt) => (
             <tr key={opt.option_id} className="border-t">
-              <td className="p-2">
+              <td className="p-2 text-center ">
                 {types.find((t) => t.product_type_id === opt.product_type_id)
                   ?.product_type_name || "-"}
               </td>
-              <td className="p-2 text-center">{opt.option_type}</td>
+              <td className="p-2 text-center ">{opt.option_type}</td>
               <td className="p-2 text-center">{opt.option_value}</td>
               <td className="p-2 text-center">฿{opt.option_price}</td>
               <td className="p-2 text-center">
@@ -263,5 +295,7 @@ export default function ProductOptionPage() {
         </tbody>
       </table>
     </div>
+  );
+  </div>
   );
 }

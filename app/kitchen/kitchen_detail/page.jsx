@@ -111,7 +111,7 @@ export default function KitchenProductPage() {
           return (
             <div key={productId} className="mb-10">
               <div className="font-bold text-xl mb-3 bg-gray-100 p-2 rounded">
-                {orderExample.product_name}
+                {orderExample.product_name} ({totalQuantity} จาน)
               </div>
 
               <div className="overflow-x-auto border rounded-lg shadow">
@@ -120,7 +120,6 @@ export default function KitchenProductPage() {
                     <tr>
                       <th className="px-4 py-2 border-r">โต๊ะ</th>
                       <th className="px-4 py-2 border-r">จำนวน</th>
-                      <th className="px-4 py-2 border-r">ราคา</th>
                       <th className="px-4 py-2 border-r">ขนาด</th>
                       <th className="px-4 py-2 border-r">ระดับความเผ็ด</th>
                       <th className="px-4 py-2 border-r">ท็อปปิ้ง</th>
@@ -139,9 +138,6 @@ export default function KitchenProductPage() {
                         <td className="border px-3 py-2">{order.seat_id}</td>
                         <td className="border px-3 py-2">
                           {order.purchase_quantity}
-                        </td>
-                        <td className="border px-3 py-2">
-                          ฿{order.product_price * order.purchase_quantity}
                         </td>
                         <td className="border px-3 py-2">
                           {order.purchase_size || "-"}
