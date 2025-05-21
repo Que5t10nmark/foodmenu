@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-
+import { Plus, Edit, Trash2 } from "lucide-react";
 export default function ProductOptionPage() {
   const [types, setTypes] = useState([]);
   const [options, setOptions] = useState([]);
@@ -269,7 +269,7 @@ export default function ProductOptionPage() {
         <tbody>
           {options.map((opt) => (
             <tr key={opt.option_id} className="border-t">
-              <td className="p-2 text-center ">
+              <td className="p-2 text-center">
                 {types.find((t) => t.product_type_id === opt.product_type_id)
                   ?.product_type_name || "-"}
               </td>
@@ -278,7 +278,7 @@ export default function ProductOptionPage() {
               <td className="p-2 text-center">฿{opt.option_price}</td>
               <td className="p-2 text-center">
                 <button
-                  className="mr-2 px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500"
+                  className="icon-file-pen-line mr-2 px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500"
                   onClick={() => handleEdit(opt)}
                 >
                   ✏️ แก้ไข
