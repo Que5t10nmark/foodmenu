@@ -102,7 +102,7 @@ export default function ProductOptionPage() {
       option_price: opt.option_price,
     });
   };
-  
+
   const handleDelete = async (option_id) => {
     if (!confirm("ต้องการลบตัวเลือกนี้หรือไม่?")) return;
     try {
@@ -295,7 +295,6 @@ export default function ProductOptionPage() {
         </tbody>
       </table>
     </div>
-  );
   </div>
   );
 }
