@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
+
 export default function ProductOptionPage() {
   const [types, setTypes] = useState([]);
   const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(true); // เพิ่ม loading state
-  const [productType, setProductType] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("ทั้งหมด");
   const [form, setForm] = useState({
     option_id: null,
@@ -14,7 +14,6 @@ export default function ProductOptionPage() {
     option_value: "",
     option_price: 0,
   });
-
   const [notification, setNotification] = useState(null);
 
   const fetchData = async () => {
@@ -44,9 +43,7 @@ export default function ProductOptionPage() {
 
   const showNotification = (type, message) => {
     setNotification({ type, message });
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   const handleSubmit = async (e) => {
@@ -120,17 +117,12 @@ export default function ProductOptionPage() {
     }
   };
 
-  if (loading) {
-    return <div className="p-6 max-w-4xl mx-auto">กำลังโหลดข้อมูล...</div>;
-  }
+  if (loading) return <div className="p-6 max-w-4xl mx-auto">กำลังโหลดข้อมูล...</div>;
 
   return (
     <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-2xl font-bold mb-4">
-        ⚙️ จัดการตัวเลือกสินค้าตามประเภท
-      </h1>
+      <h1 className="text-2xl font-bold mb-4">⚙️ จัดการตัวเลือกสินค้าตามประเภท</h1>
 
-      {/* กล่องแจ้งเตือน */}
       {notification && (
         <div
           className={`mb-4 p-3 rounded ${
@@ -143,16 +135,11 @@ export default function ProductOptionPage() {
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-4 rounded shadow mb-6"
-      >
+      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6">
         <div className="grid grid-cols-2 gap-4">
           <select
             value={form.product_type_id}
-            onChange={(e) =>
-              setForm({ ...form, product_type_id: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, product_type_id: e.target.value })}
             className="border rounded px-3 py-2"
             required
           >
@@ -181,7 +168,7 @@ export default function ProductOptionPage() {
 
           <input
             type="text"
-            placeholder="ค่า เช่น เผ็ดมาก,เผ็ดน้อย,ไม่เผ็ด, ธรรมดา และพิเศษ"
+            placeholder="ค่า เช่น เผ็ดมาก, เผ็ดน้อย, ไม่เผ็ด"
             value={form.option_value}
             onChange={(e) => setForm({ ...form, option_value: e.target.value })}
             className="border rounded px-3 py-2"
@@ -232,69 +219,79 @@ export default function ProductOptionPage() {
       <h2 className="text-xl font-bold mb-4">รายการตัวเลือก</h2>
       <div className="overflow-x-auto">
         <div className="flex flex-wrap gap-2 mb-4">
-        <button
-          className={`px-4 py-2 rounded-full border text-sm ${
-            selectedType === "ทั้งหมด"
-              ? "bg-green-500 text-white"
-              : "bg-white text-gray-700"
-          }`}
-          onClick={() => setSelectedType("ทั้งหมด")}
-        >
-          ทั้งหมด
-        </button>
-        {productType.map((type) => (
           <button
-            key={type.product_type_id}
             className={`px-4 py-2 rounded-full border text-sm ${
-              selectedType === type.product_type_id
+              selectedType === "ทั้งหมด"
                 ? "bg-green-500 text-white"
                 : "bg-white text-gray-700"
             }`}
-            onClick={() => setSelectedType(type.product_type_id)}
+            onClick={() => setSelectedType("ทั้งหมด")}
           >
-            {type.product_type_name}
+            ทั้งหมด
           </button>
-        ))}
-      </div>
-      <table className="min-w-full text-sm text-left">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="p-2 text-center ">ประเภทอาหาร</th>
-            <th className="p-2 text-center">ประเภทตัวเลือก</th>
-            <th className="p-2 text-center ">ค่า</th>
-            <th className="p-2 text-center ">ราคาเพิ่ม</th>
-            <th className="p-2 text-center">จัดการ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {options.map((opt) => (
-            <tr key={opt.option_id} className="border-t">
-              <td className="p-2 text-center">
-                {types.find((t) => t.product_type_id === opt.product_type_id)
-                  ?.product_type_name || "-"}
-              </td>
-              <td className="p-2 text-center ">{opt.option_type}</td>
-              <td className="p-2 text-center">{opt.option_value}</td>
-              <td className="p-2 text-center">฿{opt.option_price}</td>
-              <td className="p-2 text-center">
-                <button
-                  className="icon-file-pen-line mr-2 px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500"
-                  onClick={() => handleEdit(opt)}
-                >
-                  ✏️ แก้ไข
-                </button>
-                <button
-                  className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 text-white"
-                  onClick={() => handleDelete(opt.option_id)}
-                >
-                  🗑️ ลบ
-                </button>
-              </td>
-            </tr>
+          {types.map((type) => (
+            <button
+              key={type.product_type_id}
+              className={`px-4 py-2 rounded-full border text-sm ${
+                selectedType === type.product_type_id
+                  ? "bg-green-500 text-white"
+                  : "bg-white text-gray-700"
+              }`}
+              onClick={() => setSelectedType(type.product_type_id)}
+            >
+              {type.product_type_name}
+            </button>
           ))}
-        </tbody>
-      </table>
+        </div>
+
+        <table className="min-w-full text-sm text-left">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="p-2 text-center">ประเภทอาหาร</th>
+              <th className="p-2 text-center">ประเภทตัวเลือก</th>
+              <th className="p-2 text-center">ค่า</th>
+              <th className="p-2 text-center">ราคาเพิ่ม</th>
+              <th className="p-2 text-center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {options
+              .filter(
+                (opt) =>
+                  selectedType === "ทั้งหมด" ||
+                  opt.product_type_id === selectedType
+              )
+              .map((opt) => (
+                <tr key={opt.option_id} className="border-t">
+                  <td className="p-2 text-center">
+                    {
+                      types.find(
+                        (t) => t.product_type_id === opt.product_type_id
+                      )?.product_type_name || "-"
+                    }
+                  </td>
+                  <td className="p-2 text-center">{opt.option_type}</td>
+                  <td className="p-2 text-center">{opt.option_value}</td>
+                  <td className="p-2 text-center">฿{opt.option_price}</td>
+                  <td className="p-2 text-center">
+                    <button
+                      className="mr-2 px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500"
+                      onClick={() => handleEdit(opt)}
+                    >
+                      ✏️ แก้ไข
+                    </button>
+                    <button
+                      className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 text-white"
+                      onClick={() => handleDelete(opt.option_id)}
+                    >
+                      🗑️ ลบ
+                    </button>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
   );
 }
