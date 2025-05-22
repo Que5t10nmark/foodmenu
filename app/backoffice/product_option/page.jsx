@@ -195,7 +195,7 @@ export default function ProductOptionPage() {
           type="submit"
           className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-300"
         >
-          {form.option_id ? "💾 แก้ไขตัวเลือก" : "➕ เพิ่มตัวเลือก"}
+          {form.option_id ? "💾 บันทึกการแก้ไข" : "➕ เพิ่มตัวเลือก"}
         </button>
         {form.option_id && (
           <button

@@ -26,16 +26,15 @@ useEffect(() => {
         setProduct(data);
         setLoading(false);
 
-        if (data.product_type_id) {
-          fetch(`/api/product_option?product_type_id=${data.product_type_id}`)
+        if (data.product_type) {
+          fetch(`/api/product_option?product_type_id=${data.product_type}`)
             .then((res) => res.json())
             .then((optionData) => {
-              console.log("Loaded options from API:", optionData);
               setOptions(optionData);
             })
             .catch((err) => console.error("โหลดตัวเลือกไม่สำเร็จ", err));
         } else {
-          console.log("product_type_id is missing in product data");
+          console.warn("product_type is missing in product data");
         }
       })
       .catch((err) => {
@@ -45,7 +44,8 @@ useEffect(() => {
   }
 }, [product_id]);
 
-  // ฟังก์ชันจัดการการเลือกตัวเลือก
+
+  // จัดการการเปลี่ยนแปลงตัวเลือก
   const handleOptionChange = (optionType, value, isMultiple) => {
     setSelectedOptions((prev) => {
       if (isMultiple) {
@@ -60,14 +60,14 @@ useEffect(() => {
     });
   };
 
-  // ฟังก์ชันเพิ่มสินค้า+ตัวเลือกลงตะกร้า
+  // เพิ่มสินค้าและตัวเลือกลงตะกร้า
   const handleAddToCart = () => {
     if (!product) return;
     const updatedProduct = {
       ...product,
       selected_options: selectedOptions,
       purchase_description,
-      quantity: 1, // กำหนดค่าเริ่มต้นจำนวน 1 ชิ้น
+      quantity: 1,
     };
     addToCart(updatedProduct);
     setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
@@ -83,8 +83,7 @@ useEffect(() => {
     }, {});
 
     return Object.entries(grouped).map(([type, optionList]) => {
-      // กำหนดว่าแบบไหนเป็น checkbox (multiple) หรือ select (single)
-      const isMultiple = optionList.some((o) => o.option_price > 0);
+      const isMultiple = optionList.some((o) => o.option_price > 0); // ใช้ checkbox ถ้ามีราคา
       return (
         <div key={type} className="mb-4">
           <label className="block font-semibold mb-1">{type}:</label>
@@ -135,10 +134,9 @@ useEffect(() => {
             />
           </div>
 
-          {/* แสดงตัวเลือกสินค้า */}
-          {renderOptionInputs()}
-
-          {/* หมายเหตุเพิ่มเติม */}
+          <h2 className="text-xl font-semibold mb-2">ตัวเลือกสินค้า:</h2>
+          {renderOptionInputs() }
+          
           <div className="mb-4">
             <label className="block font-semibold mb-1">รายละเอียดเพิ่มเติม:</label>
             <textarea
@@ -149,14 +147,12 @@ useEffect(() => {
             />
           </div>
 
-          {/* แจ้งเตือนเมื่อเพิ่มลงตะกร้า */}
           {message && (
             <div className="mb-4 p-3 bg-green-100 text-green-700 rounded text-center font-semibold">
               {message}
             </div>
           )}
 
-          {/* ปุ่มเพิ่มในตะกร้า */}
           <button
             className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
             onClick={handleAddToCart}
@@ -164,14 +160,12 @@ useEffect(() => {
             ✅ เพิ่มในตะกร้า
           </button>
 
-          {/* ปุ่มเลือกสินค้าเพิ่ม */}
           <Link href={"/order/product"} className="block text-center mt-4">
             <button className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition">
               🍽️ เลือกสินค้าเพิ่ม
             </button>
           </Link>
 
-          {/* ปุ่มลอยไปยังตะกร้า */}
           <Link href={`/order/cart`} className="fixed bottom-6 right-6 z-50">
             <button className="bg-green-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-green-700 transition">
               🛒 ไปยังตะกร้า ({cart.reduce((sum, item) => sum + (item.quantity || 1), 0)})
