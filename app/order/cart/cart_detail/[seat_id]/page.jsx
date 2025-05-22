@@ -71,7 +71,7 @@ export default function MyOrderPage() {
               <div className="text-sm">ราคา: {order.product_price} บาท</div>
 
               {/* ตัวเลือกที่เลือก */}
-              {renderSelectedOptions(order.selected_options)}
+              {renderSelectedOptions(order.selected_option)}
 
               {/* หมายเหตุเพิ่มเติม */}
               {order.purchase_description && (

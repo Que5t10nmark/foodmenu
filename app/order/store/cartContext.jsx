@@ -8,13 +8,21 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  // ใช้ selected_options เพื่อสร้าง key ที่ไม่ซ้ำกัน
+  // สร้าง key สำหรับแยกสินค้าที่เหมือนกันแต่ตัวเลือกต่างกัน
   const generateCartKey = (product) => {
-    const options = product.selected_options || {};
+    const options = product.selected_option || {};
     const optionKey = Object.entries(options)
       .map(([key, value]) => {
         if (Array.isArray(value)) {
-          return `${key}:${value.sort().join(",")}`;
+          // สมมติ value เป็น array ของ object ที่มี option_value
+          return `${key}:${value
+            .map((v) => (typeof v === "object" ? v.option_value : v))
+            .sort()
+            .join(",")}`;
+        }
+        // กรณีเป็น object หรือ string ปกติ
+        if (typeof value === "object" && value !== null) {
+          return `${key}:${value.option_value || ""}`;
         }
         return `${key}:${value}`;
       })

@@ -74,7 +74,7 @@ export default function KitchenPage() {
   return (
     <div className="p-6 max-h-screen overflow-auto">
       <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว (กรุ๊ปตามโต๊ะ)</h1>
+        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว (ตามโต๊ะ)</h1>
         <div>
           <Link
             href="/kitchen/kitchen_detail"
@@ -116,24 +116,46 @@ export default function KitchenPage() {
                   <div className="text-sm text-gray-600 mb-2">
                     ราคา: ฿{order.product_price * order.purchase_quantity}
                   </div>
-                  <ul className="text-sm mb-2">
-                    {order.purchase_size && <li>ขนาด: {order.purchase_size}</li>}
-                    {order.purchase_spiceLevel && (
-                      <li>ระดับความเผ็ด: {order.purchase_spiceLevel}</li>
-                    )}
-                    {order.purchase_toppings &&
-                      order.purchase_toppings !== "[]" && (
-                        <li>
-                          ท็อปปิ้ง:{" "}
-                          {Array.isArray(order.purchase_toppings)
-                            ? order.purchase_toppings.join(", ")
-                            : JSON.parse(order.purchase_toppings).join(", ")}
-                        </li>
-                      )}
-                    {order.purchase_description && (
-                      <li>หมายเหตุ: {order.purchase_description}</li>
-                    )}
-                  </ul>
+
+                  {/* แสดง selected_option แบบจัดระเบียบ */}
+                  {(() => {
+                    if (!order.selected_option) return null;
+
+                    let optionsObj = {};
+
+                    if (typeof order.selected_option === "string") {
+                      try {
+                        optionsObj = JSON.parse(order.selected_option);
+                      } catch {
+                        return <p>{order.selected_option}</p>;
+                      }
+                    } else {
+                      optionsObj = order.selected_option;
+                    }
+
+                    return (
+                      <div className="mb-3 text-sm leading-relaxed">
+                        {Object.entries(optionsObj).map(([key, value], i) => {
+                          const displayValue = Array.isArray(value)
+                            ? value.join(", ")
+                            : value;
+                          return (
+                            <p key={i} className="mb-2">
+                              <span className="font-semibold">{key}:</span> {displayValue}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+
+                  {/* หมายเหตุยังอยู่ */}
+                  {order.purchase_description && (
+                    <p className="text-sm mb-2">
+                      <span className="font-semibold">หมายเหตุ:</span> {order.purchase_description}
+                    </p>
+                  )}
+
                   <div className="text-sm mb-1">
                     วันที่สั่ง:{" "}
                     {new Date(order.purchase_date).toLocaleString("th-TH", {
@@ -147,6 +169,7 @@ export default function KitchenPage() {
                       {order.purchase_status}
                     </span>
                   </div>
+
                   <div className="flex space-x-2 mt-3 flex-wrap">
                     <button
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"

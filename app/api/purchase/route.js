@@ -1,61 +1,56 @@
-import db from "../../../lib/db"; // นำเข้า db ที่เราเชื่อมต่อไว้
+import db from "../../../lib/db"; // เชื่อมต่อฐานข้อมูล
 
-// POST request สำหรับการเพิ่มคำสั่งซื้อ
+// เพิ่มคำสั่งซื้อ (POST)
 export async function POST(req) {
   try {
-    const { cart, seatId } = await req.json(); // รับข้อมูล cart และ seatId
+    const { cart, seatId } = await req.json();
 
-    // ตรวจสอบว่าข้อมูลที่จำเป็นมีครบถ้วนหรือไม่
     if (!cart || !seatId) {
       return new Response(JSON.stringify({ message: "ข้อมูลไม่ครบถ้วน" }), {
         status: 400,
       });
     }
-    // วนลูปเพื่อเพิ่มคำสั่งซื้อทุกตัวใน cart
-for (const item of cart) {
-  const { product } = item;
-  const size = item.size ?? null;
-  const spiceLevel = item.spiceLevel ?? null;
-  const toppings = item.toppings ?? null;
-  const description = item.description ?? null;
 
-  await db.execute(
-    `INSERT INTO purchase 
-      (product_id, product_name, product_price, purchase_quantity, seat_id, purchase_size, purchase_spiceLevel, purchase_toppings, purchase_description, purchase_status, purchase_date) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'รอดำเนินการ', CONVERT_TZ(NOW(), 'UTC', 'Asia/Bangkok'))`,
-    [
-      product.product_id,
-      product.product_name,
-      product.product_price,
-      product.quantity,
-      seatId,
-      size,
-      spiceLevel,
-      toppings ? JSON.stringify(toppings) : null,
-      description,
-    ]
-  );
-}
-    return new Response(JSON.stringify({ message: "คำสั่งซื้อสำเร็จ" }), {
+    for (const item of cart) {
+      const { product, selected_option, description } = item;
+
+      await db.execute(
+        `INSERT INTO purchase 
+        (product_id, product_name, product_price, purchase_quantity, seat_id, selected_option, purchase_description, purchase_status, purchase_date) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'รอดำเนินการ', CONVERT_TZ(NOW(), 'UTC', 'Asia/Bangkok'))`,
+        [
+          product.product_id,
+          product.product_name,
+          product.product_price,
+          product.quantity,
+          seatId,
+          selected_option ? JSON.stringify(selected_option) : null,
+          description ?? null,
+        ]
+      );
+    }
+
+    return new Response(JSON.stringify({ message: "สั่งซื้อสำเร็จ" }), {
       status: 200,
     });
   } catch (error) {
-    console.error("เกิดข้อผิดพลาด:", error);
+    console.error("❌ POST ERROR:", error);
     return new Response(
-      JSON.stringify({ message: "เกิดข้อผิดพลาดในการทำคำสั่งซื้อ" }),
+      JSON.stringify({ message: "เกิดข้อผิดพลาดในการบันทึกคำสั่งซื้อ" }),
       { status: 500 }
     );
   }
 }
 
+// ดึงคำสั่งซื้อ (GET)
 export async function GET(req) {
   try {
     const status = req.nextUrl.searchParams.get("status");
     const date = req.nextUrl.searchParams.get("date");
 
     let query = "SELECT * FROM purchase";
-    let conditions = [];
-    let params = [];
+    const conditions = [];
+    const params = [];
 
     if (status) {
       conditions.push("purchase_status = ?");
@@ -71,17 +66,35 @@ export async function GET(req) {
       query += " WHERE " + conditions.join(" AND ");
     }
 
-    query += " ORDER BY purchase_date DESC"; // เรียงตามวันที่ล่าสุด
+    query += " ORDER BY purchase_date DESC";
 
     const [orders] = await db.execute(query, params);
-    return new Response(JSON.stringify(orders), { status: 200 });
+
+    function tryParseJSON(jsonString) {
+      try {
+        const obj = JSON.parse(jsonString);
+        if (obj && typeof obj === "object") {
+          return obj;
+        }
+      } catch {
+        // parse ไม่ได้
+      }
+      return null;
+    }
+
+    const parsedOrders = orders.map((order) => ({
+      ...order,
+      selected_option: order.selected_option
+        ? tryParseJSON(order.selected_option) ?? order.selected_option
+        : null,
+    }));
+
+    return new Response(JSON.stringify(parsedOrders), { status: 200 });
   } catch (error) {
-    console.error("เกิดข้อผิดพลาด:", error);
+    console.error("❌ GET ERROR:", error);
     return new Response(
       JSON.stringify({ message: "เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ" }),
       { status: 500 }
     );
   }
 }
-
-

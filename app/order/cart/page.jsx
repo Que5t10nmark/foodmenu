@@ -7,21 +7,69 @@ export default function CartPage() {
   const { cart, addToCart, removeFromCart, clearCart } = useCart();
   const router = useRouter();
 
-  const total = cart.reduce((sum, item) => {
+  // ฟังก์ชันช่วยคำนวณราคารวมของตัวเลือก (รองรับ array หรือ object)
+  const calculateOptionsPrice = (selected_option) => {
+    if (!selected_option) return 0;
     let optionTotal = 0;
 
-    if (item.selected_options) {
-      for (const values of Object.values(item.selected_options)) {
-        if (Array.isArray(values)) {
-          optionTotal += values.length; // ราคาต่อ option จะเพิ่มใน backend หากจำเป็น
-        } else {
-          optionTotal += 1;
+    for (const key in selected_option) {
+      const value = selected_option[key];
+
+      if (Array.isArray(value)) {
+        value.forEach((opt) => {
+          if (opt && typeof opt === "object" && opt.option_price) {
+            optionTotal += Number(opt.option_price);
+          }
+        });
+      } else if (value && typeof value === "object") {
+        if (value.option_price) {
+          optionTotal += Number(value.option_price);
         }
       }
     }
+    return optionTotal;
+  };
 
-    return sum + item.quantity * item.product_price; // คุณสามารถรวมราคาตัวเลือกได้หากต้องการ
+  // คำนวณราคารวมทั้งหมดในตะกร้า
+  const total = cart.reduce((sum, item) => {
+    const basePrice = item.product_price || 0;
+    const quantity = item.quantity || 0;
+    const optionsPrice = calculateOptionsPrice(item.selected_option);
+    return sum + quantity * (basePrice + optionsPrice);
   }, 0);
+
+  // ฟังก์ชันแสดงตัวเลือก พร้อมราคาเพิ่ม
+  const renderSelectedOptions = (options) => {
+    if (!options) return null;
+
+    return Object.entries(options).map(([type, value]) => {
+      if (Array.isArray(value)) {
+        const totalOptionPrice = value.reduce(
+          (sum, v) => sum + (Number(v.option_price) || 0),
+          0
+        );
+        return (
+          <div key={type} className="text-sm text-gray-600">
+            {type}: {value.map((v) => v.option_value || v).join(", ")}
+            {totalOptionPrice > 0 ? ` +${totalOptionPrice} บาท` : ""}
+          </div>
+        );
+      } else if (typeof value === "object" && value !== null) {
+        return (
+          <div key={type} className="text-sm text-gray-600">
+            {type}: {value.option_value || ""}
+            {value.option_price ? ` +${Number(value.option_price)} บาท` : ""}
+          </div>
+        );
+      } else {
+        return (
+          <div key={type} className="text-sm text-gray-600">
+            {type}: {value}
+          </div>
+        );
+      }
+    });
+  };
 
   const handleConfirm = async () => {
     const seatId = prompt("กรุณาใส่หมายเลขโต๊ะ");
@@ -40,7 +88,7 @@ export default function CartPage() {
           quantity: item.quantity,
         },
         seat_id: seatId,
-        selected_options: item.selected_options || {},
+        selected_option: item.selected_option || {},
         description: item.purchase_description || "",
       }));
 
@@ -65,17 +113,6 @@ export default function CartPage() {
     }
   };
 
-  const renderSelectedOptions = (options) => {
-    if (!options) return null;
-
-    return Object.entries(options).map(([type, value]) => (
-      <div key={type} className="text-sm text-gray-600">
-        {type}:{" "}
-        {Array.isArray(value) ? value.join(", ") : value}
-      </div>
-    ));
-  };
-
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">🧾 สรุปรายการสั่งซื้อ</h1>
@@ -85,18 +122,14 @@ export default function CartPage() {
         <>
           <ul className="space-y-4">
             {cart.map((item, idx) => (
-              <li
-                key={`${item.product_id}-${idx}`}
-                className="border p-3 rounded"
-              >
+              <li key={`${item.product_id}-${idx}`} className="border p-3 rounded">
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-semibold">
                       {item.product_name} × {item.quantity}
                     </div>
 
-                    {/* แสดงตัวเลือกทั้งหมดแบบ dynamic */}
-                    {renderSelectedOptions(item.selected_options)}
+                    {renderSelectedOptions(item.selected_option)}
 
                     {item.purchase_description && (
                       <div className="text-sm text-gray-600">
@@ -118,7 +151,9 @@ export default function CartPage() {
                       +
                     </button>
                     <div className="font-bold">
-                      ฿{item.quantity * item.product_price}
+                      ฿
+                      {item.quantity *
+                        (item.product_price + calculateOptionsPrice(item.selected_option))}
                     </div>
                   </div>
                 </div>
@@ -157,12 +192,6 @@ export default function CartPage() {
           </Link>
         </>
       )}
-
-      <Link href={`/order/product`} className="fixed bottom-6 left-6 z-50">
-        <button className="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg">
-          กลับ
-        </button>
-      </Link>
     </div>
   );
 }

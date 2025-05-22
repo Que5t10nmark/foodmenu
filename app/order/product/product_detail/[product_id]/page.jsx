@@ -65,7 +65,7 @@ useEffect(() => {
     if (!product) return;
     const updatedProduct = {
       ...product,
-      selected_options: selectedOptions,
+      selected_option: selectedOptions,
       purchase_description,
       quantity: 1,
     };
