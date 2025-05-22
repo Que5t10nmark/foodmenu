@@ -7,13 +7,24 @@ export default function CartPage() {
   const { cart, addToCart, removeFromCart, clearCart } = useCart();
   const router = useRouter();
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.quantity * item.product_price,
-    0
-  );
+  const total = cart.reduce((sum, item) => {
+    let optionTotal = 0;
+
+    if (item.selected_options) {
+      for (const values of Object.values(item.selected_options)) {
+        if (Array.isArray(values)) {
+          optionTotal += values.length; // ราคาต่อ option จะเพิ่มใน backend หากจำเป็น
+        } else {
+          optionTotal += 1;
+        }
+      }
+    }
+
+    return sum + item.quantity * item.product_price; // คุณสามารถรวมราคาตัวเลือกได้หากต้องการ
+  }, 0);
 
   const handleConfirm = async () => {
-    const seatId = prompt("กรุณาใส่หมายเลขโต๊ะ"); // หรือคุณกำหนดจาก QR
+    const seatId = prompt("กรุณาใส่หมายเลขโต๊ะ");
 
     if (!seatId) {
       alert("กรุณาใส่หมายเลขโต๊ะก่อนสั่งซื้อ");
@@ -21,7 +32,6 @@ export default function CartPage() {
     }
 
     try {
-      // แปลงข้อมูล cart ให้อยู่ในรูปแบบที่ API คาดหวัง
       const cartData = cart.map((item) => ({
         product: {
           product_id: item.product_id,
@@ -30,9 +40,7 @@ export default function CartPage() {
           quantity: item.quantity,
         },
         seat_id: seatId,
-        size: item.purchase_size || "ธรรมดา",
-        spiceLevel: item.purchase_spiceLevel || "ไม่เผ็ด",
-        toppings: item.purchase_toppings || [],
+        selected_options: item.selected_options || {},
         description: item.purchase_description || "",
       }));
 
@@ -41,10 +49,7 @@ export default function CartPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          cart: cartData,  // ส่งข้อมูลในรูปแบบใหม่ที่ตรงตามที่ API ต้องการ
-          seatId,
-        }),
+        body: JSON.stringify({ cart: cartData, seatId }),
       });
 
       if (res.ok) {
@@ -60,6 +65,17 @@ export default function CartPage() {
     }
   };
 
+  const renderSelectedOptions = (options) => {
+    if (!options) return null;
+
+    return Object.entries(options).map(([type, value]) => (
+      <div key={type} className="text-sm text-gray-600">
+        {type}:{" "}
+        {Array.isArray(value) ? value.join(", ") : value}
+      </div>
+    ));
+  };
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">🧾 สรุปรายการสั่งซื้อ</h1>
@@ -68,9 +84,9 @@ export default function CartPage() {
       ) : (
         <>
           <ul className="space-y-4">
-            {cart.map((item) => (
+            {cart.map((item, idx) => (
               <li
-                key={item.product_id + item.purchase_description}
+                key={`${item.product_id}-${idx}`}
                 className="border p-3 rounded"
               >
                 <div className="flex justify-between items-center">
@@ -78,15 +94,10 @@ export default function CartPage() {
                     <div className="font-semibold">
                       {item.product_name} × {item.quantity}
                     </div>
-                    <div className="text-sm text-gray-600">
-                      ขนาด: {item.purchase_size || "ธรรมดา"} | เผ็ด:{" "}
-                      {item.purchase_spiceLevel || "ไม่เผ็ด"}
-                    </div>
-                    {item.purchase_toppings?.length > 0 && (
-                      <div className="text-sm text-gray-600">
-                        ท็อปปิ้ง: {item.purchase_toppings.join(", ")}
-                      </div>
-                    )}
+
+                    {/* แสดงตัวเลือกทั้งหมดแบบ dynamic */}
+                    {renderSelectedOptions(item.selected_options)}
+
                     {item.purchase_description && (
                       <div className="text-sm text-gray-600">
                         หมายเหตุ: {item.purchase_description}

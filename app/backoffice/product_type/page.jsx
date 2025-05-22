@@ -133,6 +133,7 @@ const ProductTypePage = () => {
     const { name, value } = e.target;
     setNewProductType((prev) => ({ ...prev, [name]: value }));
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -173,7 +174,7 @@ const ProductTypePage = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">รายการประเภทอาหาร</h2>
         <table className="min-w-full table-auto border-collapse border border-gray-300">
-          <thead>
+          <thead className="bg-gray-200">
             <tr>
               <th className="px-4 py-2 border">ชื่อประเภทอาหาร</th>
               <th className="px-4 py-2 border">การจัดการ</th>

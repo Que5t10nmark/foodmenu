@@ -8,9 +8,22 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  // สร้าง unique key สำหรับสินค้าแต่ละแบบ
+  // ใช้ selected_options เพื่อสร้าง key ที่ไม่ซ้ำกัน
   const generateCartKey = (product) => {
-    return `${product.product_id}-${product.purchase_size || ""}-${product.purchase_spiceLevel || ""}-${(product.purchase_toppings || []).join(",")}-${product.purchase_description || ""}`;
+    const options = product.selected_options || {};
+    const optionKey = Object.entries(options)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `${key}:${value.sort().join(",")}`;
+        }
+        return `${key}:${value}`;
+      })
+      .sort()
+      .join("|");
+
+    const description = product.purchase_description || "";
+
+    return `${product.product_id}-${optionKey}-${description}`;
   };
 
   const addToCart = (product) => {

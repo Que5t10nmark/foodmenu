@@ -118,12 +118,12 @@ useEffect(() => {
     });
   };
 
+  // แสดงข้อมูลสินค้า
   return (
     <div className="p-6 max-w-2xl mx-auto">
       {product && !loading ? (
         <div className="bg-white rounded-xl shadow p-4">
           <h1 className="text-3xl font-bold mb-4">{product.product_name}</h1>
-
           <div className="flex justify-center items-center">
             <Image
               src={`/uploads/${product.product_image}`}
@@ -134,9 +134,8 @@ useEffect(() => {
             />
           </div>
 
-          <h2 className="text-xl font-semibold mb-2">ตัวเลือกสินค้า:</h2>
-          {renderOptionInputs() }
-          
+          {renderOptionInputs()}
+        
           <div className="mb-4">
             <label className="block font-semibold mb-1">รายละเอียดเพิ่มเติม:</label>
             <textarea
@@ -152,7 +151,7 @@ useEffect(() => {
               {message}
             </div>
           )}
-
+      
           <button
             className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
             onClick={handleAddToCart}

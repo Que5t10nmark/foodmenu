@@ -11,30 +11,31 @@ export async function POST(req) {
         status: 400,
       });
     }
-
     // วนลูปเพื่อเพิ่มคำสั่งซื้อทุกตัวใน cart
-    for (const item of cart) {
-      const { product, size, spiceLevel, toppings, description } = item;
+for (const item of cart) {
+  const { product } = item;
+  const size = item.size ?? null;
+  const spiceLevel = item.spiceLevel ?? null;
+  const toppings = item.toppings ?? null;
+  const description = item.description ?? null;
 
-      // สร้างคำสั่ง SQL สำหรับการแทรกข้อมูล
-      await db.execute(
-        `INSERT INTO purchase 
-          (product_id, product_name, product_price, purchase_quantity, seat_id, purchase_size, purchase_spiceLevel, purchase_toppings, purchase_description, purchase_status, purchase_date) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'รอดำเนินการ', CONVERT_TZ(NOW(), 'UTC', 'Asia/Bangkok'))`,
-        [
-          product.product_id,
-          product.product_name, // เพิ่ม product_name
-          product.product_price, // เพิ่ม product_price
-          product.quantity,
-          seatId,
-          size,
-          spiceLevel,
-          JSON.stringify(toppings),
-          description,
-        ]
-      );
-    }
-
+  await db.execute(
+    `INSERT INTO purchase 
+      (product_id, product_name, product_price, purchase_quantity, seat_id, purchase_size, purchase_spiceLevel, purchase_toppings, purchase_description, purchase_status, purchase_date) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'รอดำเนินการ', CONVERT_TZ(NOW(), 'UTC', 'Asia/Bangkok'))`,
+    [
+      product.product_id,
+      product.product_name,
+      product.product_price,
+      product.quantity,
+      seatId,
+      size,
+      spiceLevel,
+      toppings ? JSON.stringify(toppings) : null,
+      description,
+    ]
+  );
+}
     return new Response(JSON.stringify({ message: "คำสั่งซื้อสำเร็จ" }), {
       status: 200,
     });
