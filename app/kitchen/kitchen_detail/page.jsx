@@ -22,7 +22,7 @@ export default function KitchenGroupedByProduct() {
     };
 
     fetchOrders();
-    const interval = setInterval(fetchOrders, 2000);
+    const interval = setInterval(fetchOrders, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -45,11 +45,11 @@ export default function KitchenGroupedByProduct() {
       );
 
       setMessage(`อัปเดตสถานะเป็น "${newStatus}" สำเร็จ`);
-      setTimeout(() => setMessage(null), 2000);
+      setTimeout(() => setMessage(null), 1000);
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการอัพเดตสถานะ:", error);
       setMessage("เกิดข้อผิดพลาดในการอัพเดตสถานะ");
-      setTimeout(() => setMessage(null), 2000);
+      setTimeout(() => setMessage(null), 1000);
     }
   };
 
@@ -74,7 +74,7 @@ export default function KitchenGroupedByProduct() {
     <div className="p-6 max-h-screen overflow-auto text-base">
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-3xl font-bold">🍽️ คำสั่งซื้อ (ตามเมนูอาหาร)</h1>
-        <Link href="/kitchen" className="text-blue-600 underline text-lg">
+        <Link href="/kitchen" className="text-blue-600 underline text-lg ">
           ดูคำสั่งซื้อแบบกรุ๊ปตามโต๊ะ
         </Link>
       </div>
@@ -90,26 +90,26 @@ export default function KitchenGroupedByProduct() {
       )}
 
       {Object.keys(groupedByProduct).length === 0 ? (
-        <div className="text-center text-gray-500 text-lg">ยังไม่มีคำสั่งซื้อ</div>
+        <div className="text-center text-gray-500 text-2xl">ยังไม่มีคำสั่งซื้อ</div>
       ) : (
         Object.entries(groupedByProduct).map(([productName, orders]) => {
           const total = orders.reduce((sum, o) => sum + o.purchase_quantity, 0);
           return (
             <div key={productName} className="mb-10">
-              <div className="font-bold text-2xl mb-4 bg-gray-100 p-4 rounded">
-                🍛 เมนู: {productName} — ทั้งหมด {total} จาน
+              <div className="font-bold text-5xl mb-4 bg-gray-100 p-4 rounded">
+                เมนู: {productName} — ทั้งหมด {total} จาน 
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-300 rounded-xl text-lg">
-                  <thead className="bg-gray-100 text-left">
+              <div className="overflow-x-auto rounded-xl shadow-lg">
+                <table className="min-w-full bg-white border border-gray-500 rounded-xl text-3xl">
+                  <thead className="bg-gray-300">
                     <tr>
-                      <th className="p-3 border-b">โต๊ะ</th>
-                      <th className="p-3 border-b">จำนวน</th>
-                      <th className="p-3 border-b">ตัวเลือก</th>
-                      <th className="p-3 border-b">หมายเหตุ</th>
-                      <th className="p-3 border-b">วันที่สั่ง</th>
-                      <th className="p-3 border-b">สถานะ</th>
-                      <th className="p-3 border-b">การจัดการ</th>
+                      <th className="p-3 border-b text-center">โต๊ะ</th>
+                      <th className="p-3 border-b text-center">จำนวน</th>
+                      <th className="p-3 border-b text-center">ตัวเลือก</th>
+                      <th className="p-3 border-b text-center">หมายเหตุ</th>
+                      <th className="p-3 border-b text-center">วันที่สั่ง</th>
+                      <th className="p-3 border-b text-center">สถานะ</th>
+                      <th className="p-3 border-b text-center">การจัดการ</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -128,9 +128,9 @@ export default function KitchenGroupedByProduct() {
 
                       return (
                         <tr key={order.purchase_id} className="border-t">
-                          <td className="p-3">{order.seat_id}</td>
-                          <td className="p-3">{order.purchase_quantity}</td>
-                          <td className="p-3">
+                          <td className="p-3 text-center">{order.seat_id}</td>
+                          <td className="p-3 text-center">{order.purchase_quantity}</td>
+                          <td className="p-3 text-center">
                             {Object.entries(optionsObj).map(([key, val], i) => (
                               <div key={i}>
                                 <span className="font-medium">{key}:</span>{" "}
@@ -138,13 +138,13 @@ export default function KitchenGroupedByProduct() {
                               </div>
                             ))}
                           </td>
-                          <td className="p-3">{order.purchase_description}</td>
-                          <td className="p-3">
+                          <td className="p-3 text-center">{order.purchase_description}</td>
+                          <td className="p-3 text-center">
                             {new Date(order.purchase_date).toLocaleString("th-TH", {
                               timeZone: "Asia/Bangkok",
                             })}
                           </td>
-                          <td className="p-3 text-blue-600 font-semibold">
+                          <td className="p-3 text-blue-600 font-semibold text-center">
                             {order.purchase_status}
                           </td>
                           <td className="p-3 space-x-2 flex">

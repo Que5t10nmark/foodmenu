@@ -74,7 +74,7 @@ export default function KitchenPage() {
   return (
     <div className="p-6 max-h-screen overflow-auto">
       <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อของห้องครัว (ตามโต๊ะ)</h1>
+        <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อ (ตามโต๊ะ)</h1>
         <div>
           <Link
             href="/kitchen/kitchen_detail"
@@ -103,17 +103,17 @@ export default function KitchenPage() {
             <div className="font-bold text-xl mb-4 bg-gray-100 p-2 rounded">
               โต๊ะ: {seatId}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 ">
               {groupedOrders[seatId].map((order) => (
                 <div
                   key={order.purchase_id}
                   className="border rounded-xl shadow p-4 bg-white"
                 >
-                  <div className="font-bold text-lg">{order.product_name}</div>
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="font-bold text-2xl">{order.product_name}</div>
+                  <div className="text-lg text-gray-600 mb-2">
                     จำนวน: {order.purchase_quantity}
                   </div>
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-lg text-gray-600 mb-2">
                     ราคา: ฿{order.product_price * order.purchase_quantity}
                   </div>
 
@@ -134,7 +134,7 @@ export default function KitchenPage() {
                     }
 
                     return (
-                      <div className="mb-3 text-sm leading-relaxed">
+                      <div className="mb-3 text-lg leading-relaxed">
                         {Object.entries(optionsObj).map(([key, value], i) => {
                           const displayValue = Array.isArray(value)
                             ? value.join(", ")
@@ -151,19 +151,19 @@ export default function KitchenPage() {
 
                   {/* หมายเหตุยังอยู่ */}
                   {order.purchase_description && (
-                    <p className="text-sm mb-2">
+                    <p className="text-lg mb-2">
                       <span className="font-semibold">หมายเหตุ:</span> {order.purchase_description}
                     </p>
                   )}
 
-                  <div className="text-sm mb-1">
+                  <div className="text-lg mb-1">
                     วันที่สั่ง:{" "}
                     {new Date(order.purchase_date).toLocaleString("th-TH", {
                       timeZone: "Asia/Bangkok",
                     })}
                   </div>
 
-                  <div className="text-sm">
+                  <div className="text-lg mb-1">
                     สถานะ:{" "}
                     <span className="font-semibold text-blue-600">
                       {order.purchase_status}

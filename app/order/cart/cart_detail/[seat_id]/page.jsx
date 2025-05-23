@@ -16,6 +16,7 @@ export default function MyOrderPage() {
       const seatIds = [...new Set(data.map((order) => order.seat_id))];
       setAllSeats(seatIds);
     };
+    
 
     fetchOrders();
     const interval = setInterval(fetchOrders, 3000);

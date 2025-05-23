@@ -131,6 +131,7 @@ export default function CartPage() {
 
                     {renderSelectedOptions(item.selected_option)}
 
+
                     {item.purchase_description && (
                       <div className="text-sm text-gray-600">
                         หมายเหตุ: {item.purchase_description}
