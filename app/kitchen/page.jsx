@@ -36,8 +36,8 @@ export default function KitchenPage() {
 
       if (!response.ok) throw new Error("ไม่สามารถอัพเดตสถานะคำสั่งซื้อได้");
 
-      setOrders((prev) =>
-        prev.map((order) =>
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
           order.purchase_id === purchaseId
             ? { ...order, purchase_status: newStatus }
             : order
@@ -65,10 +65,10 @@ export default function KitchenPage() {
   );
 
   // กรุ๊ปตามโต๊ะ
-  const groupedOrders = activeOrders.reduce((acc, order) => {
-    if (!acc[order.seat_id]) acc[order.seat_id] = [];
-    acc[order.seat_id].push(order);
-    return acc;
+  const seatGroupedOrders = activeOrders.reduce((groupedBySeat, order) => {
+    if (!groupedBySeat[order.seat_id]) groupedBySeat[order.seat_id] = [];
+    groupedBySeat[order.seat_id].push(order);
+    return groupedBySeat;
   }, {});
 
   return (
@@ -95,109 +95,109 @@ export default function KitchenPage() {
         </div>
       )}
 
-      {Object.keys(groupedOrders).length === 0 ? (
+      {Object.keys(seatGroupedOrders).length === 0 ? (
         <div className="text-center text-gray-500">ยังไม่มีคำสั่งซื้อ</div>
       ) : (
-        Object.keys(groupedOrders).map((seatId) => (
+        Object.entries(seatGroupedOrders).map(([seatId, seatOrders]) => (
           <div key={seatId} className="mb-8">
             <div className="font-bold text-xl mb-4 bg-gray-100 p-2 rounded">
               โต๊ะ: {seatId}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 ">
-              {groupedOrders[seatId].map((order) => (
-                <div
-                  key={order.purchase_id}
-                  className="border rounded-xl shadow p-4 bg-white"
-                >
-                  <div className="font-bold text-2xl">{order.product_name}</div>
-                  <div className="text-lg text-gray-600 mb-2">
-                    จำนวน: {order.purchase_quantity}
-                  </div>
-                  <div className="text-lg text-gray-600 mb-2">
-                    ราคา: ฿{order.product_price * order.purchase_quantity}
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+              {seatOrders.map((order) => {
+                let optionsObject = {};
 
-                  {/* แสดง selected_option แบบจัดระเบียบ */}
-                  {(() => {
-                    if (!order.selected_option) return null;
-
-                    let optionsObj = {};
-
-                    if (typeof order.selected_option === "string") {
-                      try {
-                        optionsObj = JSON.parse(order.selected_option);
-                      } catch {
-                        return <p>{order.selected_option}</p>;
-                      }
-                    } else {
-                      optionsObj = order.selected_option;
+                if (order.selected_option) {
+                  if (typeof order.selected_option === "string") {
+                    try {
+                      optionsObject = JSON.parse(order.selected_option);
+                    } catch {
+                      return <p key={order.purchase_id}>{order.selected_option}</p>;
                     }
+                  } else {
+                    optionsObject = order.selected_option;
+                  }
+                }
 
-                    return (
+                return (
+                  <div
+                    key={order.purchase_id}
+                    className="border rounded-xl shadow p-4 bg-white"
+                  >
+                    <div className="font-bold text-2xl">{order.product_name}</div>
+                    <div className="text-lg text-gray-600 mb-2">
+                      จำนวน: {order.purchase_quantity}
+                    </div>
+                    <div className="text-lg text-gray-600 mb-2">
+                      ราคา: ฿{order.product_price * order.purchase_quantity}
+                    </div>
+
+                    {Object.entries(optionsObject).length > 0 && (
                       <div className="mb-3 text-lg leading-relaxed">
-                        {Object.entries(optionsObj).map(([key, value], i) => {
-                          const displayValue = Array.isArray(value)
-                            ? value.join(", ")
-                            : value;
+                        {Object.entries(optionsObject).map(([optionKey, optionVal], idx) => {
+                          const displayVal = Array.isArray(optionVal)
+                            ? optionVal.join(", ")
+                            : optionVal;
                           return (
-                            <p key={i} className="mb-2">
-                              <span className="font-semibold">{key}:</span> {displayValue}
+                            <p key={idx} className="mb-2">
+                              <span className="font-semibold">{optionKey}:</span>{" "}
+                              {displayVal}
                             </p>
                           );
                         })}
                       </div>
-                    );
-                  })()}
+                    )}
 
-                  {/* หมายเหตุยังอยู่ */}
-                  {order.purchase_description && (
-                    <p className="text-lg mb-2">
-                      <span className="font-semibold">หมายเหตุ:</span> {order.purchase_description}
-                    </p>
-                  )}
+                    {order.purchase_description && (
+                      <p className="text-lg mb-2">
+                        <span className="font-semibold">หมายเหตุ:</span>{" "}
+                        {order.purchase_description}
+                      </p>
+                    )}
 
-                  <div className="text-lg mb-1">
-                    วันที่สั่ง:{" "}
-                    {new Date(order.purchase_date).toLocaleString("th-TH", {
-                      timeZone: "Asia/Bangkok",
-                    })}
+                    <div className="text-lg mb-1">
+                      วันที่สั่ง:{" "}
+                      {new Date(order.purchase_date).toLocaleString("th-TH", {
+                        timeZone: "Asia/Bangkok",
+                      })}
+                    </div>
+
+                    <div className="text-lg mb-1">
+                      สถานะ:{" "}
+                      <span className="font-semibold text-blue-600">
+                        {order.purchase_status}
+                      </span>
+                    </div>
+
+                    <div className="flex space-x-2 mt-3 flex-wrap">
+                      <button
+                        className="bg-blue-600 hover:bg-blue-300 text-white px-3 py-1 rounded"
+                        onClick={() =>
+                          handleStatusUpdate(order.purchase_id, "กำลังทำ")
+                        }
+                      >
+                        กำลังทำ
+                      </button>
+                      <button
+                        className="bg-green-600 hover:bg-green-300 text-white px-3 py-1 rounded"
+                        onClick={() =>
+                          handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
+                        }
+                      >
+                        เสร็จแล้ว
+                      </button>
+                      <button
+                        className="bg-red-600 hover:bg-red-300 text-white px-3 py-1 rounded"
+                        onClick={() =>
+                          handleStatusUpdate(order.purchase_id, "ยกเลิก")
+                        }
+                      >
+                        ยกเลิก
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="text-lg mb-1">
-                    สถานะ:{" "}
-                    <span className="font-semibold text-blue-600">
-                      {order.purchase_status}
-                    </span>
-                  </div>
-
-                  <div className="flex space-x-2 mt-3 flex-wrap">
-                    <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                      onClick={() =>
-                        handleStatusUpdate(order.purchase_id, "กำลังทำ")
-                      }
-                    >
-                      กำลังทำ
-                    </button>
-                    <button
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-                      onClick={() =>
-                        handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
-                      }
-                    >
-                      เสร็จแล้ว
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                      onClick={() =>
-                        handleStatusUpdate(order.purchase_id, "ยกเลิก")
-                      }
-                    >
-                      ยกเลิก
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))

@@ -63,18 +63,18 @@ export default function KitchenGroupedByProduct() {
       order.purchase_status !== "ยกเลิก"
   );
 
-  const groupedByProduct = activeOrders.reduce((acc, order) => {
+  const groupedOrders = activeOrders.reduce((grouped, order) => {
     const name = order.product_name;
-    if (!acc[name]) acc[name] = [];
-    acc[name].push(order);
-    return acc;
+    if (!grouped[name]) grouped[name] = [];
+    grouped[name].push(order);
+    return grouped;
   }, {});
 
   return (
     <div className="p-6 max-h-screen overflow-auto text-base">
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-3xl font-bold">🍽️ คำสั่งซื้อ (ตามเมนูอาหาร)</h1>
-        <Link href="/kitchen" className="text-blue-600 underline text-lg ">
+        <Link href="/kitchen" className="text-blue-600 underline text-lg">
           ดูคำสั่งซื้อแบบกรุ๊ปตามโต๊ะ
         </Link>
       </div>
@@ -89,15 +89,15 @@ export default function KitchenGroupedByProduct() {
         </div>
       )}
 
-      {Object.keys(groupedByProduct).length === 0 ? (
+      {Object.keys(groupedOrders).length === 0 ? (
         <div className="text-center text-gray-500 text-2xl">ยังไม่มีคำสั่งซื้อ</div>
       ) : (
-        Object.entries(groupedByProduct).map(([productName, orders]) => {
-          const total = orders.reduce((sum, o) => sum + o.purchase_quantity, 0);
+        Object.entries(groupedOrders).map(([productName, productOrders]) => {
+          const total = productOrders.reduce((sum, o) => sum + o.purchase_quantity, 0);
           return (
             <div key={productName} className="mb-10">
               <div className="font-bold text-5xl mb-4 bg-gray-100 p-4 rounded">
-                เมนู: {productName} — ทั้งหมด {total} จาน 
+                {productName} — ทั้งหมด {total} จาน
               </div>
               <div className="overflow-x-auto rounded-xl shadow-lg">
                 <table className="min-w-full bg-white border border-gray-500 rounded-xl text-3xl">
@@ -113,7 +113,7 @@ export default function KitchenGroupedByProduct() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.map((order) => {
+                    {productOrders.map((order) => {
                       let optionsObj = {};
                       if (order.selected_option) {
                         try {
@@ -131,10 +131,12 @@ export default function KitchenGroupedByProduct() {
                           <td className="p-3 text-center">{order.seat_id}</td>
                           <td className="p-3 text-center">{order.purchase_quantity}</td>
                           <td className="p-3 text-center">
-                            {Object.entries(optionsObj).map(([key, val], i) => (
+                            {Object.entries(optionsObj).map(([optionName, optionValue], i) => (
                               <div key={i}>
-                                <span className="font-medium">{key}:</span>{" "}
-                                {Array.isArray(val) ? val.join(", ") : val}
+                                <span className="font-medium">{optionName}:</span>{" "}
+                                {Array.isArray(optionValue)
+                                  ? optionValue.join(", ")
+                                  : optionValue}
                               </div>
                             ))}
                           </td>
@@ -149,7 +151,7 @@ export default function KitchenGroupedByProduct() {
                           </td>
                           <td className="p-3 space-x-2 flex">
                             <button
-                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded flex-1 text-base"
+                              className="bg-blue-600 hover:bg-blue-300 text-white px-3 py-2 rounded flex-1 text-base"
                               onClick={() =>
                                 handleStatusUpdate(order.purchase_id, "กำลังทำ")
                               }
@@ -157,7 +159,7 @@ export default function KitchenGroupedByProduct() {
                               กำลังทำ
                             </button>
                             <button
-                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded flex-1 text-base"
+                              className="bg-green-600 hover:bg-green-300 text-white px-3 py-2 rounded flex-1 text-base"
                               onClick={() =>
                                 handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
                               }
@@ -165,7 +167,7 @@ export default function KitchenGroupedByProduct() {
                               เสร็จแล้ว
                             </button>
                             <button
-                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex-1 text-base"
+                              className="bg-red-600 hover:bg-red-300 text-white px-3 py-2 rounded flex-1 text-base"
                               onClick={() =>
                                 handleStatusUpdate(order.purchase_id, "ยกเลิก")
                               }

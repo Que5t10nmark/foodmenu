@@ -16,7 +16,6 @@ export default function MyOrderPage() {
       const seatIds = [...new Set(data.map((order) => order.seat_id))];
       setAllSeats(seatIds);
     };
-    
 
     fetchOrders();
     const interval = setInterval(fetchOrders, 3000);
@@ -27,12 +26,14 @@ export default function MyOrderPage() {
     ? orders.filter((order) => order.seat_id === selectedSeat)
     : [];
 
-  const renderSelectedOptions = (options) => {
-    if (!options) return null;
+  // เปลี่ยน key: type → optionType, value → optionValue
+  const renderSelectedOptions = (selectedOptions) => {
+    if (!selectedOptions) return null;
 
-    return Object.entries(options).map(([type, value]) => (
-      <div key={type} className="text-sm text-gray-600">
-        {type}: {Array.isArray(value) ? value.join(", ") : value}
+    return Object.entries(selectedOptions).map(([optionType, optionValue]) => (
+      <div key={optionType} className="text-sm text-gray-600">
+        {optionType}:{" "}
+        {Array.isArray(optionValue) ? optionValue.join(", ") : optionValue}
       </div>
     ));
   };
@@ -92,7 +93,7 @@ export default function MyOrderPage() {
         </ul>
       )}
       <Link href="/order/product" className="fixed bottom-6 left-6 z-50">
-        <button className="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg">
+        <button className="bg-red-600 hover:bg-red-300 text-white px-4 py-2 rounded-full shadow-lg">
           กลับ
         </button>
       </Link>

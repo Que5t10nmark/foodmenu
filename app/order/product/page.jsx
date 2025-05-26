@@ -25,34 +25,30 @@ export default function ProductPage() {
 
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
-    // addToCart(product);
     router.push(`/order/product/product_detail/${product.product_id}`);
   };
 
   const categories = [
     "ทั้งหมด",
-    ...Array.from(new Set(products.map((p) => p.product_type_name))),
+    ...Array.from(new Set(products.map((product) => product.product_type_name))),
   ];
 
   const filteredProducts =
     selectedCategory === "ทั้งหมด"
       ? products
-      : products.filter((p) => p.product_type_name === selectedCategory);
+      : products.filter((product) => product.product_type_name === selectedCategory);
 
-  // เรียงสินค้าที่ไม่มีสินค้าไว้ล่างสุด
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (a.product_status === "มีสินค้า" && b.product_status !== "มีสินค้า")
-      return -1;
-    if (a.product_status !== "มีสินค้า" && b.product_status === "มีสินค้า")
-      return 1;
+    if (a.product_status === "มีสินค้า" && b.product_status !== "มีสินค้า") return -1;
+    if (a.product_status !== "มีสินค้า" && b.product_status === "มีสินค้า") return 1;
     return 0;
   });
 
   return (
     <div className="p-4 relative">
-      <h1 className="text-xl font-bold mb-4">🍽️ เมนูสำหรับโต๊ะ {seatId}</h1>
+      <h1 className="text-2xl font-bold mb-4">🍽️ เมนูสำหรับโต๊ะ {seatId}</h1>
 
-      <div className="flex space-x-2 overflow-x-auto mb-4 pb-2">
+      <div className="flex space-x-2 overflow-x-auto mb-4 pb-2 text-lg">
         {categories.map((category) => (
           <button
             key={category}
@@ -68,11 +64,12 @@ export default function ProductPage() {
         ))}
 
         <Link href={`/order/cart/cart_detail/${seatId}`}>
-          <div className="px-4 py-1 rounded-full border whitespace-nowrap">
+          <div className="text-lg text-gray-700 px-4 py-1 rounded-full border whitespace-nowrap">
             รายการสั่งซื้อ
           </div>
         </Link>
       </div>
+
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow z-50">
           {message}
@@ -80,30 +77,28 @@ export default function ProductPage() {
       )}
 
       <div className="space-y-4">
-        {sortedProducts.map((p) => {
-          const isOutOfStock = p.product_status !== "มีสินค้า";
+        {sortedProducts.map((product) => {
+          const isOutOfStock = product.product_status !== "มีสินค้า";
           return (
             <div
-              key={p.product_id}
+              key={product.product_id}
               className={`flex items-center border rounded-xl shadow-sm p-4 transition-transform ${
                 isOutOfStock
                   ? "bg-gray-100 cursor-not-allowed"
                   : "bg-white hover:shadow-md"
               }`}
               onClick={() => {
-                if (!isOutOfStock) handleDetail(p);
+                if (!isOutOfStock) handleDetail(product);
               }}
             >
               {/* รูปสินค้า */}
               <div className="relative w-24 h-24 flex-shrink-0 rounded overflow-hidden">
-                {p.product_image ? (
+                {product.product_image ? (
                   <Image
-                    src={`/uploads/${p.product_image}`}
-                    alt={p.product_name}
+                    src={`/uploads/${product.product_image}`}
+                    alt={product.product_name}
                     fill
-                    className={`object-cover ${
-                      isOutOfStock ? "opacity-50" : ""
-                    }`}
+                    className={`object-cover ${isOutOfStock ? "opacity-50" : ""}`}
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm">
@@ -119,17 +114,14 @@ export default function ProductPage() {
                     isOutOfStock ? "text-gray-500" : "text-black"
                   }`}
                 >
-                  {p.product_name}
+                  {product.product_name}
                 </div>
-                {/* <div className="text-gray-500 text-sm line-clamp-2">
-                  {p.product_description || "-"}
-                </div> */}
                 <div
                   className={`mt-1 font-bold text-lg ${
                     isOutOfStock ? "text-gray-500" : "text-green-600"
                   }`}
                 >
-                  ฿{p.product_price}
+                  ฿{product.product_price}
                 </div>
               </div>
 
@@ -138,7 +130,7 @@ export default function ProductPage() {
                 disabled={isOutOfStock}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!isOutOfStock) handleAddToCart(p, e);
+                  if (!isOutOfStock) handleAddToCart(product, e);
                 }}
                 className={`ml-4 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   isOutOfStock
@@ -158,12 +150,6 @@ export default function ProductPage() {
           🛒 ไปยังตะกร้า ({cart.reduce((sum, item) => sum + item.quantity, 0)})
         </button>
       </Link>
-
-      {/* <Link href={`/backoffice/product`} className="fixed bottom-6 left-6 z-50">
-        <button className="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg">
-          กลับ
-        </button>
-      </Link> */}
     </div>
   );
 }

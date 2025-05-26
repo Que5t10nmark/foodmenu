@@ -12,50 +12,49 @@ function Page() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const [options, setOptions] = useState([]); // ตัวเลือกสินค้าทั้งหมดที่โหลดมา
+  const [productOptions, setProductOptions] = useState([]); // ตัวเลือกสินค้าทั้งหมด
   const [selectedOptions, setSelectedOptions] = useState({});
-  const [purchase_description, setPurchaseDescription] = useState("");
+  const [purchaseDescription, setPurchaseDescription] = useState("");
 
-  // โหลดข้อมูลสินค้าและตัวเลือกสินค้า
-useEffect(() => {
-  if (product_id) {
-    setLoading(true);
-    fetch(`/api/product/${product_id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProduct(data);
-        setLoading(false);
+  // โหลดข้อมูลสินค้าและตัวเลือก
+  useEffect(() => {
+    if (product_id) {
+      setLoading(true);
+      fetch(`/api/product/${product_id}`)
+        .then((res) => res.json())
+        .then((productData) => {
+          setProduct(productData);
+          setLoading(false);
 
-        if (data.product_type) {
-          fetch(`/api/product_option?product_type_id=${data.product_type}`)
-            .then((res) => res.json())
-            .then((optionData) => {
-              setOptions(optionData);
-            })
-            .catch((err) => console.error("โหลดตัวเลือกไม่สำเร็จ", err));
-        } else {
-          console.warn("product_type is missing in product data");
-        }
-      })
-      .catch((err) => {
-        console.error("โหลดสินค้าไม่สำเร็จ", err);
-        setLoading(false);
-      });
-  }
-}, [product_id]);
-
+          if (productData.product_type) {
+            fetch(`/api/product_option?product_type_id=${productData.product_type}`)
+              .then((res) => res.json())
+              .then((optionData) => {
+                setProductOptions(optionData);
+              })
+              .catch((err) => console.error("โหลดตัวเลือกไม่สำเร็จ", err));
+          } else {
+            console.warn("product_type is missing in product data");
+          }
+        })
+        .catch((err) => {
+          console.error("โหลดสินค้าไม่สำเร็จ", err);
+          setLoading(false);
+        });
+    }
+  }, [product_id]);
 
   // จัดการการเปลี่ยนแปลงตัวเลือก
   const handleOptionChange = (optionType, value, isMultiple) => {
-    setSelectedOptions((prev) => {
+    setSelectedOptions((prevSelected) => {
       if (isMultiple) {
-        const prevValues = prev[optionType] || [];
-        const newValues = prevValues.includes(value)
-          ? prevValues.filter((v) => v !== value)
-          : [...prevValues, value];
-        return { ...prev, [optionType]: newValues };
+        const previousValues = prevSelected[optionType] || [];
+        const updatedValues = previousValues.includes(value)
+          ? previousValues.filter((v) => v !== value)
+          : [...previousValues, value];
+        return { ...prevSelected, [optionType]: updatedValues };
       } else {
-        return { ...prev, [optionType]: value };
+        return { ...prevSelected, [optionType]: value };
       }
     });
   };
@@ -66,7 +65,7 @@ useEffect(() => {
     const updatedProduct = {
       ...product,
       selected_option: selectedOptions,
-      purchase_description,
+      purchase_description: purchaseDescription,
       quantity: 1,
     };
     addToCart(updatedProduct);
@@ -76,39 +75,41 @@ useEffect(() => {
 
   // แสดง input ตัวเลือกสินค้า (จัดกลุ่มตาม option_type)
   const renderOptionInputs = () => {
-    const grouped = options.reduce((acc, option) => {
-      if (!acc[option.option_type]) acc[option.option_type] = [];
-      acc[option.option_type].push(option);
-      return acc;
+    const groupedOptionsByType = productOptions.reduce((grouped, option) => {
+      if (!grouped[option.option_type]) {
+        grouped[option.option_type] = [];
+      }
+      grouped[option.option_type].push(option);
+      return grouped;
     }, {});
 
-    return Object.entries(grouped).map(([type, optionList]) => {
-      const isMultiple = optionList.some((o) => o.option_price > 0); // ใช้ checkbox ถ้ามีราคา
+    return Object.entries(groupedOptionsByType).map(([optionType, optionList]) => {
+      const isMultiple = optionList.some((option) => option.option_price > 0);
       return (
-        <div key={type} className="mb-4">
-          <label className="block font-semibold mb-1">{type}:</label>
+        <div key={optionType} className="mb-4">
+          <label className="block font-semibold mb-1">{optionType}:</label>
           {isMultiple ? (
-            optionList.map((opt) => (
-              <label key={opt.option_value} className="flex items-center mb-1">
+            optionList.map((option) => (
+              <label key={option.option_value} className="flex items-center mb-1">
                 <input
                   type="checkbox"
-                  checked={(selectedOptions[type] || []).includes(opt.option_value)}
-                  onChange={() => handleOptionChange(type, opt.option_value, true)}
+                  checked={(selectedOptions[optionType] || []).includes(option.option_value)}
+                  onChange={() => handleOptionChange(optionType, option.option_value, true)}
                   className="mr-2"
                 />
-                {opt.option_value} {opt.option_price > 0 ? `(+${opt.option_price}฿)` : ""}
+                {option.option_value} {option.option_price > 0 ? `(+${option.option_price}฿)` : ""}
               </label>
             ))
           ) : (
             <select
-              value={selectedOptions[type] || ""}
-              onChange={(e) => handleOptionChange(type, e.target.value, false)}
+              value={selectedOptions[optionType] || ""}
+              onChange={(e) => handleOptionChange(optionType, e.target.value, false)}
               className="border rounded px-3 py-2 w-full"
             >
-              <option value="">-- เลือก {type} --</option>
-              {optionList.map((opt) => (
-                <option key={opt.option_value} value={opt.option_value}>
-                  {opt.option_value} {opt.option_price > 0 ? `(+${opt.option_price}฿)` : ""}
+              <option value="">-- เลือก {optionType} --</option>
+              {optionList.map((option) => (
+                <option key={option.option_value} value={option.option_value}>
+                  {option.option_value} {option.option_price > 0 ? `(+${option.option_price}฿)` : ""}
                 </option>
               ))}
             </select>
@@ -135,11 +136,11 @@ useEffect(() => {
           </div>
 
           {renderOptionInputs()}
-        
+
           <div className="mb-4">
             <label className="block font-semibold mb-1">รายละเอียดเพิ่มเติม:</label>
             <textarea
-              value={purchase_description}
+              value={purchaseDescription}
               onChange={(e) => setPurchaseDescription(e.target.value)}
               className="w-full border rounded px-3 py-2"
               placeholder="เช่น ไม่ใส่ผัก, ใช้น้ำมันน้อย ฯลฯ"
@@ -151,7 +152,7 @@ useEffect(() => {
               {message}
             </div>
           )}
-      
+
           <button
             className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
             onClick={handleAddToCart}

@@ -12,19 +12,19 @@ export const CartProvider = ({ children }) => {
   const generateCartKey = (product) => {
     const options = product.selected_option || {};
     const optionKey = Object.entries(options)
-      .map(([key, value]) => {
-        if (Array.isArray(value)) {
-          // สมมติ value เป็น array ของ object ที่มี option_value
-          return `${key}:${value
-            .map((v) => (typeof v === "object" ? v.option_value : v))
+      .map(([optionType, optionValue]) => {
+        if (Array.isArray(optionValue)) {
+          // สมมติ optionValue เป็น array ของ object ที่มี option_value
+          return `${optionType}:${optionValue
+            .map((option) => (typeof option === "object" ? option.option_value : option))
             .sort()
             .join(",")}`;
         }
         // กรณีเป็น object หรือ string ปกติ
-        if (typeof value === "object" && value !== null) {
-          return `${key}:${value.option_value || ""}`;
+        if (typeof optionValue === "object" && optionValue !== null) {
+          return `${optionType}:${optionValue.option_value || ""}`;
         }
-        return `${key}:${value}`;
+        return `${optionType}:${optionValue}`;
       })
       .sort()
       .join("|");
@@ -35,28 +35,28 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = (product) => {
-    setCart((prevCart) => {
+    setCart((previousCart) => {
       const key = generateCartKey(product);
-      const existingProduct = prevCart.find(
+      const existingProduct = previousCart.find(
         (item) => generateCartKey(item) === key
       );
 
       if (existingProduct) {
-        return prevCart.map((item) =>
+        return previousCart.map((item) =>
           generateCartKey(item) === key
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
 
-      return [...prevCart, { ...product, quantity: 1 }];
+      return [...previousCart, { ...product, quantity: 1 }];
     });
   };
 
   const removeFromCart = (product) => {
-    setCart((prevCart) => {
+    setCart((previousCart) => {
       const key = generateCartKey(product);
-      return prevCart.flatMap((item) => {
+      return previousCart.flatMap((item) => {
         if (generateCartKey(item) === key) {
           if (item.quantity > 1) {
             return [{ ...item, quantity: item.quantity - 1 }];

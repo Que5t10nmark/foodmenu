@@ -8,22 +8,22 @@ export default function CartPage() {
   const router = useRouter();
 
   // ฟังก์ชันช่วยคำนวณราคารวมของตัวเลือก (รองรับ array หรือ object)
-  const calculateOptionsPrice = (selected_option) => {
-    if (!selected_option) return 0;
+  const calculateOptionsPrice = (selectedOptions) => {
+    if (!selectedOptions) return 0;
     let optionTotal = 0;
 
-    for (const key in selected_option) {
-      const value = selected_option[key];
+    for (const optionType in selectedOptions) {
+      const optionValue = selectedOptions[optionType];
 
-      if (Array.isArray(value)) {
-        value.forEach((opt) => {
-          if (opt && typeof opt === "object" && opt.option_price) {
-            optionTotal += Number(opt.option_price);
+      if (Array.isArray(optionValue)) {
+        optionValue.forEach((option) => {
+          if (option && typeof option === "object" && option.option_price) {
+            optionTotal += Number(option.option_price);
           }
         });
-      } else if (value && typeof value === "object") {
-        if (value.option_price) {
-          optionTotal += Number(value.option_price);
+      } else if (optionValue && typeof optionValue === "object") {
+        if (optionValue.option_price) {
+          optionTotal += Number(optionValue.option_price);
         }
       }
     }
@@ -31,40 +31,40 @@ export default function CartPage() {
   };
 
   // คำนวณราคารวมทั้งหมดในตะกร้า
-  const total = cart.reduce((sum, item) => {
-    const basePrice = item.product_price || 0;
-    const quantity = item.quantity || 0;
-    const optionsPrice = calculateOptionsPrice(item.selected_option);
+  const total = cart.reduce((sum, cartItem) => {
+    const basePrice = cartItem.product_price || 0;
+    const quantity = cartItem.quantity || 0;
+    const optionsPrice = calculateOptionsPrice(cartItem.selected_option);
     return sum + quantity * (basePrice + optionsPrice);
   }, 0);
 
   // ฟังก์ชันแสดงตัวเลือก พร้อมราคาเพิ่ม
-  const renderSelectedOptions = (options) => {
-    if (!options) return null;
+  const renderSelectedOptions = (selectedOptions) => {
+    if (!selectedOptions) return null;
 
-    return Object.entries(options).map(([type, value]) => {
-      if (Array.isArray(value)) {
-        const totalOptionPrice = value.reduce(
-          (sum, v) => sum + (Number(v.option_price) || 0),
+    return Object.entries(selectedOptions).map(([optionType, optionValue]) => {
+      if (Array.isArray(optionValue)) {
+        const totalOptionPrice = optionValue.reduce(
+          (sum, option) => sum + (Number(option.option_price) || 0),
           0
         );
         return (
-          <div key={type} className="text-sm text-gray-600">
-            {type}: {value.map((v) => v.option_value || v).join(", ")}
+          <div key={optionType} className="text-sm text-gray-600">
+            {optionType}: {optionValue.map((option) => option.option_value || option).join(", ")}
             {totalOptionPrice > 0 ? ` +${totalOptionPrice} บาท` : ""}
           </div>
         );
-      } else if (typeof value === "object" && value !== null) {
+      } else if (typeof optionValue === "object" && optionValue !== null) {
         return (
-          <div key={type} className="text-sm text-gray-600">
-            {type}: {value.option_value || ""}
-            {value.option_price ? ` +${Number(value.option_price)} บาท` : ""}
+          <div key={optionType} className="text-sm text-gray-600">
+            {optionType}: {optionValue.option_value || ""}
+            {optionValue.option_price ? ` +${Number(optionValue.option_price)} บาท` : ""}
           </div>
         );
       } else {
         return (
-          <div key={type} className="text-sm text-gray-600">
-            {type}: {value}
+          <div key={optionType} className="text-sm text-gray-600">
+            {optionType}: {optionValue}
           </div>
         );
       }
@@ -80,16 +80,16 @@ export default function CartPage() {
     }
 
     try {
-      const cartData = cart.map((item) => ({
+      const cartData = cart.map((cartItem) => ({
         product: {
-          product_id: item.product_id,
-          product_name: item.product_name,
-          product_price: item.product_price,
-          quantity: item.quantity,
+          product_id: cartItem.product_id,
+          product_name: cartItem.product_name,
+          product_price: cartItem.product_price,
+          quantity: cartItem.quantity,
         },
         seat_id: seatId,
-        selected_option: item.selected_option || {},
-        description: item.purchase_description || "",
+        selected_option: cartItem.selected_option || {},
+        description: cartItem.purchase_description || "",
       }));
 
       const res = await fetch("/api/purchase", {
@@ -121,40 +121,39 @@ export default function CartPage() {
       ) : (
         <>
           <ul className="space-y-4">
-            {cart.map((item, idx) => (
-              <li key={`${item.product_id}-${idx}`} className="border p-3 rounded">
+            {cart.map((cartItem, itemIndex) => (
+              <li key={`${cartItem.product_id}-${itemIndex}`} className="border p-3 rounded">
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-semibold">
-                      {item.product_name} × {item.quantity}
+                      {cartItem.product_name} × {cartItem.quantity}
                     </div>
 
-                    {renderSelectedOptions(item.selected_option)}
+                    {renderSelectedOptions(cartItem.selected_option)}
 
-
-                    {item.purchase_description && (
+                    {cartItem.purchase_description && (
                       <div className="text-sm text-gray-600">
-                        หมายเหตุ: {item.purchase_description}
+                        หมายเหตุ: {cartItem.purchase_description}
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => removeFromCart(item)}
+                      onClick={() => removeFromCart(cartItem)}
                       className="bg-red-500 text-white px-2 rounded"
                     >
                       -
                     </button>
                     <button
-                      onClick={() => addToCart(item)}
+                      onClick={() => addToCart(cartItem)}
                       className="bg-green-500 text-white px-2 rounded"
                     >
                       +
                     </button>
-                    <div className="font-bold">
+                    <div className="font-bold ">
                       ฿
-                      {item.quantity *
-                        (item.product_price + calculateOptionsPrice(item.selected_option))}
+                      {cartItem.quantity *
+                        (cartItem.product_price + calculateOptionsPrice(cartItem.selected_option))}
                     </div>
                   </div>
                 </div>
@@ -163,7 +162,6 @@ export default function CartPage() {
           </ul>
 
           <div className="mt-6 text-right font-bold text-xl">รวม: ฿{total}</div>
-
           <button
             onClick={() => {
               if (confirm("คุณต้องการล้างตะกร้าทั้งหมดใช่หรือไม่?")) {
@@ -185,7 +183,6 @@ export default function CartPage() {
           >
             ยืนยันการสั่งซื้อ
           </button>
-
           <Link href={"/order/product"}>
             <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-300">
               เลือกสินค้าเพิ่ม
