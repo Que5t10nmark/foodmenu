@@ -48,7 +48,12 @@ export async function GET(req) {
     const status = req.nextUrl.searchParams.get("status");
     const date = req.nextUrl.searchParams.get("date");
 
-    let query = "SELECT * FROM purchase";
+    let query = `
+      SELECT * FROM purchase 
+      WHERE purchase_id NOT IN (
+        SELECT purchase_id FROM payment_detail
+      )
+    `;
     const conditions = [];
     const params = [];
 
@@ -63,7 +68,7 @@ export async function GET(req) {
     }
 
     if (conditions.length > 0) {
-      query += " WHERE " + conditions.join(" AND ");
+      query += " AND " + conditions.join(" AND ");
     }
 
     query += " ORDER BY purchase_date DESC";
@@ -98,3 +103,4 @@ export async function GET(req) {
     );
   }
 }
+
