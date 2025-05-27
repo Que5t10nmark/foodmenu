@@ -12,23 +12,22 @@ export default function Register() {
   const [account_address, setAccountAddress] = useState("");
   const [account_role, setAccountRole] = useState("เจ้าของร้าน");
   const [successMessage, setSuccessMessage] = useState(false);
-  const [accounts, setAccounts] = useState([]);
+  const [account, setAccount] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const router = useRouter();
-
-  const fetchAccounts = async () => {
+  const fetchAccount = async () => {
     try {
-      const res = await fetch("/api/accounts");
+      const res = await fetch("/api/register");
       const data = await res.json();
-      setAccounts(data);
+      setAccount(data);
     } catch (error) {
       console.error("Error fetching accounts:", error);
     }
   };
 
   useEffect(() => {
-    fetchAccounts();
+    fetchAccount();
   }, []);
 
   const clearForm = () => {
@@ -72,7 +71,7 @@ export default function Register() {
     if (response.ok) {
       setSuccessMessage(true);
       clearForm();
-      fetchAccounts();
+      fetchAccount();
       setTimeout(() => {
         setSuccessMessage(false);
         setIsModalOpen(false);
@@ -80,6 +79,68 @@ export default function Register() {
     } else {
       alert("เกิดข้อผิดพลาดในการลงทะเบียน");
     }
+  };
+  const openModal = (account) => {
+    setAccountName(account.account_name);
+    setAccountEmail(account.account_email);
+    setAccountPassword(account.account_password);
+    setAccountPhone(account.account_phone);
+    setAccountAddress(account.account_address);
+    setAccountRole(account.account_role);
+    setIsModalOpen(true);
+  };
+  const deleteAccount = async (accountId) => {
+    try {
+      const response = await fetch(`/api/register/${accountId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchAccount();
+      } else {
+        alert("เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้งาน");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    }
+  }; 
+  const handleUpdate = async (e, account) => {
+    e.preventDefault(); 
+    if (
+      !account_name ||  
+      !account_email ||
+      !account_password ||
+      !account_phone ||
+      !account_address ||
+      !account_role
+    ) {
+      alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+      return;
+    }
+    const response = await fetch(`/api/register/${account.account_id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        account_name,
+        account_email,
+        account_password,
+        account_phone,
+        account_address,
+        account_role,
+      }),
+    });
+    if (response.ok) {
+      fetchAccount();
+      closeModal();
+    } else {
+      alert("เกิดข้อผิดพลาดในการแก้ไขบัญชีผู้ใช้งาน");
+    }
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    clearForm();
+    setIsEditing(false);
   };
 
   return (
@@ -101,17 +162,18 @@ export default function Register() {
 
         <div className="overflow-x-auto max-h-[50vh] mb-8">
           <table className="min-w-full table-auto border-collapse border border-gray-300 text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-100 ">
               <tr>
                 <th className="px-4 py-2 border">ชื่อ</th>
                 <th className="px-4 py-2 border">อีเมล</th>
                 <th className="px-4 py-2 border">เบอร์โทร</th>
                 <th className="px-4 py-2 border">ที่อยู่</th>
                 <th className="px-4 py-2 border">บทบาท</th>
+                <th className="px-4 py-2 border">จัดการ</th>
               </tr>
             </thead>
             <tbody>
-              {accounts.map((account, index) => (
+              {account.map((account, index) => (
                 <tr
                   key={account.account_id || index}
                   className="hover:bg-gray-50"
@@ -123,13 +185,33 @@ export default function Register() {
                     {account.account_address}
                   </td>
                   <td className="px-4 py-2 border">{account.account_role}</td>
+                  <td className="px-4 py-2 border">
+                  <button
+                    onClick={() => openModal(account)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                  >
+                    แก้ไข
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                        deleteAccount(account.account_id);
+                      }
+                    }}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    ลบ
+                  </button>
+                </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        <Modal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)}>
+      <Modal isOpen={isModalOpen} closeModal={closeModal}>
+        <h2 className="text-xl font-semibold mb-4">
+          {isEditing ? "แก้ไขรายการอาหาร" : "เพิ่มอาหารใหม่"}
+        </h2>
           <form
             onSubmit={handleRegister}
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -212,28 +294,28 @@ export default function Register() {
               </select>
             </div>
 
-            <div className="md:col-span-2 flex justify-between gap-4">
-              <button
-                type="submit"
-                className="flex-1 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
-              >
-                เพิ่มบัญชีผู้ใช้งาน
-              </button>
-              <button
-                type="button"
-                onClick={clearForm}
-                className="flex-1 py-3 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 transition"
-              >
-                เคลียร์
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
-              >
-                ยกเลิก
-              </button>
-            </div>
+          <div className="mt-4 flex gap-4">
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-6 py-2 rounded"
+            >
+              {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
+            </button>
+            <button
+              type="button"
+              onClick={clearForm}
+              className="bg-gray-500 text-white px-6 py-2 rounded"
+            >
+              เคลียร์
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="bg-red-500 text-white px-6 py-2 rounded"
+            >
+              ยกเลิก
+            </button>
+          </div>
           </form>
         </Modal>
       </div>
