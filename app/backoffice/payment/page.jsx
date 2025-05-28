@@ -3,18 +3,18 @@ import { useEffect, useState } from "react";
 
 export default function PaymentPage() {
   const [orders, setOrders] = useState([]);
-  const [selectedSeat, setSelectedSeat] = useState("");
+  const [selectedSeats, setSelectedSeats] = useState([]);
   const [paidSeats, setPaidSeats] = useState([]);
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("เงินสด");
   const [printReceipt, setPrintReceipt] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState("");
+
   useEffect(() => {
     const fetchOrders = async () => {
       const res = await fetch(`/api/purchase`);
       const data = await res.json();
-
       const finishedOrders = data.filter(
         (order) => order.purchase_status === "เสร็จแล้ว"
       );
@@ -31,8 +31,16 @@ export default function PaymentPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const filteredOrders = orders.filter(
-    (order) => order.seat_id === selectedSeat
+  const toggleSeatSelection = (seatId) => {
+    setSelectedSeats((prev) =>
+      prev.includes(seatId)
+        ? prev.filter((id) => id !== seatId)
+        : [...prev, seatId]
+    );
+  };
+
+  const filteredOrders = orders.filter((order) =>
+    selectedSeats.includes(order.seat_id)
   );
   const subtotal = filteredOrders.reduce(
     (sum, order) => sum + order.product_price * order.purchase_quantity,
@@ -41,51 +49,67 @@ export default function PaymentPage() {
   const total = subtotal - discount;
 
   const handlePayment = async () => {
-    if (!selectedSeat) return;
+    if (selectedSeats.length === 0) return;
 
     try {
-      const res = await fetch(`/api/payment/${selectedSeat}/pay`, {
+      const res = await fetch(`/api/payment/[seat_id]/pay`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ discount, method: paymentMethod, printReceipt }),
+        body: JSON.stringify({
+          seat_ids: selectedSeats,
+          discount,
+          method: paymentMethod,
+          printReceipt,
+        }),
       });
 
       if (res.ok) {
-        alert("✅ ชำระเงินเรียบร้อยแล้ว");
-        setSelectedSeat("");
+        setMessage(`อัปเดตสถานะเป็น "ชำระเงินแล้ว" `);
+        setTimeout(() => setMessage(null), 1000);
+
         setDiscount(0);
         setPaymentMethod("เงินสด");
         setPrintReceipt(true);
         setOrders((prev) =>
-          prev.filter((order) => order.seat_id !== selectedSeat)
+          prev.filter((order) => !selectedSeats.includes(order.seat_id))
         );
-        setPaidSeats((prev) => prev.filter((s) => s !== selectedSeat));
+        setPaidSeats((prev) =>
+          prev.filter((seatId) => !selectedSeats.includes(seatId))
+        );
       } else {
         const error = await res.json();
         alert("❌ เกิดข้อผิดพลาด: " + error.message);
       }
     } catch (err) {
-      console.error("Error:", err);
-      alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์");
+      console.error("เกิดข้อผิดพลาดในการชาระเงิน:", err);
+      setMessage("เกิดข้อผิดพลาดในกาชารชำระเงิน");
+      setTimeout(() => setMessage(null), 1000);
     }
   };
 
   return (
     <div className="flex h-screen">
-      {/* ฝั่งซ้าย: รายการโต๊ะ */}
+      {message && (
+        <div
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+          bg-green-700 text-white border border-green-300 px-6 py-3 
+          rounded-xl shadow-lg z-50 animate-fade text-xl"
+        >
+          {message}
+        </div>
+      )}
       <div className="w-2/2 p-2 bg-gray-100 overflow-y-auto">
-        <h2 className="text-3xl font-bold mb-4 ">เลือกโต๊ะชำระเงิน</h2>
-        <div className="grid grid-cols-3 gap-4 ">
+        <h2 className="text-3xl font-bold mb-4">เลือกโต๊ะชำระเงิน</h2>
+        <div className="grid grid-cols-3 gap-4">
           {paidSeats.map((seatId) => (
             <button
               key={seatId}
-              onClick={() => setSelectedSeat(seatId)}
-              className={`p-6 md-p-8 cursor-pointer border rounded-lg text-3xl font-bold shadow hover:bg-green-100 transition 
-                ${
-                  selectedSeat === seatId
-                    ? "bg-green-500 text-white"
-                    : "bg-white"
-                }`}
+              onClick={() => toggleSeatSelection(seatId)}
+              className={`p-6 text-3xl font-bold border rounded-lg shadow hover:bg-green-100 transition ${
+                selectedSeats.includes(seatId)
+                  ? "bg-green-500 text-white"
+                  : "bg-white"
+              }`}
             >
               โต๊ะ {seatId}
             </button>
@@ -93,15 +117,14 @@ export default function PaymentPage() {
         </div>
       </div>
 
-      {/* ฝั่งขวา: รายการสินค้าในโต๊ะ */}
       <div className="w-1/2 p-6 overflow-y-auto bg-white">
         <h2 className="text-3xl font-bold mb-4">
-          {selectedSeat
-            ? `📋 รายการของโต๊ะ ${selectedSeat}`
+          {selectedSeats.length > 0
+            ? `📋 รายการของโต๊ะ ${selectedSeats.join(", ")}`
             : "🔍 กรุณาเลือกโต๊ะ"}
         </h2>
 
-        {selectedSeat && filteredOrders.length > 0 ? (
+        {selectedSeats.length > 0 && filteredOrders.length > 0 ? (
           <>
             <ul className="space-y-3 mb-4">
               {filteredOrders.map((order) => (
@@ -110,7 +133,7 @@ export default function PaymentPage() {
                   className="border p-1 rounded shadow bg-gray-50"
                 >
                   <div className="text-md font-bold">
-                    {order.product_name} จำนวน: {order.purchase_quantity} จาน
+                    {order.product_name} จำนวน: {order.purchase_quantity}
                     ราคา: {order.product_price} บาท
                   </div>
                   <div className="text-sm text-gray-800">
@@ -131,7 +154,6 @@ export default function PaymentPage() {
               ))}
             </ul>
 
-            {/* ส่วนลดและวิธีชำระ */}
             <div className="space-y-4 mb-6">
               <div>
                 <label className="font-semibold block mb-1">
@@ -151,50 +173,30 @@ export default function PaymentPage() {
                   เลือกการชำระเงิน
                 </label>
                 <div className="flex gap-4">
-                  <button
-                    onClick={() => setPaymentMethod("เงินสด")}
-                    className={`px-6 py-4 rounded border font-semibold text-center cursor-pointer
-                      ${
-                        paymentMethod === "เงินสด"
+                  {["เงินสด", "โอน"].map((method) => (
+                    <button
+                      key={method}
+                      onClick={() => setPaymentMethod(method)}
+                      className={`px-6 py-4 rounded border font-semibold cursor-pointer ${
+                        paymentMethod === method
                           ? "bg-green-500 text-white"
                           : "bg-white"
                       }`}
-                  >
-                    เงินสด
-                  </button>
-                  <button
-                    onClick={() => setPaymentMethod("โอน")}
-                    className={`px-6 py-4 rounded border font-semibold text-center cursor-pointer
-                      ${
-                        paymentMethod === "โอน"
-                          ? "bg-green-500 text-white"
-                          : "bg-white"
-                      }`}
-                  >
-                    โอน
-                  </button>
+                    >
+                      {method}
+                    </button>
+                  ))}
                 </div>
               </div>
-
-              {/* <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={printReceipt}
-                  onChange={(e) => setPrintReceipt(e.target.checked)}
-                  id="printReceipt"
-                />
-                <label htmlFor="printReceipt">🖨 พิมพ์ใบเสร็จ</label>
-              </div> */}
             </div>
 
-            {/* รวมยอด */}
             <div className="text-right font-bold text-xl mb-2">
               รวมทั้งสิ้น: {total.toFixed(2)} บาท
             </div>
 
             <button
               onClick={() => setShowConfirm(true)}
-              className="w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded text-lg transition cursor-pointer"
+              className="w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded text-lg transition"
             >
               ยืนยันชำระเงิน
             </button>
@@ -209,13 +211,13 @@ export default function PaymentPage() {
                         handlePayment();
                         setShowConfirm(false);
                       }}
-                      className="text-white bg-green-600 px-6 py-4 rounded hover:bg-green-300 cursor-pointer"
+                      className="text-white bg-green-600 px-6 py-4 rounded hover:bg-green-300"
                     >
                       ใช่
                     </button>
                     <button
                       onClick={() => setShowConfirm(false)}
-                      className="text-white bg-red-600 px-6 py-4 rounded hover:bg-red-300 cursor-pointer"
+                      className="text-white bg-red-600 px-6 py-4 rounded hover:bg-red-300"
                     >
                       ยกเลิก
                     </button>
