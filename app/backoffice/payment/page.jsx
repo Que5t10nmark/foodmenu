@@ -8,26 +8,36 @@ export default function PaymentPage() {
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("เงินสด");
   const [printReceipt, setPrintReceipt] = useState(true);
-
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [message, setMessage] = useState("");
   useEffect(() => {
     const fetchOrders = async () => {
       const res = await fetch(`/api/purchase`);
       const data = await res.json();
 
-      const finishedOrders = data.filter(order => order.purchase_status === "เสร็จแล้ว");
+      const finishedOrders = data.filter(
+        (order) => order.purchase_status === "เสร็จแล้ว"
+      );
       setOrders(finishedOrders);
 
-      const uniqueSeats = [...new Set(finishedOrders.map((o) => o.seat_id))];
+      const uniqueSeats = [
+        ...new Set(finishedOrders.map((order) => order.seat_id)),
+      ];
       setPaidSeats(uniqueSeats);
     };
 
     fetchOrders();
-    const interval = setInterval(fetchOrders, 3000);
+    const interval = setInterval(fetchOrders, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  const filteredOrders = orders.filter((o) => o.seat_id === selectedSeat);
-  const subtotal = filteredOrders.reduce((sum, o) => sum + (o.product_price * o.purchase_quantity), 0);
+  const filteredOrders = orders.filter(
+    (order) => order.seat_id === selectedSeat
+  );
+  const subtotal = filteredOrders.reduce(
+    (sum, order) => sum + order.product_price * order.purchase_quantity,
+    0
+  );
   const total = subtotal - discount;
 
   const handlePayment = async () => {
@@ -46,7 +56,9 @@ export default function PaymentPage() {
         setDiscount(0);
         setPaymentMethod("เงินสด");
         setPrintReceipt(true);
-        setOrders((prev) => prev.filter((o) => o.seat_id !== selectedSeat));
+        setOrders((prev) =>
+          prev.filter((order) => order.seat_id !== selectedSeat)
+        );
         setPaidSeats((prev) => prev.filter((s) => s !== selectedSeat));
       } else {
         const error = await res.json();
@@ -61,16 +73,19 @@ export default function PaymentPage() {
   return (
     <div className="flex h-screen">
       {/* ฝั่งซ้าย: รายการโต๊ะ */}
-      <div className="w-1/2 p-4 bg-gray-100 overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">🪑 โต๊ะที่พร้อมชำระเงิน</h2>
-        <div className="grid grid-cols-3 gap-4">
+      <div className="w-2/2 p-2 bg-gray-100 overflow-y-auto">
+        <h2 className="text-3xl font-bold mb-4 ">เลือกโต๊ะชำระเงิน</h2>
+        <div className="grid grid-cols-3 gap-4 ">
           {paidSeats.map((seatId) => (
             <button
               key={seatId}
               onClick={() => setSelectedSeat(seatId)}
-              className={`p-6 border rounded-lg text-xl font-bold shadow hover:bg-blue-100 transition ${
-                selectedSeat === seatId ? "bg-blue-500 text-white" : "bg-white"
-              }`}
+              className={`p-6 md-p-8 cursor-pointer border rounded-lg text-3xl font-bold shadow hover:bg-green-100 transition 
+                ${
+                  selectedSeat === seatId
+                    ? "bg-green-500 text-white"
+                    : "bg-white"
+                }`}
             >
               โต๊ะ {seatId}
             </button>
@@ -80,8 +95,10 @@ export default function PaymentPage() {
 
       {/* ฝั่งขวา: รายการสินค้าในโต๊ะ */}
       <div className="w-1/2 p-6 overflow-y-auto bg-white">
-        <h2 className="text-2xl font-bold mb-4">
-          {selectedSeat ? `📋 รายการของโต๊ะ ${selectedSeat}` : "🔍 กรุณาเลือกโต๊ะ"}
+        <h2 className="text-3xl font-bold mb-4">
+          {selectedSeat
+            ? `📋 รายการของโต๊ะ ${selectedSeat}`
+            : "🔍 กรุณาเลือกโต๊ะ"}
         </h2>
 
         {selectedSeat && filteredOrders.length > 0 ? (
@@ -92,9 +109,24 @@ export default function PaymentPage() {
                   key={order.purchase_id}
                   className="border p-1 rounded shadow bg-gray-50"
                 >
-                  <div className="font-bold text-lg">{order.product_name}</div>
-                  <div className="text-sm text-gray-600">จำนวน: {order.purchase_quantity}</div>
-                  <div className="text-sm text-gray-600">ราคา: {order.product_price} บาท</div>
+                  <div className="text-md font-bold">
+                    {order.product_name} จำนวน: {order.purchase_quantity} จาน
+                    ราคา: {order.product_price} บาท
+                  </div>
+                  <div className="text-sm text-gray-800">
+                    {order.selected_option
+                      ? `${Object.entries(order.selected_option)
+                          .map(
+                            ([option_type, option_value]) =>
+                              `${option_type}: ${
+                                Array.isArray(option_value)
+                                  ? option_value.join(", ")
+                                  : option_value
+                              }`
+                          )
+                          .join(", ")}`
+                      : "ไม่มีตัวเลือก"}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -102,7 +134,9 @@ export default function PaymentPage() {
             {/* ส่วนลดและวิธีชำระ */}
             <div className="space-y-4 mb-6">
               <div>
-                <label className="font-semibold block mb-1">💸 ส่วนลด (บาท):</label>
+                <label className="font-semibold block mb-1">
+                  ใส่ส่วนลด(บาท)
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -113,28 +147,36 @@ export default function PaymentPage() {
               </div>
 
               <div>
-                <label className="font-semibold block mb-1">💳 วิธีชำระ:</label>
+                <label className="font-semibold block mb-2 text-2xl">
+                  เลือกการชำระเงิน
+                </label>
                 <div className="flex gap-4">
                   <button
                     onClick={() => setPaymentMethod("เงินสด")}
-                    className={`px-4 py-2 rounded border font-semibold ${
-                      paymentMethod === "เงินสด" ? "bg-green-500 text-white" : "bg-white"
-                    }`}
+                    className={`px-6 py-4 rounded border font-semibold text-center cursor-pointer
+                      ${
+                        paymentMethod === "เงินสด"
+                          ? "bg-green-500 text-white"
+                          : "bg-white"
+                      }`}
                   >
                     เงินสด
                   </button>
                   <button
                     onClick={() => setPaymentMethod("โอน")}
-                    className={`px-4 py-2 rounded border font-semibold ${
-                      paymentMethod === "โอน" ? "bg-green-500 text-white" : "bg-white"
-                    }`}
+                    className={`px-6 py-4 rounded border font-semibold text-center cursor-pointer
+                      ${
+                        paymentMethod === "โอน"
+                          ? "bg-green-500 text-white"
+                          : "bg-white"
+                      }`}
                   >
                     โอน
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={printReceipt}
@@ -142,24 +184,49 @@ export default function PaymentPage() {
                   id="printReceipt"
                 />
                 <label htmlFor="printReceipt">🖨 พิมพ์ใบเสร็จ</label>
-              </div>
+              </div> */}
             </div>
 
             {/* รวมยอด */}
             <div className="text-right font-bold text-xl mb-2">
-              💰 รวมทั้งสิ้น: {total.toFixed(2)} บาท
+              รวมทั้งสิ้น: {total.toFixed(2)} บาท
             </div>
 
             <button
-              onClick={handlePayment}
-              className="w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded text-lg transition"
+              onClick={() => setShowConfirm(true)}
+              className="w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded text-lg transition cursor-pointer"
             >
-              ✅ ยืนยันชำระเงิน
+              ยืนยันชำระเงิน
             </button>
+
+            {showConfirm && (
+              <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
+                <div className="bg-white p-4 rounded-lg shadow-lg text-center space-y-2 w-[90%] max-w-md">
+                  <p className="text-2xl">คุณต้องการชำระเงินใช่หรือไม่?</p>
+                  <div className="flex justify-around">
+                    <button
+                      onClick={() => {
+                        handlePayment();
+                        setShowConfirm(false);
+                      }}
+                      className="text-white bg-green-600 px-6 py-4 rounded hover:bg-green-300 cursor-pointer"
+                    >
+                      ใช่
+                    </button>
+                    <button
+                      onClick={() => setShowConfirm(false)}
+                      className="text-white bg-red-600 px-6 py-4 rounded hover:bg-red-300 cursor-pointer"
+                    >
+                      ยกเลิก
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className="text-gray-500 text-center mt-10">
-            🕐 ยังไม่มีรายการในโต๊ะนี้
+            ยังไม่มีรายการในโต๊ะนี้
           </div>
         )}
       </div>

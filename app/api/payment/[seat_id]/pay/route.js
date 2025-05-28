@@ -25,7 +25,7 @@ export async function PUT(req, context) {
 
     const [insertPayment] = await db.execute(
       `INSERT INTO payment (seat_id, payment_total, payment_discount, payment_method, payment_receipt, payment_date)
-       VALUES (?, ?, ?, ?, ?, NOW())`,
+       VALUES (?, ?, ?, ?, ?, CONVERT_TZ(NOW(), 'UTC', 'Asia/Bangkok'))`,
       [seat_id, finalTotal, discount, method, printReceipt ? 1 : 0]
     );
 
