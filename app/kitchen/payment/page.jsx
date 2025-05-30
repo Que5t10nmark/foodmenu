@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-
+import { TextSelect, NotebookPen, SquareMousePointer } from "lucide-react";
 export default function PaymentPage() {
   const [orders, setOrders] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -67,6 +67,16 @@ export default function PaymentPage() {
         setMessage(`อัปเดตสถานะเป็น "ชำระเงินแล้ว" `);
         setTimeout(() => setMessage(null), 1000);
 
+        if (printReceipt) {
+          handlePrint(
+            selectedSeats,
+            filteredOrders,
+            total,
+            discount,
+            paymentMethod
+          );
+        }
+
         setDiscount(0);
         setPaymentMethod("เงินสด");
         setPrintReceipt(true);
@@ -86,6 +96,18 @@ export default function PaymentPage() {
       setTimeout(() => setMessage(null), 1000);
     }
   };
+  // ฝั่ง PaymentPage ก่อนเปิดหน้าพิมพ์ใบเสร็จ
+  const handlePrint = () => {
+    const printData = {
+      filteredOrders,
+      total,
+      discount,
+      paymentMethod,
+      selectedSeats,
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(printData));
+    window.open(`/kitchen/print/receipt?data=${encodedData}`);
+  };
 
   return (
     <div className="flex h-screen">
@@ -98,16 +120,19 @@ export default function PaymentPage() {
           {message}
         </div>
       )}
-      <div className="w-2/2 p-2 bg-gray-100 overflow-y-auto">
-        <h2 className="text-3xl font-bold mb-4">เลือกโต๊ะชำระเงิน</h2>
-        <div className="grid grid-cols-3 gap-4">
+      <div className="w-3/2 p-2 bg-gray-100 overflow-y-auto">
+        <h2 className="text-3xl font-bold mb-4">
+          <SquareMousePointer className="inline-block w-9 h-8 text-gray-600" />
+          เลือกโต๊ะชำระเงิน
+        </h2>
+        <div className="grid grid-cols-3 gap-2">
           {paidSeats.map((seatId) => (
             <button
               key={seatId}
               onClick={() => toggleSeatSelection(seatId)}
-              className={`p-6 text-3xl font-bold border rounded-lg shadow hover:bg-green-100 transition ${
+              className={`p-6 text-3xl cursor-pointer font-bold border rounded-lg shadow hover:bg-green-100 transition ${
                 selectedSeats.includes(seatId)
-                  ? "bg-green-500 text-white"
+                  ? "bg-green-500 text-white shadow-lg shadow-green-500/50 "
                   : "bg-white"
               }`}
             >
@@ -118,10 +143,18 @@ export default function PaymentPage() {
       </div>
 
       <div className="w-1/2 p-6 overflow-y-auto bg-white">
-        <h2 className="text-3xl font-bold mb-4">
-          {selectedSeats.length > 0
-            ? `📋 รายการของโต๊ะ ${selectedSeats.join(", ")}`
-            : "🔍 กรุณาเลือกโต๊ะ"}
+        <h2 className="text-3xl font-bold mb-4 flex items-center gap-2">
+          {selectedSeats.length > 0 ? (
+            <>
+              <TextSelect className="w-8 h-8 text-gray-600" />
+              รายการของโต๊ะ {selectedSeats.join(", ")}
+            </>
+          ) : (
+            <>
+              <NotebookPen className="w-8 h-8 text-gray-600" />
+              กรุณาเลือกโต๊ะ
+            </>
+          )}
         </h2>
 
         {selectedSeats.length > 0 && filteredOrders.length > 0 ? (
@@ -133,8 +166,8 @@ export default function PaymentPage() {
                   className="border p-1 rounded shadow bg-gray-50"
                 >
                   <div className="text-md font-bold">
-                    {order.product_name} จำนวน: {order.purchase_quantity}
-                    ราคา: {order.product_price} บาท
+                    {order.product_name} จำนวน: {order.purchase_quantity} ราคา:{" "}
+                    {order.product_price} บาท
                   </div>
                   <div className="text-sm text-gray-800">
                     {order.selected_option
@@ -157,7 +190,7 @@ export default function PaymentPage() {
             <div className="space-y-4 mb-6">
               <div>
                 <label className="font-semibold block mb-1">
-                  ใส่ส่วนลด(บาท)
+                  ใส่ส่วนลด (บาท)
                 </label>
                 <input
                   type="number"
@@ -167,7 +200,6 @@ export default function PaymentPage() {
                   className="w-full border p-2 rounded"
                 />
               </div>
-
               <div>
                 <label className="font-semibold block mb-2 text-2xl">
                   เลือกการชำระเงิน
@@ -179,13 +211,25 @@ export default function PaymentPage() {
                       onClick={() => setPaymentMethod(method)}
                       className={`px-6 py-4 rounded border font-semibold cursor-pointer ${
                         paymentMethod === method
-                          ? "bg-green-500 text-white"
+                          ? "bg-green-500 text-white shadow-lg shadow-green-500/50"
                           : "bg-white"
                       }`}
                     >
                       {method}
                     </button>
                   ))}
+                </div>
+
+                <div className="mt-6">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={printReceipt}
+                      onChange={(e) => setPrintReceipt(e.target.checked)}
+                      className="form-checkbox h-8 w-8 text-green-600 "
+                    />
+                    <span className="ml-4 text-2xl">พิมพ์ใบเสร็จ</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -196,7 +240,7 @@ export default function PaymentPage() {
 
             <button
               onClick={() => setShowConfirm(true)}
-              className="w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded text-lg transition"
+              className="w-full bg-green-600 hover:bg-green-500 shadow-lg shadow-green-500/50 cursor-pointer text-white py-3 rounded text-lg transition"
             >
               ยืนยันชำระเงิน
             </button>
@@ -205,19 +249,19 @@ export default function PaymentPage() {
               <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
                 <div className="bg-white p-4 rounded-lg shadow-lg text-center space-y-2 w-[90%] max-w-md">
                   <p className="text-2xl">คุณต้องการชำระเงินใช่หรือไม่?</p>
-                  <div className="flex justify-around">
+                  <div className="flex justify-around mt-4">
                     <button
                       onClick={() => {
                         handlePayment();
                         setShowConfirm(false);
                       }}
-                      className="text-white bg-green-600 px-6 py-4 rounded hover:bg-green-300"
+                      className="text-white bg-green-600 px-6 py-4 rounded hover:bg-green-300 shadow-lg shadow-green-500/50 "
                     >
                       ใช่
                     </button>
                     <button
                       onClick={() => setShowConfirm(false)}
-                      className="text-white bg-red-600 px-6 py-4 rounded hover:bg-red-300"
+                      className="text-white bg-red-600 px-6 py-4 rounded hover:bg-red-300 shadow-lg shadow-red-500/50 "
                     >
                       ยกเลิก
                     </button>

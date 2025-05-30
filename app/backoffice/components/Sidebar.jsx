@@ -57,10 +57,22 @@ export default function Sidebar() {
           สั่งซื้อ
         </Link>
         <Link
-          href="/order/cart"
+          href="/kitchen/purchase"
           className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
         >
-          รายการสั่งซื้อ
+          คำสั่งซื้อตามโต๊ะ
+        </Link>
+        <Link
+          href="/kitchen/purchase/purchase_detail"
+          className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
+        >
+          คำสั่งซื้อตามเมนู
+        </Link>
+        <Link
+          href="/kitchen/payment"
+          className="hover:bg-white hover:text-orange-500 text-white px-4 py-2 rounded-md"
+        >
+          ชำระเงิน  
         </Link>
 
         {/* ปุ่มรายงาน */}
