@@ -10,6 +10,7 @@ export default function PaymentPage() {
   const [printReceipt, setPrintReceipt] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState("");
+  
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -105,8 +106,8 @@ export default function PaymentPage() {
       paymentMethod,
       selectedSeats,
     };
-    const encodedData = encodeURIComponent(JSON.stringify(printData));
-    window.open(`/kitchen/print/receipt?data=${encodedData}`);
+    sessionStorage.setItem("receiptData", JSON.stringify(printData));
+    window.open(`/kitchen/print/receipt`);
   };
 
   return (
