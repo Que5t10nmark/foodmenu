@@ -10,7 +10,6 @@ export default function PaymentPage() {
   const [printReceipt, setPrintReceipt] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState("");
-  
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -87,6 +86,7 @@ export default function PaymentPage() {
         setPaidSeats((prev) =>
           prev.filter((seatId) => !selectedSeats.includes(seatId))
         );
+        setTimeout(() => {window.location.reload();}, 500);  
       } else {
         const error = await res.json();
         alert("❌ เกิดข้อผิดพลาด: " + error.message);
@@ -107,7 +107,12 @@ export default function PaymentPage() {
       selectedSeats,
     };
     sessionStorage.setItem("receiptData", JSON.stringify(printData));
-    window.open(`/kitchen/print/receipt`);
+    window.open(
+      "/print/receipt",
+      "receiptWindow",
+      "width500,height=500,top=100,left=100,resizable=yes,scrollbars=yes"
+    );
+    // window.print() จะถูกเรียกในหน้าพิมพ์ใบเสร็จ
   };
 
   return (
@@ -115,13 +120,13 @@ export default function PaymentPage() {
       {message && (
         <div
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-          bg-green-700 text-white border border-green-300 px-6 py-3 
+          bg-green-600 text-white border border-green-300 px-6 py-3 
           rounded-xl shadow-lg z-50 animate-fade text-xl"
         >
           {message}
         </div>
       )}
-      <div className="w-3/2 p-2 bg-gray-100 overflow-y-auto">
+      <div className="w-3/2 p-6 max-h-screen bg-gray-100 overflow-auto">
         <h2 className="text-3xl font-bold mb-4">
           <SquareMousePointer className="inline-block w-9 h-8 text-gray-600" />
           เลือกโต๊ะชำระเงิน
@@ -143,7 +148,7 @@ export default function PaymentPage() {
         </div>
       </div>
 
-      <div className="w-1/2 p-6 overflow-y-auto bg-white">
+      <div className="w-1/2 p-6 max-h-screen bg-white overflow-auto">
         <h2 className="text-3xl font-bold mb-4 flex items-center gap-2">
           {selectedSeats.length > 0 ? (
             <>

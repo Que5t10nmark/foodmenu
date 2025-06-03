@@ -3,8 +3,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ShoppingBasket,
-  Layers,
-  BadgeDollarSign
+  BadgeDollarSign,
+  HandPlatter 
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -12,7 +12,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { label: "คำสั่งซื้อตามโต๊ะ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/kitchen/purchase" },
-    { label: "คำสั่งซื้อตามเมนู", icon: <Layers className="w-5 h-5" />, href: "/kitchen/purchase/purchase_detail"},
+    { label: "คำสั่งซื้อตามเมนู", icon: <HandPlatter  className="w-5 h-5" />, href: "/kitchen/purchase/purchase_detail"},
     { label: "ชำระเงิน", icon: <BadgeDollarSign className="w-5 h-5" />, href: "/kitchen/payment" },
   ];
 
