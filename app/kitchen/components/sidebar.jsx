@@ -18,12 +18,12 @@ export default function Sidebar() {
 
   return (
     <nav className="text-white space-y-2">
-      <h2 className="text-xl font-bold mb-4">เมนูจัดการ</h2>
+      <h2 className="text-3xl font-bold mb-4">เมนูจัดการ</h2>
       {menuItems.map((item) => (
         <Link key={item.href} href={item.href}>
           <div
-            className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-orange-300 transition 
-            ${pathname.startsWith(item.href) ? "bg-orange-500" : ""}`}
+            className={`flex items-center text-lg gap-3 p-3 rounded-md cursor-pointer hover:bg-orange-300 transition 
+            ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-orange-700" : ""}`}
           >
             {item.icon}
             <span>{item.label}</span>
