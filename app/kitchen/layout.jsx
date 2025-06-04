@@ -38,7 +38,6 @@ export default function KitchenLayout({ children }) {
           </button>
           <h1 className="text-2xl font-bold">ห้องครัว</h1>
         </div>
-
         <main className="flex-1 p-4 overflow-y-auto">{children}</main>
       </div>
     </div>
