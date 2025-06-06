@@ -45,7 +45,7 @@ export default function Sidebar() {
   const [isReportOpen, setIsReportOpen] = useState(isActiveReport);
 
   return (
-    <aside className="bg-orange-500 text-white w-70 min-h-screen p-6 flex flex-col">
+    <aside className="bg-gradient-to-b from-orange-400 to-orange-700 text-white w-70 min-h-screen p-6 flex flex-col ">
       <h2 className="text-4xl font-bold mb-6">Steak NiWha</h2>
 
       <nav className="space-y-2">

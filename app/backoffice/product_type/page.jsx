@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import Modal from "../components/Modal";
-
+import { Trash2, Edit2, PlusCircle } from "lucide-react";
 const ProductTypePage = () => {
   const [productTypes, setProductTypes] = useState([]);
   const [newProductType, setNewProductType] = useState({ product_type_name: "" });
@@ -154,8 +154,8 @@ const ProductTypePage = () => {
   }, [fetchProductTypes]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">ประเภทอาหาร</h1>
+    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">ประเภทอาหาร</h1>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {notification && (
@@ -166,39 +166,50 @@ const ProductTypePage = () => {
 
       <button
         onClick={() => openModal()}
-        className="bg-green-500 text-white p-2 rounded mb-6"
+        className="text-3xl mt-3 p-4 sm:mt-0 inline-flex items-center gap-2 cursor-pointer bg-green-500 hover:bg-green-800 text-white px-5 py-2 rounded shadow transition"
       >
+        <PlusCircle size={20} />
         เพิ่มประเภทอาหาร
       </button>
 
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">รายการประเภทอาหาร</h2>
-        <table className="min-w-full table-auto border-collapse border border-gray-300">
-          <thead className="bg-gray-200">
+      <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white mb-2">
+        <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">รายการประเภทอาหาร</h2>
+        <table className="min-w-full table-auto border-collapse">
+          <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-2 border">ชื่อประเภทอาหาร</th>
-              <th className="px-4 py-2 border">การจัดการ</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">ชื่อประเภทอาหาร</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">การจัดการ</th>
             </tr>
           </thead>
           <tbody>
             {productTypes.map((productType, index) => (
               <tr key={productType.product_type_id || index}>
-                <td className="px-4 py-2 border">
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300">
                   {productType.product_type_name}
                 </td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => openModal(productType)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
-                  >
-                    แก้ไข
-                  </button>
-                  <button
-                    onClick={() => deleteProductType(productType.product_type_id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    ลบ
-                  </button>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => openModal(productType)}
+                      aria-label="แก้ไข"
+                      className="text-2xl p-2 cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-white rounded shadow transition flex items-center gap-1"
+                      title="แก้ไข"
+                    >
+                      <Edit2 size={18} /> แก้ไข
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                          deleteProductType(productType.product_type_id);
+                        }
+                      }}
+                      aria-label="ลบ"
+                      className="text-2xl p-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded shadow transition flex items-center gap-1"
+                      title="ลบ"
+                    >
+                      <Trash2 size={18} /> ลบ
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

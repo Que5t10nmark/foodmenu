@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "../components/Modal";
-
+import { Trash2, Edit2, PlusCircle } from "lucide-react";
 export default function Register() {
   const [account_name, setAccountName] = useState("");
   const [account_email, setAccountEmail] = useState("");
@@ -144,8 +144,8 @@ export default function Register() {
   };
 
   return (
-    <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-3xl font-bold mb-6">ข้อมูลพนักงาน</h1>
+    <div className="pp-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">ข้อมูลพนักงาน</h1>
       {successMessage && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
           <strong className="font-bold">สำเร็จ!</strong>
@@ -155,21 +155,22 @@ export default function Register() {
      <div className="mb-6">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-green-500 text-white px-4 py-2 rounded mb-6"
+          className="text-3xl mt-3 sm:mt-0 inline-flex items-center gap-2 cursor-pointer bg-green-500 hover:bg-green-700 text-white px-5 py-2 rounded shadow transition"
         >
-          เพิ่มรายการ
+          <PlusCircle size={20} /> เพิ่มรายการ
         </button>
 
-        <div className="overflow-x-auto max-h-[50vh] mb-8">
-          <table className="min-w-full table-auto border-collapse border border-gray-300 text-sm">
-            <thead className="bg-gray-100 ">
+        <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white mb-2">
+          <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">ข้อมูลพนักงาน</h2>
+          <table className="min-w-full table-auto border-collapse">
+            <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-2 border">ชื่อ</th>
-                <th className="px-4 py-2 border">อีเมล</th>
-                <th className="px-4 py-2 border">เบอร์โทร</th>
-                <th className="px-4 py-2 border">ที่อยู่</th>
-                <th className="px-4 py-2 border">บทบาท</th>
-                <th className="px-4 py-2 border">จัดการ</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">ชื่อ</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">อีเมล</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">เบอร์โทร</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">ที่อยู่</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">บทบาท</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">จัดการ</th>
               </tr>
             </thead>
             <tbody>
@@ -178,30 +179,36 @@ export default function Register() {
                   key={account.account_id || index}
                   className="hover:bg-gray-50"
                 >
-                  <td className="px-4 py-2 border">{account.account_name}</td>
-                  <td className="px-4 py-2 border">{account.account_email}</td>
-                  <td className="px-4 py-2 border">{account.account_phone}</td>
-                  <td className="px-4 py-2 border">
+                  <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{account.account_name}</td>
+                  <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{account.account_email}</td>
+                  <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{account.account_phone}</td>
+                  <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
                     {account.account_address}
                   </td>
-                  <td className="px-4 py-2 border">{account.account_role}</td>
-                  <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => openModal(account)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
-                  >
-                    แก้ไข
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
-                        deleteAccount(account.account_id);
-                      }
-                    }}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    ลบ
-                  </button>
+                  <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{account.account_role}</td>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => openModal(account)}
+                      aria-label="แก้ไข"
+                      className="text-2xl p-2 cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-white rounded shadow transition flex items-center gap-1"
+                      title="แก้ไข"
+                    >
+                      <Edit2 size={18} /> แก้ไข
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                          deleteAccount(account.account_id);
+                        }
+                      }}
+                      aria-label="ลบ"
+                      className="text-2xl p-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded shadow transition flex items-center gap-1"
+                      title="ลบ"
+                    >
+                      <Trash2 size={18} /> ลบ
+                    </button>
+                  </div>
                 </td>
                 </tr>
               ))}
@@ -228,7 +235,6 @@ export default function Register() {
                 placeholder="กรอกชื่อจริง"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 อีเมล

@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Modal from "../components/Modal";
 import QRCode from "react-qr-code";
-
+import { Trash2, Edit2, PlusCircle} from "lucide-react";
 const SeatPage = () => {
   const [seats, setSeats] = useState([]);
   const [newSeat, setNewSeat] = useState({
@@ -165,38 +165,38 @@ const SeatPage = () => {
   }, [fetchSeats]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">ที่นั่ง</h1>
+    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">ที่นั่ง</h1>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {notification && (
-        <div className="mb-4 p-3 bg-green-200 text-green-800 rounded">
+        <div className="mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm">
           {notification}
         </div>
       )}
 
       <button
         onClick={() => openModal()}
-        className="bg-green-500 text-white p-2 rounded mb-6"
+        className="text-3xl mt-3 sm:mt-0 inline-flex items-center gap-2 cursor-pointer bg-green-500 hover:bg-green-700 text-white px-5 py-2 rounded shadow transition"
       >
-        เพิ่มที่นั่ง
+        <PlusCircle size={20} />เพิ่มที่นั่ง
       </button>
 
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">รายการที่นั่ง</h2>
-        <table className="min-w-full table-auto border-collapse border border-gray-300">
-          <thead>
+      <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white mb-2">
+        <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">รายการที่นั่ง</h2>
+        <table className="min-w-full table-auto border-collapse">
+          <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-2 border">QR Code</th>
-              <th className="px-4 py-2 border">สถานะที่นั่ง</th>
-              <th className="px-4 py-2 border">โซนที่นั่ง</th>
-              <th className="px-4 py-2 border">การจัดการ</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">QR Code</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">สถานะที่นั่ง</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">โซนที่นั่ง</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">การจัดการ</th>
             </tr>
           </thead>
           <tbody>
             {seats.map((seat, index) => (
               <tr key={seat.seat_id || index}>
-                <td className="px-4 py-2 border">
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300">
                   <div className="flex justify-center">
                     <QRCode
                       value={
@@ -208,21 +208,31 @@ const SeatPage = () => {
                     />
                   </div>
                 </td>
-                <td className="px-4 py-2 border">{seat.seat_status}</td>
-                <td className="px-4 py-2 border">{seat.seat_zone}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => openModal(seat)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
-                  >
-                    แก้ไข
-                  </button>
-                  <button
-                    onClick={() => deleteSeat(seat.seat_id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    ลบ
-                  </button>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{seat.seat_status}</td>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{seat.seat_zone}</td>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => openModal(seat)}
+                      aria-label="แก้ไข"
+                      className="text-2xl p-2 cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-white rounded shadow transition flex items-center gap-1"
+                      title="แก้ไข"
+                    >
+                      <Edit2 size={18} /> แก้ไข
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                          deleteSeat(seat.seat_id);
+                        }
+                      }}
+                      aria-label="ลบ"
+                      className="text-2xl p-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded shadow transition flex items-center gap-1"
+                      title="ลบ"
+                    >
+                      <Trash2 size={18} /> ลบ
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

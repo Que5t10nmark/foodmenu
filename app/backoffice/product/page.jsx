@@ -3,7 +3,7 @@ import React from "react";
 import { useState, useEffect, useCallback } from "react";
 import Modal from "../components/Modal";
 import Image from "next/image";
-
+import { Edit2, Trash2, PlusCircle, Search } from "lucide-react";
 const ProductsPage = () => {
   const [isClient, setIsClient] = useState(false);
   const [product, setProduct] = useState([]);
@@ -24,7 +24,6 @@ const ProductsPage = () => {
   const [productType, setProductType] = useState([]);
   const [selectedType, setSelectedType] = useState("ทั้งหมด");
   const [previewImage, setPreviewImage] = useState(null);
-  
 
   useEffect(() => {
     setIsClient(true);
@@ -214,36 +213,50 @@ const ProductsPage = () => {
     });
 
   return (
-    <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-3xl font-bold mb-6">รายการอาหาร</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">รายการอาหาร</h1>
+
+      {error && (
+        <p className="text-red-600 mb-4 bg-red-100 p-3 rounded shadow-sm">
+          {error}
+        </p>
+      )}
+
       {notification && (
-        <div className="mb-4 p-3 bg-green-200 text-green-800 rounded">
+        <div className="mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm">
           {notification}
         </div>
       )}
-      <div className="mb-6">
-        <input
-          type="text"
-          value={searchQuery ?? ""}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="ค้นหาอาหาร"
-          className="p-2 border border-gray-300 rounded w-full"
-        />
+
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:gap-4">
+        <div className="relative flex-grow">
+          <input
+            type="text"
+            value={searchQuery ?? ""}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ค้นหาอาหาร"
+            className="text-3xl w-full pl-10 pr-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400"
+          />
+        </div>
+        <button
+          onClick={() => openModal()}
+          className="text-3xl mt-3 sm:mt-0 inline-flex items-center gap-2 cursor-pointer bg-green-500 hover:bg-green-700 text-white px-5 py-2 rounded shadow transition"
+        >
+          <PlusCircle size={20} />
+          เพิ่มรายการอาหาร
+        </button>
       </div>
-      <button
-        onClick={() => openModal()}
-        className="bg-green-500 text-white p-2 rounded mb-6"
-      >
-        เพิ่มรายการอาหาร
-      </button>
 
       <div className="flex flex-wrap gap-2 mb-4">
         <button
-          className={`px-4 py-2 rounded-full border text-sm ${
+          className={`px-4 py-2 rounded-full border text-2xl font-medium transition cursor-pointer ${
             selectedType === "ทั้งหมด"
-              ? "bg-orange-500 text-white"
-              : "bg-white text-gray-700"
+              ? "bg-orange-500 text-white border-orange-500"
+              : "bg-white text-orange-700 border-orange-300 hover:bg-orange-100"
           }`}
           onClick={() => setSelectedType("ทั้งหมด")}
         >
@@ -252,10 +265,10 @@ const ProductsPage = () => {
         {productType.map((type) => (
           <button
             key={type.product_type_id}
-            className={`px-4 py-2 rounded-full border text-sm ${
+            className={`text-2xl px-4 py-2 cursor-pointer rounded-full border font-medium transition ${
               selectedType === type.product_type_id
-                ? "bg-orange-500 text-white"
-                : "bg-white text-gray-700"
+                ? "bg-orange-500 text-white border-orange-500"
+                : "bg-white text-orange-700 border-orange-300 hover:bg-orange-100"
             }`}
             onClick={() => setSelectedType(type.product_type_id)}
           >
@@ -263,71 +276,117 @@ const ProductsPage = () => {
           </button>
         ))}
       </div>
-      <div className="overflow-x-auto max-h-[70vh]">
-        <table className="min-w-full table-auto border-collapse border border-gray-300">
-          <thead className="bg-gray-200">
+
+      <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white">
+        <table className="min-w-full table-auto border-collapse">
+          <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-2 border">ชื่ออาหาร</th>
-              <th className="px-4 py-2 border">ประเภทอาหาร</th>
-              <th className="px-4 py-2 border">ราคา</th>
-              <th className="px-4 py-2 border">รูปภาพ</th>
-              <th className="px-4 py-2 border">คําอธิบาย</th>
-              <th className="px-4 py-2 border">สถานะ</th>
-              <th className="px-4 py-2 border">การจัดการ</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                ชื่ออาหาร
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                ประเภทอาหาร
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                ราคา
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                รูปภาพ
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl  text-center">
+                คำอธิบาย
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                สถานะ
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                การจัดการ
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredProduct.map((product, index) => (
               <tr
                 key={product.product_id || `product-${index}`}
-                className={
-                  product.product_status_name === "ไม่มีสินค้า"
-                    ? "bg-gray-300"
-                    : ""
-                }
+                className={`${
+                  product.product_status === "ไม่มีสินค้า"
+                    ? "bg-gray-100 text-gray-400"
+                    : "hover:bg-teal-50"
+                }`}
               >
-                <td className="px-4 py-2 border">{product.product_name}</td>
-                <td className="px-4 py-2 border">
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-left">
+                  {product.product_name}
+                </td>
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-center">
                   {product.product_type_name}
                 </td>
-                <td className="px-4 py-2 border">{product.product_price}</td>
-                <td className="px-4 py-2 border text-center">
-                  {product.product_image ? (
-                    <Image
-                      src={`/uploads/${product.product_image}`}
-                      alt={product.product_name || "No Image"}
-                      width={50}
-                      height={50}
-                      className="rounded border"
-                    />
-                  ) : (
-                    <p className="text-gray-400">ไม่มีรูป</p>
-                  )}
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-center">
+                  {product.product_price} ฿
                 </td>
-                <td className="px-4 py-2 border">
+                <td className="px-4 py-3 border-b border border-gray-300">
+                  <div className="flex items-center justify-center h-full">
+                    {product.product_image ? (
+                      <Image
+                        src={`/uploads/${product.product_image}`}
+                        alt={product.product_name || "No Image"}
+                        width={50}
+                        height={50}
+                        className="rounded border border-gray-300 shadow-sm"
+                      />
+                    ) : (
+                      <p className="text-gray-400 italic text-sm">ไม่มีรูป</p>
+                    )}
+                  </div>
+                </td>
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-center">
                   {product.product_description}
                 </td>
-                <td className="px-4 py-2 border">{product.product_status}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => openModal(product)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-center">
+                  <span
+                    className={`text-2xl inline-block px-3 py-1 rounded-full font-semibold ${
+                      product.product_status === "มีสินค้า"
+                        ? "bg-green-100 text-green-700"
+                        : product.product_status === "หมด"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
                   >
-                    แก้ไข
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
-                        deleteProduct(product.product_id);
-                      }
-                    }}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    ลบ
-                  </button>
+                    {product.product_status === "มีสินค้า" ? "พร้อมขาย" : "หมด"}
+                  </span>
+                </td>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => openModal(product)}
+                      aria-label="แก้ไข"
+                      className="text-2xl p-2 cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-white rounded shadow transition flex items-center gap-1"
+                      title="แก้ไข"
+                    >
+                      <Edit2 size={18} /> แก้ไข
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                          deleteProduct(product.product_id);
+                        }
+                      }}
+                      aria-label="ลบ"
+                      className="text-2xl p-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded shadow transition flex items-center gap-1"
+                      title="ลบ"
+                    >
+                      <Trash2 size={18} /> ลบ
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
+            {filteredProduct.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center p-6 text-gray-500">
+                  ไม่พบข้อมูลรายการอาหาร
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -450,8 +509,8 @@ const ProductsPage = () => {
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded"
             >
-              <option value="true">มีสินค้า</option>
-              <option value="false">ไม่มีสินค้า</option>
+              <option value="true">พร้อมขาย</option>
+              <option value="false">หมด</option>
             </select>
           </div>
 

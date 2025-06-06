@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";  
 
 export default function ProductOptionPage() {
   const [types, setTypes] = useState([]);
@@ -117,11 +117,14 @@ export default function ProductOptionPage() {
     }
   };
 
-  if (loading) return <div className="p-6 max-w-4xl mx-auto">กำลังโหลดข้อมูล...</div>;
+  if (loading)
+    return <div className="p-6 max-w-4xl mx-auto">กำลังโหลดข้อมูล...</div>;
 
   return (
     <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-2xl font-bold mb-4">⚙️ จัดการตัวเลือกสินค้าตามประเภท</h1>
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">
+        ⚙️ จัดการตัวเลือกสินค้าตามประเภท
+      </h1>
 
       {notification && (
         <div
@@ -135,11 +138,16 @@ export default function ProductOptionPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-4 rounded shadow mb-6"
+      >
         <div className="grid grid-cols-2 gap-4">
           <select
             value={form.product_type_id}
-            onChange={(e) => setForm({ ...form, product_type_id: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, product_type_id: e.target.value })
+            }
             className="border rounded px-3 py-2"
             required
           >
@@ -220,10 +228,10 @@ export default function ProductOptionPage() {
       <div className="overflow-x-auto">
         <div className="flex flex-wrap gap-2 mb-4">
           <button
-            className={`px-4 py-2 rounded-full border text-sm ${
+            className={`px-4 py-2 rounded-full border text-xl font-medium transition cursor-pointer ${
               selectedType === "ทั้งหมด"
-                ? "bg-green-500 text-white"
-                : "bg-white text-gray-700"
+                ? "bg-orange-500 text-white border-orange-500"
+                : "bg-white text-orange-700 border-orange-300 hover:bg-orange-100"
             }`}
             onClick={() => setSelectedType("ทั้งหมด")}
           >
@@ -232,10 +240,10 @@ export default function ProductOptionPage() {
           {types.map((type) => (
             <button
               key={type.product_type_id}
-              className={`px-4 py-2 rounded-full border text-sm ${
+              className={`text-xl px-4 py-2 cursor-pointer rounded-full border font-medium transition  ${
                 selectedType === type.product_type_id
-                  ? "bg-green-500 text-white"
-                  : "bg-white text-gray-700"
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "bg-white text-orange-700 border-orange-300 hover:bg-orange-100"
               }`}
               onClick={() => setSelectedType(type.product_type_id)}
             >
@@ -243,54 +251,63 @@ export default function ProductOptionPage() {
             </button>
           ))}
         </div>
-
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-2 text-center">ประเภทอาหาร</th>
-              <th className="p-2 text-center">ประเภทตัวเลือก</th>
-              <th className="p-2 text-center">ค่า</th>
-              <th className="p-2 text-center">ราคาเพิ่ม</th>
-              <th className="p-2 text-center">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {options
-              .filter(
-                (opt) =>
-                  selectedType === "ทั้งหมด" ||
-                  opt.product_type_id === selectedType
-              )
-              .map((opt) => (
-                <tr key={opt.option_id} className="border-t">
-                  <td className="p-2 text-center">
-                    {
-                      types.find(
+        <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white">
+          <table className="min-w-full table-auto border-collapse">
+            <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
+              <tr>
+                <th className="px-4 py-3 border-b border border-gray-300 text-2xl text-center">ประเภทอาหาร</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-2xl text-center">ประเภทตัวเลือก</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-2xl text-center">รายละเอียด</th>
+                <th className="px-4 py-3 border-b border border-gray-300 text-2xl text-center">ราคา</th>
+                <th className="p-2 px-4 py-3 border-b border border-gray-300 text-2xl text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {options
+                .filter(
+                  (opt) =>
+                    selectedType === "ทั้งหมด" ||
+                    opt.product_type_id === selectedType
+                )
+                .map((opt) => (
+                  <tr key={opt.option_id} className="border-t">
+                    <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-left">
+                      {types.find(
                         (t) => t.product_type_id === opt.product_type_id
-                      )?.product_type_name || "-"
-                    }
-                  </td>
-                  <td className="p-2 text-center">{opt.option_type}</td>
-                  <td className="p-2 text-center">{opt.option_value}</td>
-                  <td className="p-2 text-center">฿{opt.option_price}</td>
-                  <td className="p-2 text-center">
+                      )?.product_type_name || "-"}
+                    </td>
+                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">{opt.option_type}</td>
+                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">{opt.option_value}</td>
+                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">฿{opt.option_price}</td>
+                    <td className="text-xl px-4 py-3 border-b border border-gray-300 text-center">
+                  <div className="flex justify-center gap-2">
                     <button
-                      className="mr-2 px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500"
                       onClick={() => handleEdit(opt)}
+                      aria-label="แก้ไข"
+                      className="text-lg p-2 cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-white rounded shadow transition flex items-center gap-1"
+                      title="แก้ไข"
                     >
-                      ✏️ แก้ไข
+                      <Edit2 size={18} /> แก้ไข
                     </button>
                     <button
-                      className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 text-white"
-                      onClick={() => handleDelete(opt.option_id)}
+                      onClick={() => {
+                        if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
+                          handleDelete(opt.option_id);
+                        }
+                      }}
+                      aria-label="ลบ"
+                      className="text-lg p-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded shadow transition flex items-center gap-1"
+                      title="ลบ"
                     >
-                      🗑️ ลบ
+                      <Trash2 size={18} /> ลบ
                     </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                  </div>
+                </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
