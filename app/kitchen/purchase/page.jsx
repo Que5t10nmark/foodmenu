@@ -75,14 +75,6 @@ export default function KitchenPage() {
     <div className="p-6 max-h-screen overflow-auto">
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">🍳 คำสั่งซื้อ (ตามโต๊ะ)</h1>
-        <div>
-          <Link
-            href="/kitchen/kitchen_detail"
-            className="text-blue-600 underline text-sm mr-4"
-          >
-            ดูคำสั่งซื้อแบบกรุ๊ปตามสินค้า
-          </Link>
-        </div>
       </div>
 
       {message && (
@@ -112,7 +104,9 @@ export default function KitchenPage() {
                     try {
                       optionsObject = JSON.parse(order.selected_option);
                     } catch {
-                      return <p key={order.purchase_id}>{order.selected_option}</p>;
+                      return (
+                        <p key={order.purchase_id}>{order.selected_option}</p>
+                      );
                     }
                   } else {
                     optionsObject = order.selected_option;
@@ -124,7 +118,9 @@ export default function KitchenPage() {
                     key={order.purchase_id}
                     className="border rounded-xl shadow p-4 bg-white"
                   >
-                    <div className="font-bold text-2xl">{order.product_name}</div>
+                    <div className="font-bold text-2xl">
+                      {order.product_name}
+                    </div>
                     <div className="text-lg text-gray-600 mb-2">
                       จำนวน: {order.purchase_quantity}
                     </div>
@@ -132,20 +128,32 @@ export default function KitchenPage() {
                       ราคา: ฿{order.product_price * order.purchase_quantity}
                     </div>
 
-                    {Object.entries(optionsObject).length > 0 && (
-                      <div className="mb-3 text-lg leading-relaxed">
-                        {Object.entries(optionsObject).map(([optionKey, optionVal], idx) => {
-                          const displayVal = Array.isArray(optionVal)
-                            ? optionVal.join(", ")
-                            : optionVal;
-                          return (
-                            <p key={idx} className="mb-2">
-                              <span className="font-semibold">{optionKey}:</span>{" "}
-                              {displayVal}
-                            </p>
-                          );
-                        })}
-                      </div>
+                    {Object.entries(optionsObject).map(
+                      ([optionKey, optionVal], idx) => {
+                        let displayVal = "";
+
+                        if (Array.isArray(optionVal)) {
+                          displayVal = optionVal
+                            .map((val) =>
+                              typeof val === "object" ? val.option_value : val
+                            )
+                            .join(", ");
+                        } else if (
+                          typeof optionVal === "object" &&
+                          optionVal !== null
+                        ) {
+                          displayVal = optionVal.option_value;
+                        } else {
+                          displayVal = optionVal;
+                        }
+
+                        return (
+                          <p key={idx} className="mb-2">
+                            <span className="font-semibold">{optionKey}:</span>{" "}
+                            {displayVal}
+                          </p>
+                        );
+                      }
                     )}
 
                     {order.purchase_description && (

@@ -77,18 +77,23 @@ export default function ReceiptPrintPage() {
                   {order.product_name}
                   <br />
                   <div className="text-sm text-gray-800">
-                  {order.selected_option
-                    ? Object.entries(order.selected_option).map(
-                        ([option_type, option_value], idx) => (
-                          <div key={idx}>
-                            {option_type}:{" "}
-                            {Array.isArray(option_value)
-                              ? option_value.join(", ")
-                              : option_value}
-                          </div>
-                        )
-                      )
-                    : "ไม่มีตัวเลือก"}
+                    {order.selected_option
+                      ? Object.entries(order.selected_option)
+                          .map(([optionType, optionValue]) => {
+                            const displayValue = Array.isArray(optionValue)
+                              ? optionValue
+                                  .map((item) => item?.option_value || item)
+                                  .join(", ")
+                              : typeof optionValue === "object" &&
+                                optionValue !== null
+                              ? optionValue.option_value ||
+                                JSON.stringify(optionValue)
+                              : optionValue;
+
+                            return `${optionType}: ${displayValue}`;
+                          })
+                          .join(", ")
+                      : "ไม่มีตัวเลือก"}
                   </div>
                 </td>
                 <td className="text-center py-1">{order.purchase_quantity}</td>

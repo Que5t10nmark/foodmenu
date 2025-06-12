@@ -74,9 +74,6 @@ export default function KitchenGroupedByProduct() {
     <div className="p-6 max-h-screen overflow-auto text-base">
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-3xl font-bold">🍽️ คำสั่งซื้อ (ตามเมนูอาหาร)</h1>
-        <Link href="/kitchen" className="text-blue-600 underline text-lg">
-          ดูคำสั่งซื้อแบบกรุ๊ปตามโต๊ะ
-        </Link>
       </div>
 
       {message && (
@@ -90,10 +87,15 @@ export default function KitchenGroupedByProduct() {
       )}
 
       {Object.keys(groupedOrders).length === 0 ? (
-        <div className="text-center text-gray-500 text-2xl">ยังไม่มีคำสั่งซื้อ</div>
+        <div className="text-center text-gray-500 text-2xl">
+          ยังไม่มีคำสั่งซื้อ
+        </div>
       ) : (
         Object.entries(groupedOrders).map(([productName, productOrders]) => {
-          const total = productOrders.reduce((sum, o) => sum + o.purchase_quantity, 0);
+          const total = productOrders.reduce(
+            (sum, o) => sum + o.purchase_quantity,
+            0
+          );
           return (
             <div key={productName} className="mb-10">
               <div className="font-bold text-5xl mb-4 bg-gray-100 p-4 rounded">
@@ -129,22 +131,41 @@ export default function KitchenGroupedByProduct() {
                       return (
                         <tr key={order.purchase_id} className="border-t">
                           <td className="p-3 text-center">{order.seat_id}</td>
-                          <td className="p-3 text-center">{order.purchase_quantity}</td>
                           <td className="p-3 text-center">
-                            {Object.entries(optionsObj).map(([optionName, optionValue], i) => (
-                              <div key={i}>
-                                <span className="font-medium">{optionName}:</span>{" "}
-                                {Array.isArray(optionValue)
-                                  ? optionValue.join(", ")
-                                  : optionValue}
-                              </div>
-                            ))}
+                            {order.purchase_quantity}
                           </td>
-                          <td className="p-3 text-center">{order.purchase_description}</td>
                           <td className="p-3 text-center">
-                            {new Date(order.purchase_date).toLocaleString("th-TH", {
-                              timeZone: "Asia/Bangkok",
-                            })}
+                            {Object.entries(optionsObj).map(
+                              ([optionName, optionValue], i) => (
+                                <div key={i}>
+                                  <span className="font-medium">
+                                    {optionName}:
+                                  </span>{" "}
+                                  {Array.isArray(optionValue)
+                                    ? optionValue
+                                        .map((v, idx) =>
+                                          typeof v === "object"
+                                            ? v.option_value // หรือ v.option_type + ": " + v.option_value ก็ได้
+                                            : v
+                                        )
+                                        .join(", ")
+                                    : typeof optionValue === "object"
+                                    ? optionValue.option_value
+                                    : optionValue}
+                                </div>
+                              )
+                            )}
+                          </td>
+                          <td className="p-3 text-center">
+                            {order.purchase_description}
+                          </td>
+                          <td className="p-3 text-center">
+                            {new Date(order.purchase_date).toLocaleString(
+                              "th-TH",
+                              {
+                                timeZone: "Asia/Bangkok",
+                              }
+                            )}
                           </td>
                           <td className="p-3 text-blue-600 font-semibold text-center">
                             {order.purchase_status}
@@ -161,7 +182,10 @@ export default function KitchenGroupedByProduct() {
                             <button
                               className="bg-green-600 hover:bg-green-300 text-white px-3 py-2 rounded flex-1 text-base"
                               onClick={() =>
-                                handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
+                                handleStatusUpdate(
+                                  order.purchase_id,
+                                  "เสร็จแล้ว"
+                                )
                               }
                             >
                               เสร็จแล้ว

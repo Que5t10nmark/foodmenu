@@ -60,18 +60,37 @@ function Page() {
   };
 
   // เพิ่มสินค้าและตัวเลือกลงตะกร้า
-  const handleAddToCart = () => {
-    if (!product) return;
-    const updatedProduct = {
-      ...product,
-      selected_option: selectedOptions,
-      purchase_description: purchaseDescription,
-      quantity: 1,
-    };
-    addToCart(updatedProduct);
-    setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
-    setTimeout(() => setMessage(""), 1500);
+const handleAddToCart = () => {
+  if (!product) return;
+
+  // สร้าง selected_option ที่รวม option_value + option_price
+  const selectedOptionWithPrice = {};
+  for (const [type, value] of Object.entries(selectedOptions)) {
+    const optionsOfType = productOptions.filter((opt) => opt.option_type === type);
+
+    if (Array.isArray(value)) {
+      selectedOptionWithPrice[type] = value.map((val) => {
+        const match = optionsOfType.find((opt) => opt.option_value === val);
+        return match || { option_value: val, option_price: 0 };
+      });
+    } else {
+      const match = optionsOfType.find((opt) => opt.option_value === value);
+      selectedOptionWithPrice[type] = match || { option_value: value, option_price: 0 };
+    }
+  }
+
+  const updatedProduct = {
+    ...product,
+    selected_option: selectedOptionWithPrice,
+    purchase_description: purchaseDescription,
+    quantity: 1,
   };
+
+  addToCart(updatedProduct);
+  setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
+  setTimeout(() => setMessage(""), 1000);
+};
+
 
   // แสดง input ตัวเลือกสินค้า (จัดกลุ่มตาม option_type)
   const renderOptionInputs = () => {

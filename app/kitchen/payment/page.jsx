@@ -86,7 +86,9 @@ export default function PaymentPage() {
         setPaidSeats((prev) =>
           prev.filter((seatId) => !selectedSeats.includes(seatId))
         );
-        setTimeout(() => {window.location.reload();}, 500);  
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       } else {
         const error = await res.json();
         alert("❌ เกิดข้อผิดพลาด: " + error.message);
@@ -177,16 +179,21 @@ export default function PaymentPage() {
                   </div>
                   <div className="text-sm text-gray-800">
                     {order.selected_option
-                      ? `${Object.entries(order.selected_option)
-                          .map(
-                            ([option_type, option_value]) =>
-                              `${option_type}: ${
-                                Array.isArray(option_value)
-                                  ? option_value.join(", ")
-                                  : option_value
-                              }`
-                          )
-                          .join(", ")}`
+                      ? Object.entries(order.selected_option)
+                          .map(([optionType, optionValue]) => {
+                            const displayValue = Array.isArray(optionValue)
+                              ? optionValue
+                                  .map((item) => item?.option_value || item)
+                                  .join(", ")
+                              : typeof optionValue === "object" &&
+                                optionValue !== null
+                              ? optionValue.option_value ||
+                                JSON.stringify(optionValue)
+                              : optionValue;
+
+                            return `${optionType}: ${displayValue}`;
+                          })
+                          .join(", ")
                       : "ไม่มีตัวเลือก"}
                   </div>
                 </li>
@@ -248,7 +255,7 @@ export default function PaymentPage() {
               onClick={() => setShowConfirm(true)}
               className="w-full bg-green-600 hover:bg-green-500 shadow-lg shadow-green-500/50 cursor-pointer text-white py-3 rounded text-lg transition"
             >
-              ยืนยันชำระเงิน
+              ยืนยันชำระเงิน {total.toFixed(2)} บาท
             </button>
 
             {showConfirm && (
