@@ -16,7 +16,6 @@ function Page() {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [purchaseDescription, setPurchaseDescription] = useState("");
 
-  // โหลดข้อมูลสินค้าและตัวเลือก
   useEffect(() => {
     if (product_id) {
       setLoading(true);
@@ -24,17 +23,29 @@ function Page() {
         .then((res) => res.json())
         .then((productData) => {
           setProduct(productData);
-          setLoading(false);
 
           if (productData.product_type) {
-            fetch(`/api/product_option?product_type_id=${productData.product_type}`)
+            fetch(
+              `/api/product_option?product_type_id=${productData.product_type}`
+            )
               .then((res) => res.json())
               .then((optionData) => {
                 setProductOptions(optionData);
+
+                // รอ 2 วินาทีก่อนซ่อน loading หลังโหลดตัวเลือกสำเร็จ
+                setTimeout(() => {
+                  setLoading(false);
+                }, 1000);
               })
-              .catch((err) => console.error("โหลดตัวเลือกไม่สำเร็จ", err));
+              .catch((err) => {
+                console.error("โหลดตัวเลือกไม่สำเร็จ", err);
+                setLoading(false);
+              });
           } else {
             console.warn("product_type is missing in product data");
+            setTimeout(() => {
+              setLoading(false);
+            }, 1000);
           }
         })
         .catch((err) => {
@@ -60,37 +71,41 @@ function Page() {
   };
 
   // เพิ่มสินค้าและตัวเลือกลงตะกร้า
-const handleAddToCart = () => {
-  if (!product) return;
+  const handleAddToCart = () => {
+    if (!product) return;
 
-  // สร้าง selected_option ที่รวม option_value + option_price
-  const selectedOptionWithPrice = {};
-  for (const [type, value] of Object.entries(selectedOptions)) {
-    const optionsOfType = productOptions.filter((opt) => opt.option_type === type);
+    // สร้าง selected_option ที่รวม option_value + option_price
+    const selectedOptionWithPrice = {};
+    for (const [type, value] of Object.entries(selectedOptions)) {
+      const optionsOfType = productOptions.filter(
+        (opt) => opt.option_type === type
+      );
 
-    if (Array.isArray(value)) {
-      selectedOptionWithPrice[type] = value.map((val) => {
-        const match = optionsOfType.find((opt) => opt.option_value === val);
-        return match || { option_value: val, option_price: 0 };
-      });
-    } else {
-      const match = optionsOfType.find((opt) => opt.option_value === value);
-      selectedOptionWithPrice[type] = match || { option_value: value, option_price: 0 };
+      if (Array.isArray(value)) {
+        selectedOptionWithPrice[type] = value.map((val) => {
+          const match = optionsOfType.find((opt) => opt.option_value === val);
+          return match || { option_value: val, option_price: 0 };
+        });
+      } else {
+        const match = optionsOfType.find((opt) => opt.option_value === value);
+        selectedOptionWithPrice[type] = match || {
+          option_value: value,
+          option_price: 0,
+        };
+      }
     }
-  }
 
-  const updatedProduct = {
-    ...product,
-    selected_option: selectedOptionWithPrice,
-    purchase_description: purchaseDescription,
-    quantity: 1,
+    const updatedProduct = {
+      ...product,
+      selected_option: selectedOptionWithPrice,
+      purchase_description: purchaseDescription,
+      quantity: 1,
+    };
+
+    addToCart(updatedProduct);
+    setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
+    setTimeout(() => setMessage(""), 1000);
   };
-
-  addToCart(updatedProduct);
-  setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
-  setTimeout(() => setMessage(""), 1000);
-};
-
 
   // แสดง input ตัวเลือกสินค้า (จัดกลุ่มตาม option_type)
   const renderOptionInputs = () => {
@@ -102,40 +117,55 @@ const handleAddToCart = () => {
       return grouped;
     }, {});
 
-    return Object.entries(groupedOptionsByType).map(([optionType, optionList]) => {
-      const isMultiple = optionList.some((option) => option.option_price > 0);
-      return (
-        <div key={optionType} className="mb-4">
-          <label className="block font-semibold mb-1">{optionType}:</label>
-          {isMultiple ? (
-            optionList.map((option) => (
-              <label key={option.option_value} className="flex items-center mb-1">
-                <input
-                  type="checkbox"
-                  checked={(selectedOptions[optionType] || []).includes(option.option_value)}
-                  onChange={() => handleOptionChange(optionType, option.option_value, true)}
-                  className="mr-2"
-                />
-                {option.option_value} {option.option_price > 0 ? `(+${option.option_price}฿)` : ""}
-              </label>
-            ))
-          ) : (
-            <select
-              value={selectedOptions[optionType] || ""}
-              onChange={(e) => handleOptionChange(optionType, e.target.value, false)}
-              className="border rounded px-3 py-2 w-full"
-            >
-              <option value="">-- เลือก {optionType} --</option>
-              {optionList.map((option) => (
-                <option key={option.option_value} value={option.option_value}>
-                  {option.option_value} {option.option_price > 0 ? `(+${option.option_price}฿)` : ""}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-      );
-    });
+    return Object.entries(groupedOptionsByType).map(
+      ([optionType, optionList]) => {
+        const isMultiple = optionList.some((option) => option.option_price > 0);
+        return (
+          <div key={optionType} className="mb-4">
+            <label className="block font-semibold mb-1">{optionType}:</label>
+            {isMultiple ? (
+              optionList.map((option) => (
+                <label
+                  key={option.option_value}
+                  className="flex items-center mb-1"
+                >
+                  <input
+                    type="checkbox"
+                    checked={(selectedOptions[optionType] || []).includes(
+                      option.option_value
+                    )}
+                    onChange={() =>
+                      handleOptionChange(optionType, option.option_value, true)
+                    }
+                    className="mr-2"
+                  />
+                  {option.option_value}{" "}
+                  {option.option_price > 0 ? `(+${option.option_price}฿)` : ""}
+                </label>
+              ))
+            ) : (
+              <select
+                value={selectedOptions[optionType] || ""}
+                onChange={(e) =>
+                  handleOptionChange(optionType, e.target.value, false)
+                }
+                className="border rounded px-3 py-2 w-full"
+              >
+                <option value="">-- เลือก {optionType} --</option>
+                {optionList.map((option) => (
+                  <option key={option.option_value} value={option.option_value}>
+                    {option.option_value}{" "}
+                    {option.option_price > 0
+                      ? `(+${option.option_price}฿)`
+                      : ""}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        );
+      }
+    );
   };
 
   // แสดงข้อมูลสินค้า
@@ -157,7 +187,9 @@ const handleAddToCart = () => {
           {renderOptionInputs()}
 
           <div className="mb-4">
-            <label className="block font-semibold mb-1">รายละเอียดเพิ่มเติม:</label>
+            <label className="block font-semibold mb-1">
+              รายละเอียดเพิ่มเติม:
+            </label>
             <textarea
               value={purchaseDescription}
               onChange={(e) => setPurchaseDescription(e.target.value)}
@@ -187,12 +219,17 @@ const handleAddToCart = () => {
 
           <Link href={`/order/cart`} className="fixed bottom-6 right-6 z-50">
             <button className="bg-green-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-green-700 transition">
-              🛒 ไปยังตะกร้า ({cart.reduce((sum, item) => sum + (item.quantity || 1), 0)})
+              🛒 ไปยังตะกร้า (
+              {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)})
             </button>
           </Link>
         </div>
       ) : (
-        <div className="text-center mt-10">กำลังโหลดข้อมูลสินค้า...</div>
+        <div className="flex flex-row gap-2 justify-center items-center mt-100">
+          <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce"></div>
+          <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.3s]"></div>
+          <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.5s]"></div>
+        </div>
       )}
     </div>
   );
