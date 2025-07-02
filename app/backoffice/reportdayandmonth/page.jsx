@@ -47,13 +47,13 @@ export default function FinishedOrdersPage() {
 
   // 🧠 แสดงข้อมูลตามโต๊ะ
   return (
-    <div className="p-6 max-h-screen overflow-auto">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">
         รายงานสรุปรายการอาหารตามวันหรือเดือน
       </h1>
-      <div className="mb-6 space-y-4 md:space-y-0 md:flex md:items-center md:gap-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-2">
-          <label htmlFor="date" className="font-semibold w-24">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:gap-4">
+        <div className="text-2xl relative flex-grow bg-gray-100 p-4 rounded-lg shadow-md mb-4 sm:mb-0">
+          <label htmlFor="date" className="text-2xl mr-2 font-medium cursor-pointer">
             เลือกวันที่:
           </label>
           <input
