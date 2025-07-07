@@ -133,7 +133,7 @@ export default function PaymentPage() {
           <SquareMousePointer className="inline-block w-9 h-8 text-gray-600" />
           เลือกโต๊ะชำระเงิน
         </h2>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-6">
           {paidSeats.map((seatId) => (
             <button
               key={seatId}

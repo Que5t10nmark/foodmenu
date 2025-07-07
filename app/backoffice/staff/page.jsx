@@ -217,7 +217,7 @@ export default function Register() {
         </div>
       <Modal isOpen={isModalOpen} closeModal={closeModal}>
         <h2 className="text-xl font-semibold mb-4">
-          {isEditing ? "แก้ไขรายการอาหาร" : "เพิ่มอาหารใหม่"}
+          {isEditing ? "แก้ไขบัญชีพนักงาน" : "เพิ่มบัญชีพนักงานใหม่"}
         </h2>
           <form
             onSubmit={handleRegister}

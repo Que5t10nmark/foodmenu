@@ -74,6 +74,7 @@ export default function FinishedOrdersPage() {
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center gap-2">
+          <div className="text-2xl relative flex-grow bg-gray-100 p-4 rounded-lg shadow-md mb-4 sm:mb-0">
           <label htmlFor="seat" className="font-semibold w-24">
             เลือกโต๊ะ:
           </label>
@@ -98,6 +99,7 @@ export default function FinishedOrdersPage() {
               ล้างโต๊ะ
             </button>
           )}
+          </div>
         </div>
       </div>
 
