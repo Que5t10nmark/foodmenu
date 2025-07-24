@@ -80,13 +80,13 @@ export default function FoodSummaryReport() {
         {reportData.length > 0 && (
           <button
             onClick={handlePrint}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="text-2xl font-bold bg-blue-500 text-white p-4 rounded hover:bg-blue-700 cursor-pointer"
           >
             พิมพ์รายงาน PDF
           </button>
         )}
       </div>
-
+      
       <div ref={printRef} className="bg-white p-4">
         <h2 className="text-xl font-semibold mb-2">
           รายงานประจำวันที่: {date || "—"}

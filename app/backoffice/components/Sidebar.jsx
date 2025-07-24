@@ -33,8 +33,8 @@ export default function Sidebar() {
   ];
 
   const reportItems = [
-    { label: "รายงานสรุปรายการอาหารตามวันหรือเดือน", href: "/backoffice/reportdayandmonth" },
-    { label: "รายงานการขายรายวันหรือรายเดือน", href: "/backoffice/reportmenu" },
+    { label: "รายงานสรุปรายการอาหารตามวันหรือเดือน", href: "/backoffice/reportmenu" },
+    { label: "รายงานการขายรายวันหรือรายเดือน", href: "/backoffice/reportdayandmonth" },
     { label: "รายงานยอดขายรายการอาหารที่ขายดีหรือไม่ดี", href: "/backoffice/reportgoodandbad" },
   ];
 
