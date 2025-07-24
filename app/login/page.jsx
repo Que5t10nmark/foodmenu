@@ -8,80 +8,104 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+
     setIsLoading(true);
+    setError("");
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      router.push("/dashboard");
-    } else {
-      setError(data.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      if (res.ok) {
+        router.push("/backoffice/product");
+      } else {
+        setError(data.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+        setIsLoading(false);
+      }
+    } catch {
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          เข้าสู่ระบบ
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-300 via-slate-500 to-slate-300 px-4 relative font-[Kanit]">
+      
+      {/* Login Card */}
+      <div className="w-full max-w-md bg-white/30 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-8">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-slate-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+            <span className="text-4xl">🔐</span>
+          </div>
+          <h1 className="text-4xl font-semibold text-white mb-2">เข้าสู่ระบบ</h1>
+          <p className="text-xl text-white/80">กรุณาใส่ข้อมูลเพื่อเข้าสู่ระบบ</p>
+        </div>
 
         {error && (
-          <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+          <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm text-gray-700 mb-1">อีเมล</label>
+            <label className="block text-white text-2xl mb-1">อีเมล</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="example@email.com"
+              className="text-xl w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700 mb-1">รหัสผ่าน</label>
+            <label className="block text-white text-2xl mb-1">รหัสผ่าน</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="••••••••"
+              placeholder="password"
+              className="text-xl w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            disabled={isLoading}
+            className="text-2xl w-full py-3 rounded-xl bg-white text-orange-500 font-semibold shadow-md hover:-translate-y-1 hover:shadow-lg transition-all disabled:opacity-60"
           >
-            เข้าสู่ระบบ
+            {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-center text-gray-600">
+        {/* Divider */}
+        <div className="flex items-center my-6">
+          <div className="flex-1 h-px bg-white/30" />
+          <span className="px-4 text-white/60 text-sm">หรือ</span>
+          <div className="flex-1 h-px bg-white/30" />
+        </div>
+
+        {/* Sign Up */}
+        <p className="text-center mt-6 text-white/80 text-xl">
           ยังไม่มีบัญชี?{" "}
           <a
             href="/register"
-            className="text-blue-500 hover:underline font-medium"
+            onClick={() => setShowDemoModal(true)}
+            className="text-xl text-white hover:underline font-medium"
           >
             สมัครสมาชิก
           </a>
