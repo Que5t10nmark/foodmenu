@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "../../../store/cartContext";
 
 function Page() {
-  const { product_id } = useParams();
+  const params = useParams();
+  const product_id = params.product_id;
+  const searchParams = useSearchParams();
+  const seatQRCode = searchParams.get("seat_qrcode");
   const [product, setProduct] = useState(null);
   const { addToCart, cart } = useCart();
   const [message, setMessage] = useState("");
@@ -71,41 +74,49 @@ function Page() {
   };
 
   // เพิ่มสินค้าและตัวเลือกลงตะกร้า
-  const handleAddToCart = () => {
-    if (!product) return;
+ const handleAddToCart = () => {
+  if (!product) return;
 
-    // สร้าง selected_option ที่รวม option_value + option_price
-    const selectedOptionWithPrice = {};
-    for (const [type, value] of Object.entries(selectedOptions)) {
-      const optionsOfType = productOptions.filter(
-        (opt) => opt.option_type === type
-      );
+  // สร้าง selected_option ที่รวม option_value + option_price
+  const selectedOptionWithPrice = {};
+  let optionsTotalPrice = 0;
 
-      if (Array.isArray(value)) {
-        selectedOptionWithPrice[type] = value.map((val) => {
-          const match = optionsOfType.find((opt) => opt.option_value === val);
-          return match || { option_value: val, option_price: 0 };
-        });
-      } else {
-        const match = optionsOfType.find((opt) => opt.option_value === value);
-        selectedOptionWithPrice[type] = match || {
-          option_value: value,
-          option_price: 0,
-        };
-      }
+  for (const [type, value] of Object.entries(selectedOptions)) {
+    const optionsOfType = productOptions.filter(
+      (opt) => opt.option_type === type
+    );
+
+    if (Array.isArray(value)) {
+      selectedOptionWithPrice[type] = value.map((val) => {
+        const match = optionsOfType.find((opt) => opt.option_value === val);
+        if (match) optionsTotalPrice += Number(match.option_price || 0);
+        return match || { option_value: val, option_price: 0 };
+      });
+    } else {
+      const match = optionsOfType.find((opt) => opt.option_value === value);
+      if (match) optionsTotalPrice += Number(match.option_price || 0);
+      selectedOptionWithPrice[type] = match || {
+        option_value: value,
+        option_price: 0,
+      };
     }
+  }
 
-    const updatedProduct = {
-      ...product,
-      selected_option: selectedOptionWithPrice,
-      purchase_description: purchaseDescription,
-      quantity: 1,
-    };
+  // ราคาสินค้าหลัก + ราคาตัวเลือก
+  const totalPrice = Number(product.product_price || 0) + optionsTotalPrice;
 
-    addToCart(updatedProduct);
-    setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
-    setTimeout(() => setMessage(""), 1000);
+  const updatedProduct = {
+    ...product,
+    selected_option: selectedOptionWithPrice,
+    purchase_description: purchaseDescription,
+    quantity: 1,
+    total_price: totalPrice, // เก็บราคารวมไว้ที่นี่
   };
+
+  addToCart(updatedProduct);
+  setMessage(`✅ ${product.product_name} ถูกเพิ่มลงในตะกร้าแล้ว`);
+  setTimeout(() => setMessage(""), 1000);
+};
 
   // แสดง input ตัวเลือกสินค้า (จัดกลุ่มตาม option_type)
   const renderOptionInputs = () => {
@@ -211,13 +222,16 @@ function Page() {
             ✅ เพิ่มในตะกร้า
           </button>
 
-          <Link href={"/order/product"} className="block text-center mt-4">
+          <Link
+            href={`/order/product/${seatQRCode}?seat_qrcode=${seatQRCode}`}
+            className="block text-center mt-4"
+          >
             <button className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition">
               🍽️ เลือกสินค้าเพิ่ม
             </button>
           </Link>
 
-          <Link href={`/order/cart`} className="fixed bottom-6 right-6 z-50">
+          <Link href={`/order/product/${seatQRCode}/cart?seat_qrcode=${seatQRCode}`} className="fixed bottom-6 right-6 z-50">
             <button className="bg-green-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-green-700 transition">
               🛒 ไปยังตะกร้า (
               {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)})
@@ -227,8 +241,8 @@ function Page() {
       ) : (
         <div className="flex flex-row gap-2 justify-center items-center mt-100">
           <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce"></div>
+          <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.1s]"></div>
           <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.3s]"></div>
-          <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.5s]"></div>
         </div>
       )}
     </div>

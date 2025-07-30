@@ -3,9 +3,9 @@ import db from "../../../lib/db"; // เชื่อมต่อฐานข้�
 // เพิ่มคำสั่งซื้อ (POST)
 export async function POST(req) {
   try {
-    const { cart, seatId } = await req.json();
+    const { cart, seat_qrcode } = await req.json();
 
-    if (!cart || !seatId) {
+    if (!cart || !seat_qrcode) {
       return new Response(JSON.stringify({ message: "ข้อมูลไม่ครบถ้วน" }), {
         status: 400,
       });
@@ -23,7 +23,7 @@ export async function POST(req) {
           product.product_name,
           product.product_price,
           product.quantity,
-          seatId,
+          seat_qrcode,
           selected_option ? JSON.stringify(selected_option) : null,
           description ?? null,
         ]

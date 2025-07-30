@@ -1,16 +1,18 @@
 "use client";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useCart } from "../store/cartContext";
+import { useCart } from "../../store/cartContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function ProductPage() {
-  const { seatId } = useSearchParams();
+  const params = useParams();
+  const seatQRCode = params.seat_qrcode;
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
   const [message, setMessage] = useState("");
-  const { addToCart, cart } = useCart();
+  const {cart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -20,33 +22,47 @@ export default function ProductPage() {
   }, []);
 
   const handleDetail = (product) => {
-    router.push(`/order/product/product_detail/${product.product_id}`);
+    router.push(`/order/product/product_detail/${product.product_id}?seat_qrcode=${seatQRCode}`);
   };
 
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
-    router.push(`/order/product/product_detail/${product.product_id}`);
+    router.push(`/order/product/product_detail/${product.product_id}?seat_qrcode=${seatQRCode}`);
   };
 
   const categories = [
     "ทั้งหมด",
-    ...Array.from(new Set(products.map((product) => product.product_type_name))),
+    ...Array.from(
+      new Set(products.map((product) => product.product_type_name))
+    ),
   ];
 
   const filteredProducts =
     selectedCategory === "ทั้งหมด"
       ? products
-      : products.filter((product) => product.product_type_name === selectedCategory);
+      : products.filter(
+          (product) => product.product_type_name === selectedCategory
+        );
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (a.product_status === "มีสินค้า" && b.product_status !== "มีสินค้า") return -1;
-    if (a.product_status !== "มีสินค้า" && b.product_status === "มีสินค้า") return 1;
+  const sortedProducts = [...filteredProducts].sort((product1, product2) => {
+    if (
+      product1.product_status === "มีสินค้า" &&
+      product2.product_status !== "มีสินค้า"
+    )
+      return -1;
+    if (
+      product1.product_status !== "มีสินค้า" &&
+      product2.product_status === "มีสินค้า"
+    )
+      return 1;
     return 0;
   });
 
   return (
     <div className="p-4 relative">
-      <h1 className="text-2xl font-bold mb-4">🍽️ เมนูสำหรับโต๊ะ {seatId}</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        🍽️ เมนูสำหรับโต๊ะ {seatQRCode || "ไม่พบเลขโต๊ะ"}
+      </h1>
 
       <div className="flex space-x-2 overflow-x-auto mb-4 pb-2 text-lg">
         {categories.map((category) => (
@@ -63,7 +79,7 @@ export default function ProductPage() {
           </button>
         ))}
 
-        <Link href={`/order/cart/cart_detail/${seatId}`}>
+        <Link href={`/order/product/${seatQRCode}/cart_detail`}>
           <div className="text-lg text-gray-700 px-4 py-1 rounded-full border whitespace-nowrap">
             รายการสั่งซื้อ
           </div>
@@ -98,7 +114,9 @@ export default function ProductPage() {
                     src={`/uploads/${product.product_image}`}
                     alt={product.product_name}
                     fill
-                    className={`object-cover ${isOutOfStock ? "opacity-50" : ""}`}
+                    className={`object-cover ${
+                      isOutOfStock ? "opacity-50" : ""
+                    }`}
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm">
@@ -145,7 +163,7 @@ export default function ProductPage() {
         })}
       </div>
 
-      <Link href={`/order/cart`} className="fixed bottom-6 right-6 z-50">
+      <Link href={`/order/product/${seatQRCode}/cart`} className="fixed bottom-6 right-6 z-50">
         <button className="bg-green-600 text-white px-4 py-2 rounded-full shadow-lg">
           🛒 ไปยังตะกร้า ({cart.reduce((sum, item) => sum + item.quantity, 0)})
         </button>

@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Modal from "../components/Modal";
 import QRCode from "react-qr-code";
-import { Trash2, Edit2, PlusCircle} from "lucide-react";
+import { Trash2, Edit2, PlusCircle } from "lucide-react";
 const SeatPage = () => {
   const [seats, setSeats] = useState([]);
   const [newSeat, setNewSeat] = useState({
@@ -10,14 +10,12 @@ const SeatPage = () => {
     seat_status: "",
     seat_zone: "",
   });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState("");
 
   const fetchSeats = useCallback(async () => {
-    setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/seat");
@@ -26,8 +24,6 @@ const SeatPage = () => {
       setSeats(data);
     } catch (err) {
       setError("Error fetching seats: " + err.message);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -46,7 +42,7 @@ const SeatPage = () => {
       setSeats((prevSeats) => [
         ...prevSeats,
         {
-          seat_id: newSeat.id,
+          seat_id: newSeat.seat_id || newSeat.id, // ตรวจสอบชื่อฟิลด์ที่ backend ส่งมา
           seat_qrcode: seatData.seat_qrcode,
           seat_status: seatData.seat_status,
           seat_zone: seatData.seat_zone,
@@ -130,34 +126,22 @@ const SeatPage = () => {
     setNewSeat((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      updateSeat(newSeat.seat_id, newSeat);
-    } else {
-      addSeat(newSeat);
+    try {
+      if (isEditing) {
+        await updateSeat(newSeat.seat_id, newSeat);
+      } else {
+        await addSeat(newSeat);
+      }
+      closeModal();
+    } catch (err) {
+      // error จัดการในฟังก์ชัน add/update อยู่แล้ว
     }
-    closeModal();
   };
 
   const clearForm = () => {
     setNewSeat({ seat_qrcode: "", seat_status: "", seat_zone: "" });
-  };
-
-  const downloadQRCode = () => {
-    const svg = document.getElementById("qr-code-seat");
-    if (!svg) return;
-    const serializer = new XMLSerializer();
-    const svgBlob = new Blob([serializer.serializeToString(svg)], {
-      type: "image/svg+xml",
-    });
-    const url = URL.createObjectURL(svgBlob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `seat-${newSeat.seat_qrcode}.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
@@ -179,23 +163,34 @@ const SeatPage = () => {
         onClick={() => openModal()}
         className="text-3xl mt-3 sm:mt-0 inline-flex items-center gap-2 cursor-pointer bg-green-500 hover:bg-green-700 text-white px-5 py-2 rounded shadow transition"
       >
-        <PlusCircle size={20} />เพิ่มที่นั่ง
+        <PlusCircle size={20} />
+        เพิ่มที่นั่ง
       </button>
 
       <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white mb-2">
-        <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">รายการที่นั่ง</h2>
+        <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">
+          รายการที่นั่ง
+        </h2>
         <table className="min-w-full table-auto border-collapse">
           <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
             <tr>
-              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">QR Code</th>
-              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">สถานะที่นั่ง</th>
-              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">โซนที่นั่ง</th>
-              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">การจัดการ</th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                QR Code
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                สถานะที่นั่ง
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                โซนที่นั่ง
+              </th>
+              <th className="px-4 py-3 border-b border border-gray-300 text-3xl text-center">
+                การจัดการ
+              </th>
             </tr>
           </thead>
           <tbody>
-            {seats.map((seat, index) => (
-              <tr key={seat.seat_id || index}>
+            {seats.map((seat) => (
+              <tr key={seat.seat_id}>
                 <td className="text-2xl px-4 py-3 border-b border border-gray-300">
                   <div className="flex justify-center">
                     <QRCode
@@ -206,10 +201,24 @@ const SeatPage = () => {
                       }
                       size={64}
                     />
+                    <a
+                      href={`/order/product/${seat.seat_qrcode}`}
+                      className="text-sm text-blue-600 underline mt-2 break-all"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {typeof window !== "undefined"
+                        ? `${window.location.origin}/order/product/${seat.seat_qrcode}`
+                        : ""}
+                    </a>
                   </div>
                 </td>
-                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{seat.seat_status}</td>
-                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">{seat.seat_zone}</td>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
+                  {seat.seat_status}
+                </td>
+                <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
+                  {seat.seat_zone}
+                </td>
                 <td className="text-3xl px-4 py-3 border-b border border-gray-300 text-center">
                   <div className="flex justify-center gap-2">
                     <button
@@ -231,6 +240,18 @@ const SeatPage = () => {
                       title="ลบ"
                     >
                       <Trash2 size={18} /> ลบ
+                    </button>
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `/print/qrcode/${seat.seat_qrcode}`,
+                          "_blank"
+                        )
+                      }
+                      className="text-2xl p-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white rounded shadow transition flex items-center gap-1"
+                      title="พิมพ์ QR"
+                    >
+                      🖨 พิมพ์
                     </button>
                   </div>
                 </td>
@@ -272,14 +293,6 @@ const SeatPage = () => {
                 }
                 size={128}
               />
-
-              <button
-                type="button"
-                onClick={downloadQRCode}
-                className="mt-2 bg-blue-500 text-white p-2 rounded"
-              >
-                ดาวน์โหลด QR Code
-              </button>
             </div>
           )}
 

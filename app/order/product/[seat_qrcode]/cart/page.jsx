@@ -1,13 +1,22 @@
 "use client";
-import { useCart } from "../store/cartContext";
-import { useRouter } from "next/navigation";
+import { useCart } from "../../../store/cartContext";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function CartPage() {
   const { cart, addToCart, removeFromCart, clearCart } = useCart();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [seatQRCode, setSeatQRCode] = useState("");
 
-  // ฟังก์ชันช่วยคำนวณราคารวมของตัวเลือก (รองรับ array หรือ object)
+  useEffect(() => {
+    const seatFromUrl = searchParams.get("seat_qrcode");
+    if (seatFromUrl) {
+      setSeatQRCode(seatFromUrl);
+    }
+  }, [searchParams]);
+
   const calculateOptionsPrice = (selectedOptions) => {
     if (!selectedOptions) return 0;
     let optionTotal = 0;
@@ -30,7 +39,6 @@ export default function CartPage() {
     return optionTotal;
   };
 
-  // คำนวณราคารวมทั้งหมดในตะกร้า
   const total = cart.reduce((sum, cartItem) => {
     const basePrice = cartItem.product_price || 0;
     const quantity = cartItem.quantity || 0;
@@ -38,7 +46,6 @@ export default function CartPage() {
     return sum + quantity * (basePrice + optionsPrice);
   }, 0);
 
-  // ฟังก์ชันแสดงตัวเลือก พร้อมราคาเพิ่ม
   const renderSelectedOptions = (selectedOptions) => {
     if (!selectedOptions) return null;
 
@@ -50,7 +57,10 @@ export default function CartPage() {
         );
         return (
           <div key={optionType} className="text-sm text-gray-600">
-            {optionType}: {optionValue.map((option) => option.option_value || option).join(", ")}
+            {optionType}:{" "}
+            {optionValue
+              .map((option) => option.option_value || option)
+              .join(", ")}
             {totalOptionPrice > 0 ? ` +${totalOptionPrice} บาท` : ""}
           </div>
         );
@@ -58,7 +68,9 @@ export default function CartPage() {
         return (
           <div key={optionType} className="text-sm text-gray-600">
             {optionType}: {optionValue.option_value || ""}
-            {optionValue.option_price ? ` +${Number(optionValue.option_price)} บาท` : ""}
+            {optionValue.option_price
+              ? ` +${Number(optionValue.option_price)} บาท`
+              : ""}
           </div>
         );
       } else {
@@ -72,11 +84,15 @@ export default function CartPage() {
   };
 
   const handleConfirm = async () => {
-    const seatId = prompt("กรุณาใส่หมายเลขโต๊ะ");
+    let finalSeat = seatQRCode;
 
-    if (!seatId) {
-      alert("กรุณาใส่หมายเลขโต๊ะก่อนสั่งซื้อ");
-      return;
+    if (!finalSeat) {
+      finalSeat = prompt("กรุณาใส่หมายเลขโต๊ะ");
+      if (!finalSeat) {
+        alert("กรุณาใส่หมายเลขโต๊ะก่อนสั่งซื้อ");
+        return;
+      }
+      setSeatQRCode(finalSeat); // อัปเดต state
     }
 
     try {
@@ -87,7 +103,7 @@ export default function CartPage() {
           product_price: cartItem.product_price,
           quantity: cartItem.quantity,
         },
-        seat_id: seatId,
+        seat_qrcode: finalSeat,
         selected_option: cartItem.selected_option || {},
         description: cartItem.purchase_description || "",
       }));
@@ -97,13 +113,13 @@ export default function CartPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cart: cartData, seatId }),
+        body: JSON.stringify({ cart: cartData, seat_qrcode: finalSeat }),
       });
 
       if (res.ok) {
         alert("✅ สั่งซื้อเรียบร้อยแล้ว!");
         clearCart();
-        router.push("/order/product");
+        router.push(`/order/product/${seatQRCode}`);
       } else {
         alert("❌ สั่งซื้อไม่สำเร็จ");
       }
@@ -115,14 +131,20 @@ export default function CartPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">🧾 สรุปรายการสั่งซื้อ</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        🧾 สรุปรายการสั่งซื้อ {seatQRCode && `โต๊ะ ${seatQRCode}`}
+      </h1>
+
       {cart.length === 0 ? (
         <p>ไม่มีสินค้าในตะกร้า</p>
       ) : (
         <>
           <ul className="space-y-4">
             {cart.map((cartItem, itemIndex) => (
-              <li key={`${cartItem.product_id}-${itemIndex}`} className="border p-3 rounded">
+              <li
+                key={`${cartItem.product_id}-${itemIndex}`}
+                className="border p-3 rounded"
+              >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-semibold">
@@ -150,10 +172,11 @@ export default function CartPage() {
                     >
                       +
                     </button>
-                    <div className="font-bold ">
+                    <div className="font-bold">
                       ฿
                       {cartItem.quantity *
-                        (cartItem.product_price + calculateOptionsPrice(cartItem.selected_option))}
+                        (cartItem.product_price +
+                          calculateOptionsPrice(cartItem.selected_option))}
                     </div>
                   </div>
                 </div>
@@ -162,6 +185,7 @@ export default function CartPage() {
           </ul>
 
           <div className="mt-6 text-right font-bold text-xl">รวม: ฿{total}</div>
+
           <button
             onClick={() => {
               if (confirm("คุณต้องการล้างตะกร้าทั้งหมดใช่หรือไม่?")) {
@@ -183,7 +207,8 @@ export default function CartPage() {
           >
             ยืนยันการสั่งซื้อ
           </button>
-          <Link href={"/order/product"}>
+
+          <Link href={`/order/product/${seatQRCode}`}>
             <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-300">
               เลือกสินค้าเพิ่ม
             </button>

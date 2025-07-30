@@ -5,6 +5,26 @@ const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
+// ฟังก์ชันคำนวณราคาสินค้ารวมตัวเลือก
+const calculateTotalPrice = (product) => {
+  const basePrice = product.product_price || 0;
+  let optionsPrice = 0;
+
+  const options = product.selected_option || {};
+
+  Object.values(options).forEach((optionValue) => {
+    if (Array.isArray(optionValue)) {
+      optionValue.forEach((opt) => {
+        optionsPrice += (opt.option_price || 0);
+      });
+    } else if (typeof optionValue === "object" && optionValue !== null) {
+      optionsPrice += (optionValue.option_price || 0);
+    }
+  });
+
+  return basePrice + optionsPrice;
+};
+
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
@@ -14,13 +34,11 @@ export const CartProvider = ({ children }) => {
     const optionKey = Object.entries(options)
       .map(([optionType, optionValue]) => {
         if (Array.isArray(optionValue)) {
-          // สมมติ optionValue เป็น array ของ object ที่มี option_value
           return `${optionType}:${optionValue
             .map((option) => (typeof option === "object" ? option.option_value : option))
             .sort()
             .join(",")}`;
         }
-        // กรณีเป็น object หรือ string ปกติ
         if (typeof optionValue === "object" && optionValue !== null) {
           return `${optionType}:${optionValue.option_value || ""}`;
         }
@@ -41,6 +59,12 @@ export const CartProvider = ({ children }) => {
         (item) => generateCartKey(item) === key
       );
 
+      // คำนวณราคาสินค้ารวมตัวเลือกก่อนเก็บลงตะกร้า
+      const updatedProduct = {
+        ...product,
+        total_price: calculateTotalPrice(product),
+      };
+
       if (existingProduct) {
         return previousCart.map((item) =>
           generateCartKey(item) === key
@@ -49,7 +73,7 @@ export const CartProvider = ({ children }) => {
         );
       }
 
-      return [...previousCart, { ...product, quantity: 1 }];
+      return [...previousCart, { ...updatedProduct, quantity: 1 }];
     });
   };
 
