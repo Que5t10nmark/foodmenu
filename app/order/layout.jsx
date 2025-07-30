@@ -1,4 +1,4 @@
-import { CartProvider } from "@/app/order/store/cartContext";
+import { CartProvider } from "./store/cartContext";
 
 export default function CustomerLayout({ children }) {
   return <CartProvider>{children}</CartProvider>;
