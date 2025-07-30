@@ -1,5 +1,22 @@
 import db from "../../../lib/db"; // เชื่อมต่อฐานข้อมูล
+function stringifySelectedOptions(selected_option) {
+  if (!selected_option) return null;
 
+  return Object.entries(selected_option)
+    .map(([optionType, optionValues]) => {
+      if (Array.isArray(optionValues)) {
+        const values = optionValues
+          .map((opt) => (typeof opt === "object" ? opt.option_value : opt))
+          .join(", ");
+        return `${optionType}: ${values}`;
+      } else if (typeof optionValues === "object" && optionValues !== null) {
+        return `${optionType}: ${optionValues.option_value || ""}`;
+      } else {
+        return `${optionType}: ${optionValues}`;
+      }
+    })
+    .join(", ");
+}
 // เพิ่มคำสั่งซื้อ (POST)
 export async function POST(req) {
   try {
@@ -13,6 +30,7 @@ export async function POST(req) {
 
     for (const item of cart) {
       const { product, selected_option, description } = item;
+      const selectedOptionText = stringifySelectedOptions(selected_option);
 
       await db.execute(
         `INSERT INTO purchase 
@@ -24,7 +42,7 @@ export async function POST(req) {
           product.product_price,
           product.quantity,
           seat_qrcode,
-          selected_option ? JSON.stringify(selected_option) : null,
+          selectedOptionText,
           description ?? null,
         ]
       );
