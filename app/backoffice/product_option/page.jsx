@@ -8,11 +8,11 @@ export default function ProductOptionPage() {
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("ทั้งหมด");
   const [form, setForm] = useState({
-    option_id: null,
+    product_option_id: null,
     product_type_id: "",
-    option_type: "",
-    option_value: "",
-    option_price: 0,
+    product_option_type: "",
+    product_option_value: "",
+    product_option_price: 0,
   });
   const [notification, setNotification] = useState(null);
 
@@ -49,9 +49,9 @@ export default function ProductOptionPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const method = form.option_id ? "PUT" : "POST";
-    const url = form.option_id
-      ? `/api/product_option/${form.option_id}`
+    const method = form.product_option_id ? "PUT" : "POST";
+    const url = form.product_option_id
+      ? `/api/product_option/${form.product_option_id}`
       : "/api/product_option";
 
     try {
@@ -60,9 +60,9 @@ export default function ProductOptionPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_type_id: form.product_type_id,
-          option_type: form.option_type,
-          option_value: form.option_value,
-          option_price: form.option_price,
+          product_option_type: form.product_option_type,
+          product_option_value: form.product_option_value,
+          product_option_price: form.product_option_price,
         }),
       });
 
@@ -73,15 +73,15 @@ export default function ProductOptionPage() {
 
       showNotification(
         "success",
-        form.option_id ? "แก้ไขตัวเลือกสำเร็จ" : "เพิ่มตัวเลือกสำเร็จ"
+        form.product_option_id ? "แก้ไขตัวเลือกสำเร็จ" : "เพิ่มตัวเลือกสำเร็จ"
       );
 
       setForm({
-        option_id: null,
+        product_option_id: null,
         product_type_id: "",
-        option_type: "",
-        option_value: "",
-        option_price: 0,
+        product_option_type: "",
+        product_option_value: "",
+        product_option_price: 0,
       });
 
       fetchData();
@@ -92,11 +92,11 @@ export default function ProductOptionPage() {
 
   const handleEdit = (opt) => {
     setForm({
-      option_id: opt.option_id,
+      product_option_id: opt.product_option_id,
       product_type_id: opt.product_type_id,
-      option_type: opt.option_type,
-      option_value: opt.option_value,
-      option_price: opt.option_price,
+      product_option_type: opt.product_option_type,
+      product_option_value: opt.product_option_value,
+      product_option_price: opt.product_option_price,
     });
   };
 
@@ -162,8 +162,8 @@ export default function ProductOptionPage() {
           <input
             type="text"
             list="optionTypeList"
-            value={form.option_type}
-            onChange={(e) => setForm({ ...form, option_type: e.target.value })}
+            value={form.product_option_type}
+            onChange={(e) => setForm({ ...form, product_option_type: e.target.value })}
             className="border rounded px-3 py-2"
             placeholder="พิมพ์หรือเลือกประเภทตัวเลือก"
             required
@@ -177,8 +177,8 @@ export default function ProductOptionPage() {
           <input
             type="text"
             placeholder="ค่า เช่น เผ็ดมาก, เผ็ดน้อย, ไม่เผ็ด"
-            value={form.option_value}
-            onChange={(e) => setForm({ ...form, option_value: e.target.value })}
+            value={form.product_option_value}
+            onChange={(e) => setForm({ ...form, product_option_value: e.target.value })}
             className="border rounded px-3 py-2"
             required
           />
@@ -187,11 +187,11 @@ export default function ProductOptionPage() {
             type="number"
             min="0"
             placeholder="ราคาเพิ่ม"
-            value={form.option_price}
+            value={form.product_option_price}
             onChange={(e) =>
               setForm({
                 ...form,
-                option_price: parseFloat(e.target.value) || 0,
+                product_option_price: parseFloat(e.target.value) || 0,
               })
             }
             className="border rounded px-3 py-2"
@@ -203,19 +203,19 @@ export default function ProductOptionPage() {
           type="submit"
           className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-300"
         >
-          {form.option_id ? "💾 บันทึกการแก้ไข" : "➕ เพิ่มตัวเลือก"}
+          {form.product_option_id ? "💾 บันทึกการแก้ไข" : "➕ เพิ่มตัวเลือก"}
         </button>
-        {form.option_id && (
+        {form.product_option_id && (
           <button
             type="button"
             className="mt-4 ml-2 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
             onClick={() =>
               setForm({
-                option_id: null,
+                product_option_id: null,
                 product_type_id: "",
-                option_type: "",
-                option_value: "",
-                option_price: 0,
+                product_option_type: "",
+                product_option_value: "",
+                product_option_price: 0,
               })
             }
           >
@@ -270,15 +270,15 @@ export default function ProductOptionPage() {
                     opt.product_type_id === selectedType
                 )
                 .map((opt) => (
-                  <tr key={opt.option_id} className="border-t">
+                  <tr key={opt.product_option_id} className="border-t">
                     <td className="text-2xl px-4 py-3 border-b border border-gray-300 text-left">
                       {types.find(
                         (t) => t.product_type_id === opt.product_type_id
                       )?.product_type_name || "-"}
                     </td>
-                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">{opt.option_type}</td>
-                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">{opt.option_value}</td>
-                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">฿{opt.option_price}</td>
+                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">{opt.product_option_type}</td>
+                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">{opt.product_option_value}</td>
+                    <td className="text-xl px-2 py-1 border-b border border-gray-300 text-center">฿{opt.product_option_price}</td>
                     <td className="text-xl px-4 py-3 border-b border border-gray-300 text-center">
                   <div className="flex justify-center gap-2">
                     <button
@@ -292,7 +292,7 @@ export default function ProductOptionPage() {
                     <button
                       onClick={() => {
                         if (confirm("คุณแน่ใจว่าต้องการลบรายการนี้?")) {
-                          handleDelete(opt.option_id);
+                          handleDelete(opt.product_option_id);
                         }
                       }}
                       aria-label="ลบ"

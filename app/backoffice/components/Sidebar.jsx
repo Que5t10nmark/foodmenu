@@ -15,7 +15,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
-
 export default function Sidebar() {
   const pathname = usePathname();
 
@@ -26,7 +25,7 @@ export default function Sidebar() {
     { label: "ตัวเลือกอาหาร", icon: <Tags className="w-5 h-5" />, href: "/backoffice/product_option" },
     { label: "ข้อมูลโต๊ะ", icon: <ListOrdered className="w-5 h-5" />, href: "/backoffice/seat" },
     { label: "ข้อมูลพนักงาน", icon: <UserCog className="w-5 h-5" />, href: "/backoffice/staff" },
-    { label: "สั่งซื้อ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/order/product" },
+    { label: "สั่งซื้อ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/order/product/${seatQRCode}" },
     { label: "คำสั่งซื้อตามโต๊ะ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/kitchen/purchase" },
     { label: "คำสั่งซื้อตามเมนู", icon: <HandPlatter className="w-5 h-5" />, href: "/kitchen/purchase/purchase_detail" },
     { label: "ชำระเงิน", icon: <BadgeDollarSign className="w-5 h-5" />, href: "/kitchen/payment" },

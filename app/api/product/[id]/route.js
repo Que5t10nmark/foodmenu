@@ -29,7 +29,7 @@ export async function GET(req, { params }) {
   const product = await handleDBQuery(
     `SELECT p.*, pt.product_type_name 
     FROM product p
-    JOIN product_type pt ON p.product_type = pt.product_type_id
+    JOIN product_type pt ON p.product_type_id = pt.product_type_id
     WHERE p.product_id = ?`,
     [product_id]
   );
@@ -48,7 +48,7 @@ export async function POST(req) {
     // ✅ ดึงค่าจากฟอร์มและเก็บไว้ในตัวแปร
     const productData = {
       product_name: formData.get("product_name") || "", // ✅ ชื่อสินค้า
-      product_type: formData.get("product_type") || "", // ✅ ประเภทสินค้า
+      product_type_id: formData.get("product_type_id") || "", // ✅ ประเภทสินค้า
       product_price: formData.get("product_price") || "0", // ✅ ราคา
       product_description: formData.get("product_description") || "", // ✅ คำอธิบาย
       product_status: formData.get("product_status") === "1" ? 1 : 0, // ✅ สถานะสินค้า (1 = มี, 0 = ไม่มี)
@@ -67,12 +67,12 @@ export async function POST(req) {
     // ✅ บันทึกข้อมูลสินค้าเข้าในฐานข้อมูล
     const query = `
       INSERT INTO product 
-      (product_name, product_type, product_price, product_image, product_description, product_status) 
+      (product_name, product_type_id, product_price, product_image, product_description, product_status) 
       VALUES (?, ?, ?, ?, ?, ?)`;
 
     const params = [
       productData.product_name,
-      productData.product_type,
+      productData.product_type_id,
       productData.product_price,
       product_image, // ✅ ใช้ชื่อไฟล์ที่อัปโหลด
       productData.product_description,
@@ -118,7 +118,7 @@ export async function PUT(req, { params }) {
 
       productData = {
         product_name: formData.get("product_name") || "",
-        product_type: formData.get("product_type") || "",
+        product_type_id: formData.get("product_type_id") || "",
         product_price: formData.get("product_price") || "0",
         product_description: formData.get("product_description") || "",
         product_status: formData.get("product_status") === "1" ? 1 : 0,
@@ -146,7 +146,7 @@ export async function PUT(req, { params }) {
     // ✅ อัปเดตข้อมูลสินค้าในฐานข้อมูล
     const query = `
       UPDATE product 
-      SET product_name = ?, product_type = ?, product_price = ?, 
+      SET product_name = ?, product_type_id = ?, product_price = ?, 
           product_image = ?, product_description = ?, 
           product_status = ? 
       WHERE product_id = ?
@@ -154,7 +154,7 @@ export async function PUT(req, { params }) {
 
     const queryParams = [
       productData.product_name,
-      productData.product_type,
+      productData.product_type_id,
       productData.product_price,
       product_image,
       productData.product_description,

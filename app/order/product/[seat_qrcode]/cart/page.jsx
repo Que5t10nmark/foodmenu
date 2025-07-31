@@ -26,13 +26,13 @@ export default function CartPage() {
 
       if (Array.isArray(optionValue)) {
         optionValue.forEach((option) => {
-          if (option && typeof option === "object" && option.option_price) {
-            optionTotal += Number(option.option_price);
+          if (option && typeof option === "object" && option.product_option_price) {
+            optionTotal += Number(option.product_option_price);
           }
         });
       } else if (optionValue && typeof optionValue === "object") {
-        if (optionValue.option_price) {
-          optionTotal += Number(optionValue.option_price);
+        if (optionValue.product_option_price) {
+          optionTotal += Number(optionValue.product_option_price);
         }
       }
     }
@@ -52,14 +52,14 @@ export default function CartPage() {
     return Object.entries(selectedOptions).map(([optionType, optionValue]) => {
       if (Array.isArray(optionValue)) {
         const totalOptionPrice = optionValue.reduce(
-          (sum, option) => sum + (Number(option.option_price) || 0),
+          (sum, option) => sum + (Number(option.product_option_price) || 0),
           0
         );
         return (
           <div key={optionType} className="text-sm text-gray-600">
             {optionType}:{" "}
             {optionValue
-              .map((option) => option.option_value || option)
+              .map((option) => option.product_option_value || option)
               .join(", ")}
             {totalOptionPrice > 0 ? ` +${totalOptionPrice} บาท` : ""}
           </div>
@@ -67,9 +67,9 @@ export default function CartPage() {
       } else if (typeof optionValue === "object" && optionValue !== null) {
         return (
           <div key={optionType} className="text-sm text-gray-600">
-            {optionType}: {optionValue.option_value || ""}
-            {optionValue.option_price
-              ? ` +${Number(optionValue.option_price)} บาท`
+            {optionType}: {optionValue.product_option_value || ""}
+            {optionValue.product_option_price
+              ? ` +${Number(optionValue.product_option_price)} บาท`
               : ""}
           </div>
         );

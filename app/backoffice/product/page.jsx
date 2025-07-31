@@ -9,7 +9,7 @@ const ProductsPage = () => {
   const [product, setProduct] = useState([]);
   const [newProduct, setNewProduct] = useState({
     product_name: "",
-    product_type: "",
+    product_type_id: "",
     product_price: "",
     product_image: "",
     product_description: "",
@@ -107,7 +107,7 @@ const ProductsPage = () => {
     } else {
       setNewProduct({
         product_name: "",
-        product_type: "",
+        product_type_id: "",
         product_price: "",
         product_image: "",
         product_description: "",
@@ -123,7 +123,7 @@ const ProductsPage = () => {
     setIsModalOpen(false);
     setNewProduct({
       product_name: "",
-      product_type: "",
+      product_type_id: "",
       product_price: "",
       product_image: "",
       product_description: "",
@@ -135,7 +135,7 @@ const ProductsPage = () => {
   const clearForm = () => {
     setNewProduct({
       product_name: "",
-      product_type: "",
+      product_type_id: "",
       product_price: "",
       product_image: "",
       product_description: "",
@@ -147,7 +147,7 @@ const ProductsPage = () => {
     e.preventDefault();
     if (
       !newProduct.product_name ||
-      !newProduct.product_type ||
+      !newProduct.product_type_id ||
       !newProduct.product_price
     ) {
       setError("กรุณากรอกข้อมูลให้ครบถ้วน");
@@ -209,7 +209,7 @@ const ProductsPage = () => {
     // แสดงข้อความแจ้งเตือนว่าไม่สามารถลบข้อมูลได้
     .filter((item) => {
       if (selectedType === "ทั้งหมด") return true;
-      return String(item.product_type) === String(selectedType);
+      return String(item.product_type_id) === String(selectedType);
     });
 
   return (
@@ -416,21 +416,21 @@ const ProductsPage = () => {
               ประเภทสินค้า
             </label>
             <select
-              id="product_type"
-              name="product_type"
-              value={newProduct.product_type ?? ""}
+              id="product_type_id"
+              name="product_type_id"
+              value={newProduct.product_type_id ?? ""}
               onChange={handleChange}
               required
               className="w-full p-2 border border-gray-300 rounded"
             >
               <option value="">เลือกประเภทสินค้า</option>
               {productType.length > 0 ? (
-                productType.map((product_type) => (
+                productType.map((product_type_id) => (
                   <option
-                    key={product_type.product_type_id}
-                    value={product_type.product_type_id}
+                    key={product_type_id.product_type_id}
+                    value={product_type_id.product_type_id}
                   >
-                    {product_type.product_type_name}
+                    {product_type_id.product_type_name}
                   </option>
                 ))
               ) : (

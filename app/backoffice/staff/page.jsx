@@ -157,7 +157,7 @@ export default function Register() {
           onClick={() => setIsModalOpen(true)}
           className="text-3xl mt-3 sm:mt-0 inline-flex items-center gap-2 cursor-pointer bg-green-500 hover:bg-green-700 text-white px-5 py-2 rounded shadow transition"
         >
-          <PlusCircle size={20} /> เพิ่มรายการ
+          <PlusCircle size={20} /> สร้างบัญชีใหม่
         </button>
 
         <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white mb-2">

@@ -83,21 +83,21 @@ function Page() {
 
   for (const [type, value] of Object.entries(selectedOptions)) {
     const optionsOfType = productOptions.filter(
-      (opt) => opt.option_type === type
+      (opt) => opt.product_option_type === type
     );
 
     if (Array.isArray(value)) {
       selectedOptionWithPrice[type] = value.map((val) => {
-        const match = optionsOfType.find((opt) => opt.option_value === val);
-        if (match) optionsTotalPrice += Number(match.option_price || 0);
-        return match || { option_value: val, option_price: 0 };
+        const match = optionsOfType.find((opt) => opt.product_option_value === val);
+        if (match) optionsTotalPrice += Number(match.product_option_price || 0);
+        return match || { product_option_value: val, product_option_price: 0 };
       });
     } else {
-      const match = optionsOfType.find((opt) => opt.option_value === value);
-      if (match) optionsTotalPrice += Number(match.option_price || 0);
+      const match = optionsOfType.find((opt) => opt.product_option_value === value);
+      if (match) optionsTotalPrice += Number(match.product_option_price || 0);
       selectedOptionWithPrice[type] = match || {
-        option_value: value,
-        option_price: 0,
+        product_option_value: value,
+        product_option_price: 0,
       };
     }
   }
@@ -121,37 +121,37 @@ function Page() {
   // แสดง input ตัวเลือกสินค้า (จัดกลุ่มตาม option_type)
   const renderOptionInputs = () => {
     const groupedOptionsByType = productOptions.reduce((grouped, option) => {
-      if (!grouped[option.option_type]) {
-        grouped[option.option_type] = [];
+      if (!grouped[option.product_option_type]) {
+        grouped[option.product_option_type] = [];
       }
-      grouped[option.option_type].push(option);
+      grouped[option.product_option_type].push(option);
       return grouped;
     }, {});
 
     return Object.entries(groupedOptionsByType).map(
       ([optionType, optionList]) => {
-        const isMultiple = optionList.some((option) => option.option_price > 0);
+        const isMultiple = optionList.some((option) => option.product_option_price > 0);
         return (
           <div key={optionType} className="mb-4">
             <label className="block font-semibold mb-1">{optionType}:</label>
             {isMultiple ? (
               optionList.map((option) => (
                 <label
-                  key={option.option_value}
+                  key={option.product_option_value}
                   className="flex items-center mb-1"
                 >
                   <input
                     type="checkbox"
                     checked={(selectedOptions[optionType] || []).includes(
-                      option.option_value
+                      option.product_option_value
                     )}
                     onChange={() =>
-                      handleOptionChange(optionType, option.option_value, true)
+                      handleOptionChange(optionType, option.product_option_value, true)
                     }
                     className="mr-2"
                   />
-                  {option.option_value}{" "}
-                  {option.option_price > 0 ? `(+${option.option_price}฿)` : ""}
+                  {option.product_option_value}{" "}
+                  {option.product_option_price > 0 ? `(+${option.product_option_price}฿)` : ""}
                 </label>
               ))
             ) : (
@@ -164,10 +164,10 @@ function Page() {
               >
                 <option value="">-- เลือก {optionType} --</option>
                 {optionList.map((option) => (
-                  <option key={option.option_value} value={option.option_value}>
-                    {option.option_value}{" "}
-                    {option.option_price > 0
-                      ? `(+${option.option_price}฿)`
+                  <option key={option.product_option_value} value={option.product_option_value}>
+                    {option.product_option_value}{" "}
+                    {option.product_option_price > 0
+                      ? `(+${option.product_option_price}฿)`
                       : ""}
                   </option>
                 ))}

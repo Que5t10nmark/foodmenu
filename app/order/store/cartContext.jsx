@@ -15,10 +15,10 @@ const calculateTotalPrice = (product) => {
   Object.values(options).forEach((optionValue) => {
     if (Array.isArray(optionValue)) {
       optionValue.forEach((opt) => {
-        optionsPrice += (opt.option_price || 0);
+        optionsPrice += (opt.product_option_price || 0);
       });
     } else if (typeof optionValue === "object" && optionValue !== null) {
-      optionsPrice += (optionValue.option_price || 0);
+      optionsPrice += (optionValue.product_option_price || 0);
     }
   });
 
@@ -35,12 +35,12 @@ export const CartProvider = ({ children }) => {
       .map(([optionType, optionValue]) => {
         if (Array.isArray(optionValue)) {
           return `${optionType}:${optionValue
-            .map((option) => (typeof option === "object" ? option.option_value : option))
+            .map((option) => (typeof option === "object" ? option.product_option_value : option))
             .sort()
             .join(",")}`;
         }
         if (typeof optionValue === "object" && optionValue !== null) {
-          return `${optionType}:${optionValue.option_value || ""}`;
+          return `${optionType}:${optionValue.product_option_value || ""}`;
         }
         return `${optionType}:${optionValue}`;
       })

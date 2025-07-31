@@ -82,11 +82,11 @@ export default function ReceiptPrintPage() {
                           .map(([optionType, optionValue]) => {
                             const displayValue = Array.isArray(optionValue)
                               ? optionValue
-                                  .map((item) => item?.option_value || item)
+                                  .map((item) => item?.product_option_value || item)
                                   .join(", ")
                               : typeof optionValue === "object" &&
                                 optionValue !== null
-                              ? optionValue.option_value ||
+                              ? optionValue.product_option_value ||
                                 JSON.stringify(optionValue)
                               : optionValue;
 

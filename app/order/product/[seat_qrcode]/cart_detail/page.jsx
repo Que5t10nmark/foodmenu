@@ -41,12 +41,12 @@ export default function MyOrderPage() {
       Object.values(order.selected_option).forEach((opt) => {
         if (Array.isArray(opt)) {
           opt.forEach((item) => {
-            if (typeof item === "object" && item.option_price) {
-              total += Number(item.option_price);
+            if (typeof item === "object" && item.product_option_price) {
+              total += Number(item.product_option_price);
             }
           });
-        } else if (typeof opt === "object" && opt.option_price) {
-          total += Number(opt.option_price);
+        } else if (typeof opt === "object" && opt.product_option_price) {
+          total += Number(opt.product_option_price);
         }
       });
     }
@@ -66,7 +66,7 @@ export default function MyOrderPage() {
             {optionValue
               .map((opt) =>
                 typeof opt === "object"
-                  ? `${opt.option_value}${opt.option_price ? ` (+${opt.option_price} บาท)` : ""}`
+                  ? `${opt.product_option_value}${opt.product_option_price ? ` (+${opt.product_option_price} บาท)` : ""}`
                   : opt
               )
               .join(", ")}
@@ -75,8 +75,8 @@ export default function MyOrderPage() {
       } else if (typeof optionValue === "object" && optionValue !== null) {
         return (
           <div key={optionType} className="text-sm text-gray-600">
-            {optionType}: {optionValue.option_value}
-            {optionValue.option_price ? ` (+${optionValue.option_price} บาท)` : ""}
+            {optionType}: {optionValue.product_option_value}
+            {optionValue.product_option_price ? ` (+${optionValue.product_option_price} บาท)` : ""}
           </div>
         );
       } else {

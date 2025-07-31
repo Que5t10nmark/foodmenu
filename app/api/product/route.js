@@ -9,7 +9,7 @@ export async function GET() {
           ELSE 'ไม่มีสินค้า' 
         END AS product_status
       FROM product p
-      JOIN product_type pt ON p.product_type = pt.product_type_id
+      JOIN product_type pt ON p.product_type_id = pt.product_type_id
     `);
 
     return new Response(JSON.stringify(product), {
@@ -37,7 +37,7 @@ export async function POST(req) {
   try {
     const {
       product_name,
-      product_type,
+      product_type_id,
       product_price,
       product_image,
       product_description,
@@ -47,7 +47,7 @@ export async function POST(req) {
     // ปรับการตรวจสอบค่าที่จำเป็น โดยไม่บังคับ product_image
     if (
       !product_name ||
-      !product_type ||
+      !product_type_id ||
       !product_price ||
       product_status === undefined
     ) {
@@ -67,11 +67,11 @@ export async function POST(req) {
 
     const [result] = await pool.query(
       `INSERT INTO product 
-      (product_name, product_type, product_price, product_image, product_description, product_status) 
+      (product_name, product_type_id, product_price, product_image, product_description, product_status) 
       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         product_name,
-        product_type,
+        product_type_id,
         product_price,
         productImage,
         productDescription,
@@ -89,7 +89,7 @@ export async function POST(req) {
       JSON.stringify({
         id: result.insertId,
         product_name,
-        product_type,
+        product_type_id,
         product_price,
         product_image: productImage,
         product_description: productDescription,
