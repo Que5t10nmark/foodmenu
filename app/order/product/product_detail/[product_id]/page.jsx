@@ -27,9 +27,9 @@ function Page() {
         .then((productData) => {
           setProduct(productData);
 
-          if (productData.product_type) {
+          if (productData.product_type_id) {
             fetch(
-              `/api/product_option?product_type_id=${productData.product_type}`
+              `/api/product_option?product_type_id=${productData.product_type_id}`
             )
               .then((res) => res.json())
               .then((optionData) => {
