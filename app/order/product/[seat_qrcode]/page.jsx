@@ -162,12 +162,11 @@ export default function ProductPage() {
           );
         })}
       </div>
-
-      <Link href={`/order/product/${seatQRCode}/cart`} className="fixed bottom-6 right-6 z-50">
+      {/* <Link href={`/order/product/${seatQRCode}/cart`} className="fixed bottom-6 right-6 z-50">
         <button className="bg-green-600 text-white px-4 py-2 rounded-full shadow-lg">
           🛒 ไปยังตะกร้า ({cart.reduce((sum, item) => sum + item.quantity, 0)})
         </button>
-      </Link>
+      </Link> */}
     </div>
   );
 }

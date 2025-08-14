@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation"; // ใช้ useParams ดึงค่า dynamic route
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import Head from "next/head";
 
 export default function MyOrderPage() {
   const params = useParams();
-  const seatQRCode = params.seat_qrcode; // ดึงเลขโต๊ะจาก URL
+  const seatQRCode = params.seat_qrcode;
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +19,7 @@ export default function MyOrderPage() {
         const res = await fetch(`/api/purchase`);
         const data = await res.json();
         const filteredOrders = data.filter(
-          (order) => order.seat_id === seatQRCode
+          (order) => String(order.seat_id) === String(seatQRCode)
         );
         setOrders(filteredOrders);
       } catch (error) {
@@ -33,10 +34,8 @@ export default function MyOrderPage() {
     return () => clearInterval(interval);
   }, [seatQRCode]);
 
-  // ฟังก์ชันคำนวณราคาสินค้ารวมกับราคาตัวเลือกทั้งหมด
   const calculateTotalPrice = (order) => {
     let total = Number(order.product_price || 0);
-
     if (order.selected_option) {
       Object.values(order.selected_option).forEach((opt) => {
         if (Array.isArray(opt)) {
@@ -50,38 +49,42 @@ export default function MyOrderPage() {
         }
       });
     }
-
     return total * (order.purchase_quantity || 1);
   };
 
-  // แสดงตัวเลือกในรายการสั่งซื้อ
   const renderSelectedOptions = (selectedOptions) => {
     if (!selectedOptions) return null;
-
     return Object.entries(selectedOptions).map(([optionType, optionValue]) => {
       if (Array.isArray(optionValue)) {
         return (
-          <div key={optionType} className="text-sm text-gray-600">
+          <div key={optionType} className="text-sm text-gray-500">
             {optionType}:{" "}
             {optionValue
               .map((opt) =>
                 typeof opt === "object"
-                  ? `${opt.product_option_value}${opt.product_option_price ? ` (+${opt.product_option_price} บาท)` : ""}`
+                  ? `${opt.product_option_value}${
+                      opt.product_option_price
+                        ? ` (+${opt.product_option_price} บาท)`
+                        : ""
+                    }`
                   : opt
               )
+              .filter(Boolean)
               .join(", ")}
           </div>
         );
       } else if (typeof optionValue === "object" && optionValue !== null) {
         return (
-          <div key={optionType} className="text-sm text-gray-600">
+          <div key={optionType} className="text-sm text-gray-500">
             {optionType}: {optionValue.product_option_value}
-            {optionValue.product_option_price ? ` (+${optionValue.product_option_price} บาท)` : ""}
+            {optionValue.product_option_price
+              ? ` (+${optionValue.product_option_price} บาท)`
+              : ""}
           </div>
         );
       } else {
         return (
-          <div key={optionType} className="text-sm text-gray-600">
+          <div key={optionType} className="text-sm text-gray-500">
             {optionType}: {optionValue}
           </div>
         );
@@ -89,63 +92,206 @@ export default function MyOrderPage() {
     });
   };
 
-  if (!seatQRCode) {
-    return (
-      <div className="p-4 max-w-xl mx-auto text-center">
-        <p className="text-red-600 font-bold">
-          ❌ ไม่พบเลขโต๊ะ กรุณาเข้าสู่ระบบใหม่อีกครั้ง
-        </p>
-        <Link href={`/order/product`}>
-          <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
-            กลับไปหน้าเมนู
-          </button>
-        </Link>
-      </div>
-    );
-  }
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "กำลังทำ":
+        return "bg-yellow-400 text-white px-4 py-2 rounded-full text-lg font-medium";
+      case "เสร็จแล้ว":
+        return "bg-green-500 text-white px-4 py-2 rounded-full text-lg font-medium";
+      default:
+        return "bg-gray-100 text-gray-700 px-2 py-1 rounded text-lg";
+    }
+  };
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("th-TH", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      const currentTimeElement = document.getElementById("currentTime");
+      if (currentTimeElement) {
+        currentTimeElement.textContent = timeString;
+      }
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const cards = document.querySelectorAll(".bg-white.rounded-2xl");
+    cards.forEach((card) => {
+      card.addEventListener("click", function () {
+        this.style.transform = "scale(0.98)";
+        setTimeout(() => {
+          this.style.transform = "scale(1)";
+        }, 150);
+      });
+    });
+  }, [orders]);
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-xl font-bold mb-4">🍽 รายการสั่งซื้อโต๊ะ {seatQRCode}</h1>
-
-      {loading ? (
-        <p>กำลังโหลดข้อมูล...</p>
-      ) : orders.length === 0 ? (
-        <p className="text-gray-500">ยังไม่มีคำสั่งซื้อสำหรับโต๊ะนี้</p>
-      ) : (
-        <ul className="space-y-3">
-          {orders.map((order) => (
-            <li
-              key={order.purchase_id}
-              className="border p-4 rounded shadow bg-white"
-            >
-              <div className="font-bold">{order.product_name}</div>
-              <div className="text-sm">จำนวน: {order.purchase_quantity}</div>
-              <div className="text-sm">
-                ราคา: {calculateTotalPrice(order)} บาท
-              </div>
-              {renderSelectedOptions(order.selected_option)}
-              {order.purchase_description && (
-                <div className="text-sm text-gray-600">
-                  หมายเหตุ: {order.purchase_description}
+    <>
+      <Head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>สถานะออเดอร์</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+        <div className="bg-white shadow-lg sticky top-0 z-10">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    ></path>
+                  </svg>
                 </div>
-              )}
-              <div className="text-sm mt-1">
-                สถานะ:{" "}
-                <span className="font-semibold text-blue-600">
-                  {order.purchase_status}
-                </span>
+                <h1 className="text-2xl font-bold text-gray-800">
+                  สถานะออเดอร์
+                </h1>
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
+              <div className="text-sm text-gray-500" id="currentTime"></div>
+            </div>
+          </div>
+        </div>
 
-      <Link href={`/order/product/${seatQRCode}`} className="fixed bottom-6 left-6 z-50">
-        <button className="bg-red-600 hover:bg-red-300 text-white px-4 py-2 rounded-full shadow-lg">
-          กลับ
-        </button>
-      </Link>
-    </div>
+        <div className="px-4 py-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl card-shadow overflow-hidden mb-6">
+              <div className="p-4 border-b border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 font-bold text-2xl">
+                        {seatQRCode}
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-gray-800 text-2xl">
+                        โต๊ะ {seatQRCode}
+                      </h2>
+                      <p className="text-xl text-gray-500">ออเดอร์ทั้งหมด</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-lg text-gray-400">
+                  เวลาสั่ง:{" "}
+                  {new Date().toLocaleTimeString("th-TH", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}{" "}
+                  | จำนวน{" "}
+                  {orders.reduce(
+                    (sum, order) => sum + (order.purchase_quantity || 1),
+                    0
+                  )}{" "}
+                  รายการ
+                </div>
+              </div>
+
+              <div className="p-4 space-y-4">
+                {loading ? (
+                  <p className="text-gray-500 text-center">
+                    กำลังโหลดข้อมูล...
+                  </p>
+                ) : orders.length === 0 ? (
+                  <p className="text-gray-500 text-center">
+                    ยังไม่มีคำสั่งซื้อสำหรับโต๊ะนี้
+                  </p>
+                ) : (
+                  orders.map((order) => (
+                    <div
+                      key={order.purchase_id}
+                      className="flex justify-between items-start border-b border-gray-50 pb-3"
+                    >
+                      <div className="flex-1">
+                        <h3 className=" text-2xl font-medium text-gray-800">
+                          {order.product_name}
+                        </h3>
+                        {renderSelectedOptions(order.selected_option)}
+                        {order.purchase_description && (
+                          <p className="text-sm text-gray-500">
+                            หมายเหตุ: {order.purchase_description}
+                          </p>
+                        )}
+                        <div className="flex items-center mt-2 space-x-2">
+                          <span className="text-xl bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                            จำนวน: {order.purchase_quantity}
+                          </span>
+                          <span
+                            className={getStatusClass(order.purchase_status)}
+                          >
+                            {order.purchase_status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <p className="text-lg font-bold text-gray-800">
+                          {calculateTotalPrice(order)} บาท
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {(
+                            calculateTotalPrice(order) / order.purchase_quantity
+                          ).toFixed(2)}{" "}
+                          บาท/รายการ
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="px-4 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-2xl font-bold text-gray-800">รวมทั้งหมด</span>
+                  <span className="font-bold text-2xl text-blue-600">
+                    {orders.reduce(
+                      (sum, order) => sum + calculateTotalPrice(order),
+                      0
+                    )}{" "}
+                    บาท
+                  </span>
+                </div>
+                <div className="text-lg text-gray-500">
+                  รวม{" "}
+                  {orders.reduce(
+                    (sum, order) => sum + (order.purchase_quantity || 1),
+                    0
+                  )}{" "}
+                  รายการ
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href={`/order/product/${seatQRCode}`}
+              className="fixed bottom-6 left-6 z-50"
+            >
+              <button className="bg-red-600 hover:bg-red-300 text-white px-4 py-2 rounded-full shadow-lg">
+                กลับ
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

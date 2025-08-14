@@ -1,23 +1,29 @@
-import db from "../../../lib/db"; // เชื่อมต่อฐานข้อมูล
+// app/api/purchase/route.js
+import db from "../../../lib/db";
+
 function stringifySelectedOptions(selected_option) {
   if (!selected_option) return null;
 
-  return Object.entries(selected_option)
-    .map(([optionType, optionValues]) => {
-      if (Array.isArray(optionValues)) {
-        const values = optionValues
-          .map((opt) => (typeof opt === "object" ? opt.option_value : opt))
-          .join(", ");
-        return `${optionType}: ${values}`;
-      } else if (typeof optionValues === "object" && optionValues !== null) {
-        return `${optionType}: ${optionValues.option_value || ""}`;
-      } else {
-        return `${optionType}: ${optionValues}`;
-      }
-    })
-    .join(", ");
+  // แปลง selected_option เป็น JSON string
+  return JSON.stringify(
+    Object.fromEntries(
+      Object.entries(selected_option).map(([optionType, optionValues]) => {
+        if (Array.isArray(optionValues)) {
+          const values = optionValues
+            .map((opt) => (typeof opt === "object" ? opt.product_option_value : opt))
+            .filter(Boolean)
+            .join(", ");
+          return [optionType, values || ""];
+        } else if (typeof optionValues === "object" && optionValues !== null) {
+          return [optionType, optionValues.product_option_value || ""];
+        } else {
+          return [optionType, optionValues || ""];
+        }
+      })
+    )
+  );
 }
-// เพิ่มคำสั่งซื้อ (POST)
+
 export async function POST(req) {
   try {
     const { cart, seat_qrcode } = await req.json();
@@ -60,7 +66,6 @@ export async function POST(req) {
   }
 }
 
-// ดึงคำสั่งซื้อ (GET)
 export async function GET(req) {
   try {
     const status = req.nextUrl.searchParams.get("status");
@@ -100,16 +105,15 @@ export async function GET(req) {
           return obj;
         }
       } catch {
-        // parse ไม่ได้
+        // parse ไม่ได้ คืนค่าเป็นสตริงเดิม
+        return jsonString;
       }
       return null;
     }
 
     const parsedOrders = orders.map((order) => ({
       ...order,
-      selected_option: order.selected_option
-        ? tryParseJSON(order.selected_option) ?? order.selected_option
-        : null,
+      selected_option: order.selected_option ? tryParseJSON(order.selected_option) : null,
     }));
 
     return new Response(JSON.stringify(parsedOrders), { status: 200 });
@@ -121,4 +125,3 @@ export async function GET(req) {
     );
   }
 }
-

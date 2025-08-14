@@ -1,4 +1,4 @@
-import db from "@/lib/db";
+import db from "../../../../../lib/db";
 export async function PUT(req) {
   const { seat_ids, discount = 0, method, printReceipt = false } = await req.json();
 
