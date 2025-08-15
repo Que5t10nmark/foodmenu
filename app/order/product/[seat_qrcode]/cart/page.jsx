@@ -74,7 +74,10 @@ export default function CartPage() {
         );
         return (
           <div key={optionType} className="text-sm text-gray-600">
-            {optionType}: {optionValue.map((opt) => opt.product_option_value || opt).join(", ")}
+            {optionType}:{" "}
+            {optionValue
+              .map((opt) => opt.product_option_value || opt)
+              .join(", ")}
             {priceSum > 0 && ` +${priceSum} บาท`}
           </div>
         );
@@ -82,7 +85,9 @@ export default function CartPage() {
         return (
           <div key={optionType} className="text-sm text-gray-600">
             {optionType}: {optionValue.product_option_value}
-            {optionValue.product_option_price ? ` +${optionValue.product_option_price} บาท` : ""}
+            {optionValue.product_option_price
+              ? ` +${optionValue.product_option_price} บาท`
+              : ""}
           </div>
         );
       } else {
@@ -127,7 +132,10 @@ export default function CartPage() {
       });
 
       if (response.ok) {
-        showModal("success", `คำสั่งซื้อของโต๊ะ ${seatFromUrl} ถูกส่งไปยังครัวแล้ว`);
+        showModal(
+          "success",
+          `คำสั่งซื้อของโต๊ะ ${seatFromUrl} ถูกส่งไปยังครัวแล้ว`
+        );
         setTimeout(() => {
           clearCart();
           router.push(`/order/product/${seatFromUrl}`);
@@ -176,27 +184,36 @@ export default function CartPage() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold text-xl">{seatQRCode || "1"}</span>
+                    <span className="text-blue-600 font-bold text-xl">
+                      {seatQRCode || "1"}
+                    </span>
                   </div>
                   <div>
-                    <h2 className="font-bold text-gray-800 text-lg">โต๊ะ {seatQRCode || "1"}</h2>
+                    <h2 className="font-bold text-gray-800 text-lg">
+                      โต๊ะ {seatQRCode || "1"}
+                    </h2>
                     <p className="text-sm text-gray-500">ออเดอร์</p>
                   </div>
                 </div>
               </div>
               <div className="text-xs text-gray-400">
-                เวลาสั่ง: {new Date().toLocaleTimeString("th-TH", {
+                เวลาสั่ง:{" "}
+                {new Date().toLocaleTimeString("th-TH", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}{" "}
-                | จำนวน {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)} รายการ
+                | จำนวน{" "}
+                {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)}{" "}
+                รายการ
               </div>
             </div>
 
             <div className="p-4 space-y-4">
               {cart.length === 0 ? (
                 <div className="text-center">
-                  <p className="text-gray-600 text-lg font-medium">ไม่มีสินค้าในตะกร้า</p>
+                  <p className="text-gray-600 text-lg font-medium">
+                    ไม่มีสินค้าในตะกร้า
+                  </p>
                   <Link href={`/order/product/${seatQRCode}`}>
                     <button className="mt-4 bg-amber-500 text-white py-2 px-6 rounded-lg font-medium hover:bg-amber-600 transition">
                       ไปเลือกสินค้า
@@ -210,7 +227,9 @@ export default function CartPage() {
                     className="flex justify-between items-start border-b border-gray-50 pb-3"
                   >
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-800">{productItem.product_name}</h3>
+                      <h3 className="front-bold font-medium text-gray-800">
+                        {productItem.product_name}
+                      </h3>
                       {renderSelectedOptions(productItem.selected_option)}
                       {productItem.purchase_description && (
                         <p className="text-sm text-gray-500">
@@ -225,10 +244,19 @@ export default function CartPage() {
                     </div>
                     <div className="text-right ml-4">
                       <p className="font-bold text-gray-800">
-                        {productItem.quantity * (productItem.product_price + calculateOptionsPrice(productItem.selected_option))} บาท
+                        {productItem.quantity *
+                          (productItem.product_price +
+                            calculateOptionsPrice(
+                              productItem.selected_option
+                            ))}{" "}
+                        บาท
                       </p>
                       <p className="text-sm text-gray-500">
-                        {(productItem.product_price + calculateOptionsPrice(productItem.selected_option)).toFixed(2)} บาท/รายการ
+                        {(
+                          productItem.product_price +
+                          calculateOptionsPrice(productItem.selected_option)
+                        ).toFixed(2)}{" "}
+                        บาท/รายการ
                       </p>
                       <div className="flex items-center justify-end space-x-2 mt-2">
                         <button
@@ -237,7 +265,9 @@ export default function CartPage() {
                         >
                           -
                         </button>
-                        <span className="font-bold text-lg">{productItem.quantity}</span>
+                        <span className="font-bold text-lg">
+                          {productItem.quantity}
+                        </span>
                         <button
                           onClick={() => addToCart(productItem)}
                           className="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center hover:bg-green-200"
@@ -260,7 +290,9 @@ export default function CartPage() {
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">
-                  รวม {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)} รายการ
+                  รวม{" "}
+                  {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)}{" "}
+                  รายการ
                 </div>
               </div>
             )}
@@ -283,15 +315,15 @@ export default function CartPage() {
               )}
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <Link href={`/order/product/${seatQRCode}`}>
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold">
-                    ➕ เลือกสินค้าเพิ่มเติม
+                  <button className="bg-gradient-to-r from-blue-400 to-indigo-500 text-white py-3 rounded-xl font-bold">
+                    ➕ เลือกสินค้าเพิ่ม
                   </button>
                 </Link>
                 <button
                   onClick={() => {
                     if (confirm("ล้างตะกร้าทั้งหมด?")) clearCart();
                   }}
-                  className="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold"
+                  className="bg-gradient-to-r from-red-400 to-rose-500 text-white py-3 rounded-xl font-bold"
                 >
                   ❌ ยกเลิกทั้งหมด
                 </button>
