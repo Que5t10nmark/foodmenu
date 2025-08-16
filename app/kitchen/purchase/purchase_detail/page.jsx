@@ -53,6 +53,39 @@ export default function KitchenGroupedByProduct() {
     }
   };
 
+  // ฟังก์ชันแสดงผลตัวเลือก
+  const renderSelectedOptions = (selectedOptions) => {
+    if (!selectedOptions || typeof selectedOptions !== "object") return "-";
+    return Object.entries(selectedOptions).map(([optionType, optionValues]) => {
+      if (Array.isArray(optionValues)) {
+        const displayValue = optionValues
+          .map((opt) => opt.product_option_value)
+          .filter(Boolean)
+          .join(", ");
+        const totalPrice = optionValues.reduce(
+          (sum, opt) => sum + (Number(opt.product_option_price) || 0),
+          0
+        );
+        return (
+          <div key={optionType}>
+            <span className="font-medium">{optionType}:</span> {displayValue}
+            {totalPrice > 0 ? ` (+${totalPrice.toFixed(2)} บาท)` : ""}
+          </div>
+        );
+      } else if (typeof optionValues === "object" && optionValues !== null) {
+        const displayValue = optionValues.product_option_value || "";
+        const price = Number(optionValues.product_option_price) || 0;
+        return (
+          <div key={optionType}>
+            <span className="font-medium">{optionType}:</span> {displayValue}
+            {price > 0 ? ` (+${price.toFixed(2)} บาท)` : ""}
+          </div>
+        );
+      }
+      return null;
+    });
+  };
+
   if (loading) {
     return <div className="p-6 text-center text-gray-500">กำลังโหลด...</div>;
   }
@@ -117,18 +150,10 @@ export default function KitchenGroupedByProduct() {
                   </thead>
                   <tbody>
                     {productOrders.map((order) => {
-                      let optionsObj = {};
-                      if (order.selected_option) {
-                        try {
-                          optionsObj =
-                            typeof order.selected_option === "string"
-                              ? JSON.parse(order.selected_option)
-                              : order.selected_option;
-                        } catch {
-                          optionsObj = { ตัวเลือก: order.selected_option };
-                        }
-                      }
-
+                      const selectedOptions =
+                        typeof order.selected_option === "string"
+                          ? JSON.parse(order.selected_option || "{}")
+                          : order.selected_option || {};
                       return (
                         <tr key={order.purchase_id} className="border-t">
                           <td className="p-3 text-center">{order.seat_id}</td>
@@ -136,31 +161,14 @@ export default function KitchenGroupedByProduct() {
                             {order.purchase_quantity}
                           </td>
                           <td className="p-3 text-center">
-                            {Object.entries(optionsObj).map(
-                              ([optionName, optionValue], i) => (
-                                <div key={i}>
-                                  <span className="font-medium">
-                                    {optionName}:
-                                  </span>{" "}
-                                  {Array.isArray(optionValue)
-                                    ? optionValue
-                                        .map((v, idx) =>
-                                          typeof v === "object"
-                                            ? v.option_value // หรือ v.option_type + ": " + v.option_value ก็ได้
-                                            : v
-                                        )
-                                        .join(", ")
-                                    : typeof optionValue === "object"
-                                    ? optionValue.option_value
-                                    : optionValue}
-                                </div>
-                              )
-                            )}
+                            {renderSelectedOptions(selectedOptions)}
                           </td>
                           <td className="p-3 text-center">
-                            {order.purchase_description}
+                            {order.purchase_description || "-"}
                           </td>
-                          <td className="p-3 text-center">{order.product_price} บาท</td>
+                          <td className="p-3 text-center">
+                            {(order.product_price * order.purchase_quantity).toFixed(2)} บาท
+                          </td>
                           <td className="p-3 text-center">
                             {new Date(order.purchase_date).toLocaleString(
                               "th-TH",
@@ -184,10 +192,7 @@ export default function KitchenGroupedByProduct() {
                             <button
                               className="bg-green-600 hover:bg-green-300 text-white px-3 py-2 rounded flex-1 text-base"
                               onClick={() =>
-                                handleStatusUpdate(
-                                  order.purchase_id,
-                                  "เสร็จแล้ว"
-                                )
+                                handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
                               }
                             >
                               เสร็จแล้ว

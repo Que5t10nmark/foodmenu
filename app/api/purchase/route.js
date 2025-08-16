@@ -1,23 +1,34 @@
-// app/api/purchase/route.js
 import db from "../../../lib/db";
 
 function stringifySelectedOptions(selected_option) {
-  if (!selected_option) return null;
+  if (!selected_option || typeof selected_option !== "object") return null;
 
-  // แปลง selected_option เป็น JSON string
+  // แปลง selected_option เป็น JSON string 
   return JSON.stringify(
     Object.fromEntries(
       Object.entries(selected_option).map(([optionType, optionValues]) => {
         if (Array.isArray(optionValues)) {
-          const values = optionValues
-            .map((opt) => (typeof opt === "object" ? opt.product_option_value : opt))
-            .filter(Boolean)
-            .join(", ");
-          return [optionType, values || ""];
+          return [
+            optionType,
+            optionValues.map((opt) =>
+              typeof opt === "object" && opt !== null
+                ? {
+                    product_option_value: opt.product_option_value || "",
+                    product_option_price: Number(opt.product_option_price) || 0,
+                  }
+                : { product_option_value: opt || "", product_option_price: 0 }
+            ),
+          ];
         } else if (typeof optionValues === "object" && optionValues !== null) {
-          return [optionType, optionValues.product_option_value || ""];
+          return [
+            optionType,
+            {
+              product_option_value: optionValues.product_option_value || "",
+              product_option_price: Number(optionValues.product_option_price) || 0,
+            },
+          ];
         } else {
-          return [optionType, optionValues || ""];
+          return [optionType, { product_option_value: optionValues || "", product_option_price: 0 }];
         }
       })
     )

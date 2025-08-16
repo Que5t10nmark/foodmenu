@@ -34,41 +34,47 @@ export default function MyOrderPage() {
     return () => clearInterval(interval);
   }, [seatQRCode]);
 
-  const calculateTotalPrice = (order) => {
-    let total = Number(order.product_price || 0);
-    if (order.selected_option) {
-      Object.values(order.selected_option).forEach((opt) => {
-        if (Array.isArray(opt)) {
-          opt.forEach((item) => {
-            if (typeof item === "object" && item.product_option_price) {
-              total += Number(item.product_option_price);
-            }
-          });
-        } else if (typeof opt === "object" && opt.product_option_price) {
-          total += Number(opt.product_option_price);
-        }
-      });
+  const calculateOptionsPrice = (selectedOptions) => {
+    if (!selectedOptions || typeof selectedOptions !== "object") return 0;
+    let totalOptionPrice = 0;
+    for (const optionType in selectedOptions) {
+      const optionValue = selectedOptions[optionType];
+      if (Array.isArray(optionValue)) {
+        optionValue.forEach((option) => {
+          totalOptionPrice += Number(option?.product_option_price || 0);
+        });
+      } else if (optionValue && typeof optionValue === "object") {
+        totalOptionPrice += Number(optionValue.product_option_price || 0);
+      }
     }
-    return total * (order.purchase_quantity || 1);
+    return totalOptionPrice;
+  };
+
+  const calculateTotalPrice = (order) => {
+    const basePrice = Number(order.product_price || 0);
+    const quantity = Number(order.purchase_quantity || 1);
+    const optionPrice = calculateOptionsPrice(order.selected_option);
+    return quantity * (basePrice + optionPrice);
   };
 
   const renderSelectedOptions = (selectedOptions) => {
-    if (!selectedOptions) return null;
+    if (!selectedOptions || typeof selectedOptions !== "object") return null;
     return Object.entries(selectedOptions).map(([optionType, optionValue]) => {
       if (Array.isArray(optionValue)) {
         return (
           <div key={optionType} className="text-sm text-gray-500">
             {optionType}:{" "}
             {optionValue
-              .map((opt) =>
-                typeof opt === "object"
-                  ? `${opt.product_option_value}${
-                      opt.product_option_price
-                        ? ` (+${opt.product_option_price} บาท)`
-                        : ""
-                    }`
-                  : opt
-              )
+              .map((opt) => {
+                if (typeof opt === "object" && opt !== null) {
+                  return `${opt.product_option_value}${
+                    opt.product_option_price
+                      ? ` (+${Number(opt.product_option_price).toFixed(2)} บาท)`
+                      : ""
+                  }`;
+                }
+                return null;
+              })
               .filter(Boolean)
               .join(", ")}
           </div>
@@ -78,7 +84,7 @@ export default function MyOrderPage() {
           <div key={optionType} className="text-sm text-gray-500">
             {optionType}: {optionValue.product_option_value}
             {optionValue.product_option_price
-              ? ` (+${optionValue.product_option_price} บาท)`
+              ? ` (+${Number(optionValue.product_option_price).toFixed(2)} บาท)`
               : ""}
           </div>
         );
@@ -223,7 +229,7 @@ export default function MyOrderPage() {
                       className="flex justify-between items-start border-b border-gray-50 pb-3"
                     >
                       <div className="flex-1">
-                        <h3 className=" text-2xl font-medium text-gray-800">
+                        <h3 className="text-2xl font-medium text-gray-800">
                           {order.product_name}
                         </h3>
                         {renderSelectedOptions(order.selected_option)}
@@ -245,12 +251,10 @@ export default function MyOrderPage() {
                       </div>
                       <div className="text-right ml-4">
                         <p className="text-lg font-bold text-gray-800">
-                          {calculateTotalPrice(order)} บาท
+                          {calculateTotalPrice(order).toFixed(2)} บาท
                         </p>
                         <p className="text-sm text-gray-500">
-                          {(
-                            calculateTotalPrice(order) / order.purchase_quantity
-                          ).toFixed(2)}{" "}
+                          {(calculateTotalPrice(order) / order.purchase_quantity).toFixed(2)}{" "}
                           บาท/รายการ
                         </p>
                       </div>
@@ -266,7 +270,7 @@ export default function MyOrderPage() {
                     {orders.reduce(
                       (sum, order) => sum + calculateTotalPrice(order),
                       0
-                    )}{" "}
+                    ).toFixed(2)}{" "}
                     บาท
                   </span>
                 </div>
