@@ -1,5 +1,5 @@
 // app/api/seat/route.js
-import pool from "@/lib/db";
+import pool from "../../../lib/db";
 import { NextResponse } from "next/server";
 
 // ========================= GET ALL =========================

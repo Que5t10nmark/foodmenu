@@ -1,111 +1,69 @@
 import NextAuth from "next-auth";
-import pool from "@/lib/pool"; //เชื่อมต่อฐานข้อมูล
-import bcrypt from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import pool from "../../../../lib/db";
+import bcrypt from "bcryptjs";
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "email", type: "text", placeholder: "email" },
-        password: {
-          label: "password",
-          type: "password",
-          placeholder: "password",
-        },
+        account_email: { label: "Email", type: "text" },
+        account_password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          throw new Error("Please enter an email and password.");
-        }
-        const { email, password } = credentials;
+        const { account_email, account_password } = credentials || {};
+        if (!account_email || !account_password) throw new Error("กรุณากรอกอีเมลและรหัสผ่าน");
 
-        try {
-          //ตรวจสอบผู้ใช้ในฐานข้อมูล
-          const [accountRows] = await pool.query(
-            "SELECT * FROM account WHERE email = ? AND (is_admin = 1 OR is_admin = 0)",
-            [email]
-          );
+        const [users] = await pool.query(
+          "SELECT * FROM account WHERE account_email = ?",
+          [account_email]
+        );
 
-          if (accountRows && accountRows.length > 0) {
-            const user = userRows[0];
-            const isPasswordValid = await bcrypt.compare(
-              password,
-              user.account_password
-            );
-
-            if (isPasswordValid) return null;
-
-            const role = user.is_admin ? "admin" : "user";
+        if (users.length > 0) {
+          const user = users[0];
+          const isValid = await bcrypt.compare(account_password, user.account_password);
+          if (isValid) {
             return {
               id: user.account_id,
-              username: user.account_username,
+              name: user.account_name,
               email: user.account_email,
-              role: role,
-              is_admin: user.is_admin,
+              role: user.account_role,
+              phone: user.account_phone,
+              address: user.account_address,
             };
           }
-
-          //ตรวจสอบผู้ใช้ในฐานข้อมูล person
-          const [PersonRows] = await pool.query(
-            "SELECT * FROM person WHERE email = ?",
-            [email]
-          );
-          if (PersonRows && PersonRows.length > 0) {
-            const user = PersonRows[0];
-            return {
-              id: user.person.id,
-              username: user.person.username,
-              email: user.person.email,
-              role: "user",
-              is_admin: false,
-            };
-          }
-        } catch (error) {
-          console.error(error);
-          return null;
         }
         return null;
       },
     }),
   ],
-
-  secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    strategy: "jwt",
-    maxAge: 2 * 60 * 60, // 30 days
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.email = user.email;
-        token.is_admin = user.is_admin || false;
         token.role = user.role;
+        token.phone = user.phone;
+        token.address = user.address;
       }
       return token;
     },
-
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
+        session.user.name = token.name;
         session.user.email = token.email;
         session.user.role = token.role;
-        session.user.is_admin = token.is_admin;
+        session.user.phone = token.phone;
+        session.user.address = token.address;
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      return baseUrl;
-    },
   },
-  pages: {
-    signIn: "/",
-    error: "/login?error=true",
-    signOut: "/auth/signout",
-    callbackurl: "/auth/redirect",
-  },
+  pages: { signIn: "/login" },
 };
+
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

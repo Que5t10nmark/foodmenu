@@ -12,11 +12,6 @@ export default function Home() {
             เข้าสู่ระบบ
           </button>
         </Link>
-        <Link href="/backoffice/product">
-          <button className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition duration-300">
-            ไปยังหน้าเมนูอาหาร
-          </button>
-        </Link>
       </div>
     </div>
   );

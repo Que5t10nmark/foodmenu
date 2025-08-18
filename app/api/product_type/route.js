@@ -1,5 +1,4 @@
-// app/api/product_type/route.js
-import pool from "../../../lib/db"; // ใช้ @ ถ้า alias ถูกตั้งไว้ใน tsconfig.json/jsconfig.json
+import pool from "../../../lib/db"; 
 
 import { NextResponse } from "next/server";
 

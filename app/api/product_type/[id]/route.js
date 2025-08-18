@@ -1,4 +1,4 @@
-import pool from "@/lib/db";
+import pool from "../../../../lib/db";
 
 // ========================= GET BY ID =========================
 export async function GET(_, context) {

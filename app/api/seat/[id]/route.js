@@ -1,5 +1,4 @@
-// app/api/seat/[id]/route.js
-import pool from "@/lib/db";
+import pool from "../../../../lib/db";
 import { NextResponse } from "next/server";
 
 // ดึง id จาก params
