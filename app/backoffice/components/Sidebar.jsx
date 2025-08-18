@@ -24,7 +24,7 @@ export default function Sidebar() {
   const [isReportOpen, setIsReportOpen] = useState(false);
 
   const menuItems = [
-    { label: "หน้าหลัก", icon: <LayoutDashboard className="w-5 h-5" />, href: "/" },
+    { label: "หน้าหลัก", icon: <LayoutDashboard className="w-5 h-5" />, href: "/backoffice/dashboard" },
     { label: "เมนูอาหาร", icon: <Utensils className="w-5 h-5" />, href: "/backoffice/product" },
     { label: "ประเภทอาหาร", icon: <Layers className="w-5 h-5" />, href: "/backoffice/product_type" },
     { label: "ตัวเลือกอาหาร", icon: <Tags className="w-5 h-5" />, href: "/backoffice/product_option" },

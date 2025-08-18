@@ -17,8 +17,8 @@ export default function LoginPage() {
     if (status === "authenticated" && session?.user?.role) {
       console.log("Session role:", session.user.role);
       if (session.user.role === "เจ้าของร้าน") {
-        console.log("Redirecting to /backoffice/product");
-        router.push("/backoffice/product");
+        console.log("Redirecting to /backoffice/dashboard");
+        router.push("/backoffice/dashboard");
       } else if (session.user.role === "พนักงาน") {
         console.log("Redirecting to /kitchen/purchase");
         router.push("/kitchen/purchase");

@@ -11,7 +11,7 @@
   "dependencies": {
     "@vercel/og": "^0.8.5",
     "bcryptjs": "^3.0.2",
-    "chart.js": "^4.4.9",
+    "chart.js": "^4.5.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "jspdf": "^3.0.1",
     "lodash": "^4.17.21",
