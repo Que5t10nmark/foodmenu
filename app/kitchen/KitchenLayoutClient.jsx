@@ -28,7 +28,8 @@ export default function KitchenLayoutClient({ children }) {
     <div className="flex flex-col h-full justify-between">
       {/* Logo */}
       <div>
-        <div className="text-4xl font-bold mb-2">Steak NiWha</div>
+        <div className="text-4xl font-bold mb-2">สเต็กนี่หว่า</div>
+        <p className="text-xl text-white mb-4">NiWha Steak</p>
 
         {/* Menu */}
         <nav className="space-y-2">

@@ -62,6 +62,11 @@ export const authOptions = {
       return session;
     },
   },
+  session: {
+    strategy: "jwt",
+    maxAge: 8 * 60 * 60, // 8 ชั่วโมง (28,800 วินาที)
+    rolling: false, // ปิด rolling session เพื่อให้หมดอายุแบบ strict
+  },
   pages: { signIn: "/login" },
 };
 

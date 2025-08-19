@@ -1,7 +1,7 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Utensils, Check } from "lucide-react";
 
 export default function Register() {
   const [account_name, setAccountName] = useState("");
@@ -51,18 +51,16 @@ export default function Register() {
 
       if (response.ok) {
         setSuccessMessage(true);
-        // รีเซ็ตฟอร์ม
         setAccountName("");
         setAccountEmail("");
         setAccountPassword("");
         setAccountPhone("");
         setAccountAddress("");
         setAccountRole("เจ้าของร้าน");
-        // รอ 2 วินาทีแล้ว redirect
         setTimeout(() => {
           setSuccessMessage(false);
           router.push("/login");
-          router.refresh(); // รีเฟรชเพื่อให้แน่ใจว่า redirect สำเร็จ
+          router.refresh();
         }, 1000);
       } else {
         const errorData = await response.json();
@@ -76,129 +74,175 @@ export default function Register() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-300 via-slate-500 to-slate-300 px-4 font-[Kanit]">
-      {/* Success Overlay */}
+    <div className="min-h-screen flex items-center justify-center py-16 px-6 sm:px-8 lg:px-12 bg-gray-50">
       {successMessage && (
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-8 text-center max-w-md">
-            <h2 className="text-2xl font-semibold text-green-600 mb-3">
-              ✅ ลงทะเบียนสำเร็จ!
-            </h2>
-            <p className="text-gray-700 text-lg">ระบบกำลังพาคุณไปยังหน้าล็อกอิน...</p>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative top-20 mx-auto p-6 border w-[28rem] shadow-lg rounded-md bg-white">
+            <div className="mt-4 text-center">
+              <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-5">
+                <Check className="w-7 h-7 text-green-600" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-900">ลงทะเบียนเรียบร้อย!</h3>
+              <div className="mt-3 px-8 py-4">
+                <p className="text-base text-gray-500">บัญชีของคุณได้ถูกสร้างเรียบร้อยแล้ว</p>
+              </div>
+              <div className="items-center px-5 py-4">
+                <button
+                  onClick={() => {
+                    setSuccessMessage(false);
+                    router.push("/login");
+                  }}
+                  className="px-5 py-3 bg-orange-500 text-white text-lg font-medium rounded-md w-full shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                >
+                  ตกลง
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Register Card */}
       {!successMessage && (
-        <div className="w-full max-w-3xl bg-white/30 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-10">
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 bg-slate-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
-              <span className="text-4xl">📝</span>
+        <div className="max-w-xl w-full space-y-10">
+          <div className="text-center">
+            <div className="flex justify-center mb-2">
+              <div className="bg-orange-500 p-4 rounded-full">
+                <Utensils className="w-16 h-16 text-white" />
+              </div>
             </div>
-            <h1 className="text-4xl font-semibold text-white mb-2">สมัครสมาชิก</h1>
-            <p className="text-xl text-white/80">กรอกข้อมูลเพื่อสร้างบัญชีผู้ใช้</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">สมัครบัญชี</h2>
+            <p className="text-lg text-gray-600">สร้างบัญชีใหม่สำหรับ สเต็กนี่หว่า</p>
           </div>
 
-          {errorMessage && (
-            <div className="text-center mb-6">
-              <p className="text-red-500 text-lg">{errorMessage}</p>
-            </div>
-          )}
+          <form onSubmit={handleRegister} className="mt-2 space-y-4 bg-white p-10 rounded-xl shadow-lg">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="account_name" className="block text-lg font-medium text-gray-700 mb-2">
+                  ชื่อบัญชี
+                </label>
+                <input
+                  id="account_name"
+                  name="account_name"
+                  type="text"
+                  value={account_name}
+                  onChange={(e) => setAccountName(e.target.value)}
+                  required
+                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 text-lg"
+                  placeholder="กรอกชื่อบัญชี"
+                  disabled={isLoading}
+                />
+              </div>
 
-          <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6 text-white">
+              <div>
+                <label htmlFor="account_email" className="block text-lg font-medium text-gray-700 mb-2">
+                  อีเมล
+                </label>
+                <input
+                  id="account_email"
+                  name="account_email"
+                  type="email"
+                  value={account_email}
+                  onChange={(e) => setAccountEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 text-lg"
+                  placeholder="กรอกอีเมล"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="account_password" className="block text-lg font-medium text-gray-700 mb-2">
+                  รหัสผ่าน
+                </label>
+                <input
+                  id="account_password"
+                  name="account_password"
+                  type="password"
+                  value={account_password}
+                  onChange={(e) => setAccountPassword(e.target.value)}
+                  required
+                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 text-lg"
+                  placeholder="กรอกรหัสผ่าน"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="account_phone" className="block text-lg font-medium text-gray-700 mb-2">
+                  เบอร์โทรศัพท์
+                </label>
+                <input
+                  id="account_phone"
+                  name="account_phone"
+                  type="tel"
+                  value={account_phone}
+                  onChange={(e) => setAccountPhone(e.target.value)}
+                  required
+                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 text-lg"
+                  placeholder="กรอกเบอร์โทรศัพท์"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="account_address" className="block text-lg font-medium text-gray-700 mb-2">
+                  ที่อยู่
+                </label>
+                <textarea
+                  id="account_address"
+                  name="account_address"
+                  type="text"
+                  value={account_address}
+                  onChange={(e) => setAccountAddress(e.target.value)}
+                  required
+                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 text-lg"
+                  placeholder="กรอกที่อยู่"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="account_role" className="block text-lg font-medium text-gray-700 mb-2">
+                  บทบาท
+                </label>
+                <select
+                  id="account_role"
+                  name="account_role"
+                  value={account_role}
+                  onChange={(e) => setAccountRole(e.target.value)}
+                  required
+                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400 text-lg"
+                  disabled={isLoading}
+                >
+                  <option value="เจ้าของร้าน">เจ้าของร้าน</option>
+                  <option value="พนักงาน">พนักงาน</option>
+                </select>
+              </div>
+            </div>
+
+            {errorMessage && <p className="text-red-500 text-center text-lg">{errorMessage}</p>}
+
             <div>
-              <label className="block text-lg mb-1">ชื่อจริง</label>
-              <input
-                type="text"
-                value={account_name}
-                onChange={(e) => setAccountName(e.target.value)}
-                placeholder="กรอกชื่อจริง"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label className="block text-lg mb-1">อีเมล</label>
-              <input
-                type="email"
-                value={account_email}
-                onChange={(e) => setAccountEmail(e.target.value)}
-                placeholder="example@email.com"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label className="block text-lg mb-1">รหัสผ่าน</label>
-              <input
-                type="password"
-                value={account_password}
-                onChange={(e) => setAccountPassword(e.target.value)}
-                placeholder="password"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label className="block text-lg mb-1">เบอร์โทรศัพท์</label>
-              <input
-                type="text"
-                value={account_phone}
-                onChange={(e) => setAccountPhone(e.target.value)}
-                placeholder="กรอกเบอร์โทรศัพท์"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-lg mb-1">ที่อยู่</label>
-              <input
-                type="text"
-                value={account_address}
-                onChange={(e) => setAccountAddress(e.target.value)}
-                placeholder="กรอกที่อยู่"
-                className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-lg mb-1">บทบาท</label>
-              <select
-                value={account_role}
-                onChange={(e) => setAccountRole(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isLoading}
-              >
-                <option value="เจ้าของร้าน">เจ้าของร้าน</option>
-                <option value="พนักงาน">พนักงาน</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2">
               <button
                 type="submit"
                 disabled={isLoading}
-                className={` cursor-pointer w-full py-3 bg-white text-orange-500 text-2xl font-semibold rounded-xl shadow-md hover:-translate-y-1 hover:shadow-lg transition-all ${
+                className={`w-full flex justify-center py-4 px-6 cursor-pointer border border-transparent rounded-lg shadow-md text-lg font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-200 ${
                   isLoading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {isLoading ? "กำลังลงทะเบียน..." : "สมัครสมาชิก"}
+                <span>{isLoading ? "กำลังลงทะเบียน..." : "สมัครสมาชิก"}</span>
               </button>
             </div>
-          </form>
 
-          <p className="mt-8 text-center text-white/80 text-xl">
-            มีบัญชีแล้วใช่ไหม?{" "}
-            <a href="/login" className="text-white font-medium hover:underline">
-              เข้าสู่ระบบ
-            </a>
-          </p>
+            <div className="text-center">
+              <p className="text-lg text-gray-600">
+                มีบัญชีแล้ว?{" "}
+                <a href="/login" className="font-medium text-orange-600 hover:text-orange-500">
+                  เข้าสู่ระบบ
+                </a>
+              </p>
+            </div>
+          </form>
         </div>
       )}
     </div>

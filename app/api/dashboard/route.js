@@ -10,23 +10,31 @@ export async function GET(req) {
 
     const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
 
+    // นับจำนวนเมนูอาหาร
     const [menuResult] = await db.execute("SELECT COUNT(*) AS menuCount FROM product");
     const menuCount = Number(menuResult[0].menuCount) || 0;
 
-    const [tableResult] = await db.execute("SELECT COUNT(*) AS tableCount FROM seat");
-    const tableCount = Number(tableResult[0].tableCount) || 0;
+    // นับจำนวนโต๊ะและโต๊ะว่าง
+    const [tableResult] = await db.execute("SELECT seat_id, seat_qrcode FROM seat");
+    const tableCount = tableResult.length || 0;
+    const seatMap = tableResult.reduce((acc, seat) => {
+      acc[seat.seat_id] = seat.seat_qrcode;
+      return acc;
+    }, {});
 
     const [activeTables] = await db.execute(`
-      SELECT COUNT(DISTINCT seat_id) AS occupiedCount
+      SELECT DISTINCT seat_id
       FROM purchase
-      WHERE purchase_status != 'เสร็จแล้ว'
-        AND purchase_id NOT IN (SELECT purchase_id FROM payment_detail)
+      WHERE purchase_id NOT IN (SELECT purchase_id FROM payment_detail)
     `);
-    const tablesAvailable = tableCount - (Number(activeTables[0].occupiedCount) || 0);
+    const occupiedSeats = new Set(activeTables.map(row => row.seat_id));
+    const tablesAvailable = tableCount - occupiedSeats.size;
 
+    // นับจำนวนพนักงาน
     const [staffResult] = await db.execute("SELECT COUNT(*) AS staffCount FROM account WHERE account_role = ?", ["พนักงาน"]);
     const staffCount = Number(staffResult[0].staffCount) || 0;
 
+    // คำนวณยอดขายวันนี้จาก payment_total
     const [salesResult] = await db.execute(`
       SELECT COALESCE(SUM(payment_total), 0) AS dailySales
       FROM payment
@@ -34,6 +42,7 @@ export async function GET(req) {
     `, [today]);
     const dailySales = Number(salesResult[0].dailySales) || 0;
 
+    // ดึงเมนูยอดนิยม
     const [topMenus] = await db.execute(`
       SELECT 
         p.product_id,
@@ -62,9 +71,15 @@ export async function GET(req) {
       staffCount,
       dailySales,
       topMenus: parsedTopMenus,
+      seats: tableResult.map(seat => ({
+        seat_id: seat.seat_id,
+        seat_qrcode: seat.seat_qrcode,
+        isOccupied: occupiedSeats.has(seat.seat_id)
+      }))
     }, { status: 200 });
 
   } catch (error) {
+    console.error("Dashboard Error:", error);
     return NextResponse.json(
       { message: "เกิดข้อผิดพลาดในการดึงข้อมูลแดชบอร์ด", error: error.message },
       { status: 500 }

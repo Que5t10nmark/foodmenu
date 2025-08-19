@@ -14,10 +14,11 @@ export default function DashboardPage() {
     staffCount: 0,
     dailySales: 0,
     topMenus: [],
+    seats: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const chartRef = useRef(null); // Store Chart.js instance
+  const chartRef = useRef(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -28,12 +29,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const menuCtx = document.getElementById("menuChart")?.getContext("2d");
     if (menuCtx) {
-      // Destroy existing chart if it exists
       if (chartRef.current) {
         chartRef.current.destroy();
       }
 
-      // Create new chart and store in ref
       chartRef.current = new Chart(menuCtx, {
         type: "bar",
         data: {
@@ -57,7 +56,7 @@ export default function DashboardPage() {
             y: {
               beginAtZero: true,
               ticks: { stepSize: 1 },
-              grid: { color: "rgba(0,0,0,0.05)" },
+              grid: { color: "rgba(0,0,0,0.05 " },
             },
             x: { grid: { display: false } },
           },
@@ -65,14 +64,13 @@ export default function DashboardPage() {
       });
     }
 
-    // Cleanup chart on unmount or before re-running effect
     return () => {
       if (chartRef.current) {
         chartRef.current.destroy();
         chartRef.current = null;
       }
     };
-  }, [dashboardData]);
+  }, [dashboardData.topMenus]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -86,21 +84,14 @@ export default function DashboardPage() {
       });
 
       if (!response.ok) {
-        let errorMessage = "ไม่สามารถดึงข้อมูลแดชบอร์ดได้";
-        let errorDetails = {};
-
         const contentType = response.headers.get("content-type");
+        let errorMessage = "ไม่สามารถดึงข้อมูลแดชบอร์ดได้";
         if (contentType && contentType.includes("text/html")) {
           const text = await response.text();
-          errorDetails = { status: response.status, statusText: response.statusText, responseText: text.slice(0, 100) };
-          errorMessage = `ได้รับ HTML แทน JSON (สถานะ: ${response.status})`;
-        } else {
-          const errorData = await response.json();
-          errorDetails = { status: response.status, statusText: response.statusText, error: errorData };
-          errorMessage = errorData.message || errorMessage;
+          throw new Error(`ได้รับ HTML แทน JSON (สถานะ: ${response.status}): ${text.slice(0, 100)}`);
         }
-
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorMessage);
       }
 
       const data = await response.json();
@@ -185,7 +176,9 @@ export default function DashboardPage() {
               <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
                 <ListOrdered className="w-6 h-6 text-green-600" />
               </div>
-              <p className="text-2xl font-bold text-black">จัดการโต๊ะ</p>
+             
+
+ <p className="text-2xl font-bold text-black">จัดการโต๊ะ</p>
             </button>
           </Link>
           <Link href="/backoffice/reportmenu">
@@ -233,9 +226,6 @@ export default function DashboardPage() {
               <div>
                 <p className="text-gray-800 text-xl font-bold">พนักงาน</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{dashboardData.staffCount}</p>
-                <p className="text-green-500 text-xl mt-2">
-                  <span className="font-medium">+0</span> กำลังทำงาน
-                </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
                 <Users className="w-8 h-8 text-green-600" />
@@ -247,9 +237,9 @@ export default function DashboardPage() {
               <div>
                 <p className="text-gray-800 text-xl font-bold">ยอดขายวันนี้</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">฿{dashboardData.dailySales.toLocaleString()}</p>
-                <p className="text-green-500 text-xl mt-2">
+                {/* <p className="text-green-500 text-xl mt-2">
                   <span className="font-medium">+0%</span> จากเมื่อวาน
-                </p>
+                </p> */}
               </div>
               <div className="bg-purple-100 p-3 rounded-full">
                 <DollarSign className="w-8 h-8 text-purple-600" />
@@ -269,16 +259,14 @@ export default function DashboardPage() {
           <div className="bg-white border border-gray-300 rounded-xl shadow-md p-6">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">สถานะโต๊ะ</h3>
             <div className="grid grid-cols-6 gap-2">
-              {Array.from({ length: dashboardData.tableCount }, (_, i) => i + 1).map((table) => (
+              {dashboardData.seats.map((seat) => (
                 <div
-                  key={table}
+                  key={seat.seat_id}
                   className={`aspect-square rounded-lg flex items-center justify-center text-3xl font-bold ${
-                    table <= dashboardData.tablesAvailable
-                      ? "bg-green-300 text-green-800"
-                      : "bg-red-300 text-red-800"
+                    !seat.isOccupied ? "bg-green-300 text-green-800" : "bg-red-300 text-red-800"
                   }`}
                 >
-                  {table}
+                  {seat.seat_qrcode}
                 </div>
               ))}
             </div>
@@ -287,35 +275,13 @@ export default function DashboardPage() {
                 <div className="w-3 h-3 bg-green-300 rounded"></div>
                 <span className="text-gray-600">ว่าง ({dashboardData.tablesAvailable})</span>
               </div>
-              <div className="flex items-center space-x-1 ">
+              <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-red-300 rounded"></div>
                 <span className="text-gray-600">มีออเดอร์ ({dashboardData.tableCount - dashboardData.tablesAvailable})</span>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Top Menus */}
-        {/* <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">เมนูยอดนิยมวันนี้</h3>
-          <div className="space-y-3">
-            {dashboardData.topMenus.length > 0 ? (
-              dashboardData.topMenus.map((menu, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-sm">
-                      {["🍛", "🍲", "🍚", "🥗"][index % 4]}
-                    </div>
-                    <span className="font-medium text-gray-800">{menu.product_name}</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-600">{menu.total_sold} จาน</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600 text-sm">ไม่มีข้อมูลเมนูยอดนิยมสำหรับวันนี้</p>
-            )}
-          </div>
-        </div> */}
       </div>
     </div>
   );

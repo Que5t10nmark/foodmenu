@@ -59,7 +59,8 @@ export default function Sidebar() {
 
   return (
     <aside className="bg-gradient-to-b from-orange-400 to-orange-700 text-white w-70 min-h-screen p-6 flex flex-col">
-      <h2 className="text-4xl font-bold mb-6">Steak NiWha</h2>
+      <h2 className="text-4xl font-bold mb-6">สเต็กนี่หว่า</h2>
+      <p className="text-xl text-white  font-bold mb-4">NiWha Steak</p>
 
       <nav className="space-y-2 flex-1">
         {menuItems.map((item) => (
