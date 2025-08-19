@@ -82,7 +82,7 @@ export default function LoginPage() {
               type="email"
               value={account_email}
               onChange={(e) => setAccountEmail(e.target.value)}
-              placeholder="example@email.com"
+              placeholder="กรอกอีเมลของคุณ"
               className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
               disabled={isLoading}
             />
@@ -94,7 +94,7 @@ export default function LoginPage() {
               type="password"
               value={account_password}
               onChange={(e) => setAccountPassword(e.target.value)}
-              placeholder="password"
+              placeholder="รหัสผ่าน"
               className="w-full px-4 py-3 rounded-xl bg-white border border-white text-black placeholder-black/70 focus:outline-none focus:ring-2 focus:ring-orange-400"
               disabled={isLoading}
             />
