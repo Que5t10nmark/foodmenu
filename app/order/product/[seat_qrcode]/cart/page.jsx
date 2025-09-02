@@ -252,10 +252,7 @@ export default function CartPage() {
                         บาท
                       </p>
                       <p className="text-sm text-gray-500">
-                        {(
-                          productItem.product_price +
-                          calculateOptionsPrice(productItem.selected_option)
-                        ).toFixed(2)}{" "}
+                        {productItem.product_price}
                         บาท/รายการ
                       </p>
                       <div className="flex items-center justify-end space-x-2 mt-2">
