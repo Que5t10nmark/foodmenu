@@ -194,7 +194,8 @@ export default function Register() {
   };
 
   return (
-    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+    // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+    <>
       <h1 className="text-4xl font-bold mb-6 text-orange-700">ข้อมูลพนักงาน</h1>
       {message && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 text-center">
@@ -366,6 +367,7 @@ export default function Register() {
           </form>
         </Modal>
       </div>
-    </div>
+    {/* </div> */}
+    </>
   );
 }

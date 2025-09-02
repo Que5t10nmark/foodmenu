@@ -121,7 +121,8 @@ export default function ProductOptionPage() {
     return <div className="p-6 max-w-4xl mx-auto">กำลังโหลดข้อมูล...</div>;
 
   return (
-    <div className="p-6 max-h-screen overflow-auto">
+    // <div className="p-6 max-h-screen overflow-auto">
+    <>
       <h1 className="text-4xl font-bold mb-6 text-orange-700">
         ⚙️ จัดการตัวเลือกสินค้าตามประเภท
       </h1>
@@ -309,6 +310,7 @@ export default function ProductOptionPage() {
           </table>
         </div>
       </div>
-    </div>
+    {/* </div> */}
+    </>
   );
 }

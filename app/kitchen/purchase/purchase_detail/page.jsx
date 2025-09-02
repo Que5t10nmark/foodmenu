@@ -131,19 +131,20 @@ export default function KitchenGroupedByProduct() {
           );
           return (
             <div key={productName} className="mb-10">
-              <div className="font-bold text-5xl mb-4 bg-gray-100 p-4 rounded">
+              <div className="font-bold text-5xl mb-4 bg-blue-100 p-4 rounded">
                 {productName} — ทั้งหมด {total} จาน
               </div>
-              <div className="overflow-x-auto rounded-xl shadow-lg">
-                <table className="min-w-full bg-white border border-gray-500 rounded-xl text-3xl">
-                  <thead className="bg-gray-300">
+              {/* <div className="overflow-auto rounded-xl shadow-lg"> */}
+              <div>
+                <table className="min-w-full bg-white border border-blue-500 rounded-xl text-3xl">
+                  <thead className="bg-blue-300">
                     <tr>
                       <th className="p-3 border-b text-center">โต๊ะ</th>
                       <th className="p-3 border-b text-center">จำนวน</th>
                       <th className="p-3 border-b text-center">ตัวเลือก</th>
                       <th className="p-3 border-b text-center">หมายเหตุ</th>
                       <th className="p-3 border-b text-center">ราคา</th>
-                      <th className="p-3 border-b text-center">วันที่สั่ง</th>
+                      {/* <th className="p-3 border-b text-center">วันที่สั่ง</th> */}
                       <th className="p-3 border-b text-center">สถานะ</th>
                       <th className="p-3 border-b text-center">การจัดการ</th>
                     </tr>
@@ -169,20 +170,20 @@ export default function KitchenGroupedByProduct() {
                           <td className="p-3 text-center">
                             {(order.product_price * order.purchase_quantity).toFixed(2)} บาท
                           </td>
-                          <td className="p-3 text-center">
+                          {/* <td className="p-3 text-center">
                             {new Date(order.purchase_date).toLocaleString(
                               "th-TH",
                               {
                                 timeZone: "Asia/Bangkok",
                               }
                             )}
-                          </td>
+                          </td> */}
                           <td className="p-3 text-blue-600 font-semibold text-center">
                             {order.purchase_status}
                           </td>
                           <td className="p-3 space-x-2 flex">
                             <button
-                              className="bg-blue-600 hover:bg-blue-300 text-white px-3 py-2 rounded flex-1 text-base"
+                              className="bg-blue-600 hover:bg-blue-300 text-white px-3 py-2 rounded flex-1 text-lg cursor-pointer"
                               onClick={() =>
                                 handleStatusUpdate(order.purchase_id, "กำลังทำ")
                               }
@@ -190,7 +191,7 @@ export default function KitchenGroupedByProduct() {
                               กำลังทำ
                             </button>
                             <button
-                              className="bg-green-600 hover:bg-green-300 text-white px-3 py-2 rounded flex-1 text-base"
+                              className="bg-green-600 hover:bg-green-300 text-white px-3 py-2 rounded flex-1 text-lg cursor-pointer"
                               onClick={() =>
                                 handleStatusUpdate(order.purchase_id, "เสร็จแล้ว")
                               }
@@ -198,7 +199,7 @@ export default function KitchenGroupedByProduct() {
                               เสร็จแล้ว
                             </button>
                             <button
-                              className="bg-red-600 hover:bg-red-300 text-white px-3 py-2 rounded flex-1 text-base"
+                              className="bg-red-600 hover:bg-red-300 text-white px-3 py-2 rounded flex-1 text-lg cursor-pointer"
                               onClick={() =>
                                 handleStatusUpdate(order.purchase_id, "ยกเลิก")
                               }
@@ -216,6 +217,7 @@ export default function KitchenGroupedByProduct() {
           );
         })
       )}
+    {/* </div> */}
     </div>
   );
 }

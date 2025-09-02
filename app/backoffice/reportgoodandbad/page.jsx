@@ -126,7 +126,7 @@ export default function ProductSalesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* สินค้าขายดี */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">สินค้าขายดี (Top {limit})</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">สินค้าขายดี</h2>
               {reportData.topSellers.length > 0 ? (
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                   <table className="min-w-full table-auto">
@@ -140,7 +140,7 @@ export default function ProductSalesPage() {
                       {reportData.topSellers.map((item, idx) => (
                         <tr key={item.product_id} className="border-b hover:bg-orange-50">
                           <td className="text-lg px-6 py-4 text-left">{item.product_name}</td>
-                          <td className="text-lg px-6 py-4 text-center">{item.total_sold} ชิ้น</td>
+                          <td className="text-lg px-6 py-4 text-center">{item.total_sold} รายการ</td>
                         </tr>
                       ))}
                     </tbody>
@@ -155,7 +155,7 @@ export default function ProductSalesPage() {
 
             {/* สินค้าขายไม่ดี */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">สินค้าขายไม่ดี (Bottom {limit})</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">สินค้าขายไม่ดี</h2>
               {reportData.lowSellers.length > 0 ? (
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                   <table className="min-w-full table-auto">
@@ -169,7 +169,7 @@ export default function ProductSalesPage() {
                       {reportData.lowSellers.map((item, idx) => (
                         <tr key={item.product_id} className="border-b hover:bg-orange-50">
                           <td className="text-lg px-6 py-4 text-left">{item.product_name}</td>
-                          <td className="text-lg px-6 py-4 text-center">{item.total_sold} ชิ้น</td>
+                          <td className="text-lg px-6 py-4 text-center">{item.total_sold} รายการ</td>
                         </tr>
                       ))}
                     </tbody>

@@ -154,7 +154,8 @@ const ProductTypePage = () => {
   }, [fetchProductTypes]);
 
   return (
-    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+    // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+    <>
       <h1 className="text-4xl font-bold mb-6 text-orange-700">ประเภทอาหาร</h1>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -261,7 +262,8 @@ const ProductTypePage = () => {
           </div>
         </form>
       </Modal>
-    </div>
+    {/* </div> */}
+    </>
   );
 };
 

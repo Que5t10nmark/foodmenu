@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import Modal from "../components/Modal";
 import QRCode from "react-qr-code";
 import { Trash2, Edit2, PlusCircle } from "lucide-react";
+
 const SeatPage = () => {
   const [seats, setSeats] = useState([]);
   const [newSeat, setNewSeat] = useState({
@@ -14,6 +15,7 @@ const SeatPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState("");
+  const [printSeat, setPrintSeat] = useState(null); // เพิ่ม state สำหรับเก็บข้อมูลที่นั่งที่ต้องการพิมพ์
 
   const fetchSeats = useCallback(async () => {
     setError("");
@@ -34,21 +36,17 @@ const SeatPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(seatData),
       });
-
       if (!res.ok) throw new Error("Failed to add seat");
-
       const newSeat = await res.json();
-
       setSeats((prevSeats) => [
         ...prevSeats,
         {
-          seat_id: newSeat.seat_id || newSeat.id, // ตรวจสอบชื่อฟิลด์ที่ backend ส่งมา
+          seat_id: newSeat.seat_id || newSeat.id,
           seat_qrcode: seatData.seat_qrcode,
           seat_status: seatData.seat_status,
           seat_zone: seatData.seat_zone,
         },
       ]);
-
       setNotification("เพิ่มที่นั่งสำเร็จ!");
       setTimeout(() => setNotification(""), 3000);
     } catch (err) {
@@ -63,17 +61,12 @@ const SeatPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(seatData),
       });
-
       if (!res.ok) throw new Error("Failed to update seat");
-
-      const updatedSeat = await res.json();
-
       setSeats((prevSeats) =>
         prevSeats.map((seat) =>
           seat.seat_id === seatId ? { ...seat, ...seatData } : seat
         )
       );
-
       setNotification("แก้ไขที่นั่งสำเร็จ!");
       setTimeout(() => setNotification(""), 3000);
     } catch (err) {
@@ -86,13 +79,10 @@ const SeatPage = () => {
       const res = await fetch(`/api/seat/${seatId}`, {
         method: "DELETE",
       });
-
       if (!res.ok) throw new Error("Failed to delete seat");
-
       setSeats((prevSeats) =>
         prevSeats.filter((seat) => seat.seat_id !== seatId)
       );
-
       setNotification("ลบที่นั่งสำเร็จ!");
       setTimeout(() => setNotification(""), 3000);
     } catch (err) {
@@ -144,14 +134,81 @@ const SeatPage = () => {
     setNewSeat({ seat_qrcode: "", seat_status: "", seat_zone: "" });
   };
 
+  const handlePrint = (seat) => {
+    setPrintSeat(seat); // เก็บข้อมูลที่นั่งที่ต้องการพิมพ์
+    setTimeout(() => {
+      window.print(); // เรียกพิมพ์
+    }, 500);
+  };
+
   useEffect(() => {
     fetchSeats();
   }, [fetchSeats]);
 
   return (
-    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
-      <h1 className="text-4xl font-bold mb-6 text-orange-700">ที่นั่ง</h1>
+    // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen justify-center">
+    <>
+      {/* CSS สำหรับการพิมพ์ */}
+      <style>{`
+@page {
+  size: 10cm 10cm;
+  margin: 0;
+}
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 10cm;
+    height: 10cm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    page-break-after: auto; /* auto ดีกว่า avoid */
+    box-sizing: border-box;
+  }
+
+  /* ลดขนาด QR Code ให้พอดีกับ 10cm */
+  #print-area svg {
+    width: 8cm !important;
+    height: 8cm !important;
+  }
+}
+
+
+      `}</style>
+
+      {/* พื้นที่สำหรับพิมพ์ QR Code */}
+      {printSeat && (
+        <div
+          id="print-area"
+          className="fixed inset-0 flex flex-col items-center justify-center w-[7cm] h-[7cm] border border-gray-700 rounded-md p-4 box-border bg-white select-none"
+          style={{ visibility: "hidden" }} // ซ่อนในหน้าเว็บปกติ
+        >
+          <h1 className="text-xl font-bold mb-2 text-center">สเต็กนี่หว่า</h1>
+          <h1 className="text-lg font-bold mb-2 text-center">โต๊ะ {printSeat.seat_qrcode}</h1>
+          <p className="text-center text-sm text-gray-600 mb-4">สั่งอาหารผ่าน QR Code นี้</p>
+          <QRCode
+            value={`${window.location.origin}/order/product/${printSeat.seat_qrcode}`}
+            size={400}
+          />
+          {/* <p className="mt-2 text-xs text-center break-all text-gray-700">
+            {`${window.location.origin}/order/product/${printSeat.seat_qrcode}`}
+          </p> */}
+        </div>
+      )}
+
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">ที่นั่ง</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {notification && (
         <div className="mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm">
@@ -192,13 +249,9 @@ const SeatPage = () => {
             {seats.map((seat) => (
               <tr key={seat.seat_id}>
                 <td className="text-2xl px-4 py-3 border-b border border-gray-300">
-                  <div className="flex justify-center">
+                  <div className="flex flex-col items-center">
                     <QRCode
-                      value={
-                        typeof window !== "undefined"
-                          ? `${window.location.origin}/order/product/${seat.seat_qrcode}`
-                          : ""
-                      }
+                      value={`${window.location.origin}/order/product/${seat.seat_qrcode}`}
                       size={64}
                     />
                     <a
@@ -207,9 +260,7 @@ const SeatPage = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {typeof window !== "undefined"
-                        ? `${window.location.origin}/order/product/${seat.seat_qrcode}`
-                        : ""}
+                      {`${window.location.origin}/order/product/${seat.seat_qrcode}`}
                     </a>
                   </div>
                 </td>
@@ -242,12 +293,7 @@ const SeatPage = () => {
                       <Trash2 size={18} /> ลบ
                     </button>
                     <button
-                      onClick={() =>
-                        window.open(
-                          `/print/qrcode/${seat.seat_qrcode}`,
-                          "_blank"
-                        )
-                      }
+                      onClick={() => handlePrint(seat)} // เรียกฟังก์ชันพิมพ์
                       className="text-2xl p-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white rounded shadow transition flex items-center gap-1"
                       title="พิมพ์ QR"
                     >
@@ -286,11 +332,7 @@ const SeatPage = () => {
             <div className="flex flex-col items-center mt-4">
               <QRCode
                 id="qr-code-seat"
-                value={
-                  typeof window !== "undefined"
-                    ? `${window.location.origin}/order/product/${newSeat.seat_qrcode}`
-                    : ""
-                }
+                value={`${window.location.origin}/order/product/${newSeat.seat_qrcode}`}
                 size={128}
               />
             </div>
@@ -353,7 +395,7 @@ const SeatPage = () => {
           </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 };
 

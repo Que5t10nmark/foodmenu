@@ -126,7 +126,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="w-full bg-gray-50 font-kanit">
+    <div className="w-full bg-gradient-to-br from-orange-50 to-red-50 font-kanit">
       {/* Header */}
       <header className="bg-gradient-to-br from-amber-700 via-amber-500 to-orange-300 text-white shadow-lg">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
@@ -198,9 +198,9 @@ export default function DashboardPage() {
               <div>
                 <p className="text-gray-800 text-xl font-bold">เมนูอาหาร</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{dashboardData.menuCount}</p>
-                <p className="text-green-500 text-xl mt-2">
+                {/* <p className="text-green-500 text-xl mt-2">
                   <span className="font-medium">+0</span> เมนูใหม่
-                </p>
+                </p> */}
               </div>
               <div className="bg-orange-100 p-3 rounded-full">
                 <Utensils className="w-8 h-8 text-orange-600" />

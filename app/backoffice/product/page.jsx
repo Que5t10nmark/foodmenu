@@ -213,7 +213,8 @@ const ProductsPage = () => {
     });
 
   return (
-    <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+    // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
+    <>
       <h1 className="text-4xl font-bold mb-6 text-orange-700">รายการอาหาร</h1>
 
       {error && (
@@ -538,7 +539,8 @@ const ProductsPage = () => {
           </div>
         </form>
       </Modal>
-    </div>
+    {/* </div> */}
+    </>
   );
 };
 

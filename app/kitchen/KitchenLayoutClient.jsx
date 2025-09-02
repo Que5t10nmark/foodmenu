@@ -28,7 +28,7 @@ export default function KitchenLayoutClient({ children }) {
     <div className="flex flex-col h-full justify-between">
       {/* Logo */}
       <div>
-        <div className="text-4xl font-bold mb-2">สเต็กนี่หว่า</div>
+        <div className="text-3xl font-bold mb-2">สเต็กนี่หว่า</div>
         <p className="text-xl text-white mb-4">NiWha Steak</p>
 
         {/* Menu */}
@@ -36,8 +36,8 @@ export default function KitchenLayoutClient({ children }) {
           {menuItems.map((item) => (
             <Link key={item.href} href={item.href}>
               <div
-                className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-orange-300 transition
-                ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-orange-700 text-white" : ""}`}
+                className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-blue-300 transition
+                ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-blue-700 text-white" : ""}`}
               >
                 {item.icon}
                 <span className="truncate">{item.label}</span>
@@ -61,7 +61,7 @@ export default function KitchenLayoutClient({ children }) {
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-3 w-full p-3 rounded-md hover:bg-orange-300 transition"
+            className="flex items-center gap-3 w-full p-3 rounded-md hover:bg-blue-300 transition"
           >
             <LogOut className="w-5 h-5" />
             <span>ออกจากระบบ</span>
@@ -72,10 +72,11 @@ export default function KitchenLayoutClient({ children }) {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    // <div className="flex h-screen overflow-hidden">
+    <>
       {/* Sidebar slide-in */}
       <div
-        className={`bg-orange-500 text-white w-64 p-6 h-full z-40 transition-transform duration-300 absolute
+        className={`bg-gradient-to-b from-blue-400 to-blue-700 text-white  w-64 p-6 h-full z-40 transition-transform duration-300 absolute
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <button
@@ -102,6 +103,7 @@ export default function KitchenLayoutClient({ children }) {
 
         <main className="flex-1 p-4 overflow-y-auto">{children}</main>
       </div>
-    </div>
+    {/* </div> */}
+    </>
   );
 }

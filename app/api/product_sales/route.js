@@ -6,78 +6,36 @@ export async function GET(req) {
     const date = req.nextUrl.searchParams.get("date");
     const limit = parseInt(req.nextUrl.searchParams.get("limit")) || 5;
 
+    // ดึงสินค้าทั้งหมด และยอดขายของวันที่เลือก (ถ้ามี)
     let query = `
       SELECT 
         p.product_id,
         p.product_name,
         p.product_price,
-        COALESCE(SUM(pur.purchase_quantity), 0) AS total_sold,
-        GROUP_CONCAT(pur.selected_option) AS option_details
+        COALESCE(SUM(CASE WHEN DATE(pur.purchase_date) = ? THEN pur.purchase_quantity ELSE 0 END), 0) AS total_sold
       FROM product p
       LEFT JOIN purchase pur ON p.product_id = pur.product_id
       LEFT JOIN payment_detail pd ON pur.purchase_id = pd.purchase_id
-      WHERE pur.purchase_id IS NULL OR pur.purchase_id IN (
-        SELECT purchase_id FROM payment_detail
-      )
-    `;
-    const params = [];
-
-    if (date) {
-      query += " AND DATE(pur.purchase_date) = ?";
-      params.push(date);
-    }
-
-    query += `
       GROUP BY p.product_id, p.product_name, p.product_price
       ORDER BY total_sold DESC
     `;
 
-    const [products] = await db.execute(query, params);
+    const [products] = await db.execute(query, [date]);
 
-    function tryParseJSON(jsonString) {
-      try {
-        if (!jsonString) return [];
-        const obj = JSON.parse(jsonString);
-        if (obj && typeof obj === "object") {
-          return [obj];
-        }
-      } catch (error) {
-        console.error("Failed to parse JSON:", jsonString, error);
-        return [];
-      }
-      return [];
-    }
+    // แยกออกเป็น ขายดี (มีขาย) และ ขายไม่ดี (ไม่มีขาย)
+    const soldProducts = products.filter((p) => p.total_sold > 0);
+    const unsoldProducts = products.filter((p) => p.total_sold <= 0);
 
-    const parsedProducts = products.map((product) => {
-      const optionDetails = product.option_details
-        ? product.option_details
-            .split(",")
-            .map((opt) => tryParseJSON(opt))
-            .flat()
-            .filter((opt) => opt && Object.keys(opt).length > 0)
-        : [];
-
-      return {
-        ...product,
-        total_sold: Number(product.total_sold) || 0,
-        option_details: optionDetails,
-      };
-    });
-
-    // แบ่งสินค้าขายดีและไม่ดี
-    const topSellers = parsedProducts.slice(0, limit);
-    const lowSellers = parsedProducts
-      .slice(-limit)
-      .reverse()
-      .filter(product => product.total_sold > 0 || parsedProducts.length <= limit);
-
-    console.log("Product sales data:", {
-      topSellers: JSON.stringify(topSellers, null, 2),
-      lowSellers: JSON.stringify(lowSellers, null, 2),
-    });
+    // จำกัดจำนวนตาม limit
+    const topSellers = soldProducts.slice(0, limit);
+    const lowSellers = unsoldProducts.slice(0, limit);
 
     return NextResponse.json(
-      { topSellers, lowSellers, totalProducts: parsedProducts.length },
+      { 
+        topSellers, 
+        lowSellers, 
+        totalProducts: products.length 
+      },
       { status: 200 }
     );
   } catch (error) {

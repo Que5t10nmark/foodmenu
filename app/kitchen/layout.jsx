@@ -5,7 +5,7 @@ import KitchenLayoutClient from "./KitchenLayoutClient";
 // ฟังก์ชันตรวจ session ฝั่ง server
 async function getSession() {
   const cookieStore = cookies();
-  const token = cookieStore.get("next-auth.session-token"); // ตัวอย่าง next-auth
+  const token = cookieStore.get("next-auth.session-token");
   if (!token) return null;
   return { user: true };
 }
