@@ -151,7 +151,7 @@ export default function CartPage() {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-amber-50 via-orange-100 to-rose-100 min-h-screen p-6">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-6">
         <div className="bg-white rounded-xl shadow-lg sticky top-4 z-20 px-4 py-4 mb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -196,7 +196,7 @@ export default function CartPage() {
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-lg text-gray-400">
                 เวลาสั่ง:{" "}
                 {new Date().toLocaleTimeString("th-TH", {
                   hour: "2-digit",
@@ -215,7 +215,7 @@ export default function CartPage() {
                     ไม่มีสินค้าในตะกร้า
                   </p>
                   <Link href={`/order/product/${seatQRCode}`}>
-                    <button className="mt-4 bg-amber-500 text-white py-2 px-6 rounded-lg font-medium hover:bg-amber-600 transition">
+                    <button className="mt-4 bg-amber-500 text-white py-2 px-6 rounded-lg font-medium hover:bg-amber-600 transition cursor-pointer">
                       ไปเลือกสินค้า
                     </button>
                   </Link>
@@ -227,12 +227,12 @@ export default function CartPage() {
                     className="flex justify-between items-start border-b border-gray-50 pb-3"
                   >
                     <div className="flex-1">
-                      <h3 className="front-bold font-medium text-gray-800">
+                      <h3 className="front-bold font-medium text-gray-800 text-lg">
                         {productItem.product_name}
                       </h3>
                       {renderSelectedOptions(productItem.selected_option)}
                       {productItem.purchase_description && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-lg text-gray-500">
                           หมายเหตุ: {productItem.purchase_description}
                         </p>
                       )}
@@ -284,12 +284,12 @@ export default function CartPage() {
             {cart.length > 0 && (
               <div className="px-4 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-gray-800">รวมทั้งหมด</span>
+                  <span className="font-bold text-gray-800 text-xl">รวมทั้งหมด</span>
                   <span className="font-bold text-2xl text-blue-600">
                     {totalAmount.toFixed(2)} บาท
                   </span>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-lg text-gray-500">
                   รวม{" "}
                   {cart.reduce((sum, item) => sum + (item.quantity || 1), 0)}{" "}
                   รายการ
@@ -306,7 +306,7 @@ export default function CartPage() {
                   disabled={!seatQRCode}
                   className={`w-full py-4 rounded-xl font-bold text-lg transition ${
                     seatQRCode
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:-translate-y-1"
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:-translate-y-1 cursor-pointer"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                 >
@@ -315,15 +315,15 @@ export default function CartPage() {
               )}
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <Link href={`/order/product/${seatQRCode}`}>
-                  <button className="bg-gradient-to-r from-blue-400 to-indigo-500 text-white py-3 rounded-xl font-bold">
-                    ➕ เลือกสินค้าเพิ่ม
+                  <button className="bg-gradient-to-r from-blue-400 to-indigo-500 text-white py-3 rounded-xl font-bold cursor-pointer">
+                    ➕ เลือกสินค้าเพิ่มเติม
                   </button>
                 </Link>
                 <button
                   onClick={() => {
                     if (confirm("ล้างตะกร้าทั้งหมด?")) clearCart();
                   }}
-                  className="bg-gradient-to-r from-red-400 to-rose-500 text-white py-3 rounded-xl font-bold"
+                  className="bg-gradient-to-r from-red-400 to-rose-500 text-white py-3 rounded-xl font-bold cursor-pointer"
                 >
                   ❌ ยกเลิกทั้งหมด
                 </button>
