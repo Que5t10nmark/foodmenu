@@ -36,8 +36,8 @@ export default function KitchenLayoutClient({ children }) {
           {menuItems.map((item) => (
             <Link key={item.href} href={item.href}>
               <div
-                className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-blue-300 transition
-                ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-blue-700 text-white" : ""}`}
+                className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-orange-300 transition
+                ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-orange-700 text-white" : ""}`}
               >
                 {item.icon}
                 <span className="truncate">{item.label}</span>
@@ -49,8 +49,8 @@ export default function KitchenLayoutClient({ children }) {
 
       {/* User info & logout */}
       {session && (
-        <div className="mt-2 pt-2 border-t border-white/30"> {/* ลด mt-4 และ pt-4 เป็น mt-2 และ pt-2 */}
-          <div className="flex items-center gap-3 mb-2"> {/* ลด mb-4 เป็น mb-2 */}
+        <div className="mt-4 pt-4 border-t border-white/20">
+          <div className="flex items-center gap-3 mb-2"> 
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
               <span className="text-lg font-semibold">{session.user.name ? session.user.name[0] : "U"}</span>
             </div>
@@ -61,7 +61,7 @@ export default function KitchenLayoutClient({ children }) {
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-3 w-full p-3 rounded-md hover:bg-blue-300 transition"
+            className="flex items-center gap-3 w-full p-3 rounded-md hover:bg-orange-300 transition"
           >
             <LogOut className="w-5 h-5" />
             <span>ออกจากระบบ</span>
@@ -76,7 +76,7 @@ export default function KitchenLayoutClient({ children }) {
     <>
       {/* Sidebar slide-in */}
       <div
-        className={`bg-gradient-to-b from-blue-400 to-blue-700 text-white  w-64 p-6 h-full z-40 transition-transform duration-300 absolute
+        className={`bg-gradient-to-b from-orange-400 to-orange-700 text-white  w-64 p-6 h-full z-40 transition-transform duration-300 absolute
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <button

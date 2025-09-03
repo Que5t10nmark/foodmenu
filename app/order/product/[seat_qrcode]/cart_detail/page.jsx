@@ -254,7 +254,7 @@ export default function MyOrderPage() {
                           {calculateTotalPrice(order).toFixed(2)} บาท
                         </p>
                         <p className="text-sm text-gray-500">
-                          {(calculateTotalPrice(order) / order.purchase_quantity).toFixed(2)}{" "}
+                          {order.product_price}
                           บาท/รายการ
                         </p>
                       </div>

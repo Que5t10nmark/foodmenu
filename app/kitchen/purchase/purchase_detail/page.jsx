@@ -131,13 +131,13 @@ export default function KitchenGroupedByProduct() {
           );
           return (
             <div key={productName} className="mb-10">
-              <div className="font-bold text-5xl mb-4 bg-blue-100 p-4 rounded">
+              <div className="font-bold text-5xl mb-4 bg-orange-100 p-4 rounded">
                 {productName} — ทั้งหมด {total} จาน
               </div>
               {/* <div className="overflow-auto rounded-xl shadow-lg"> */}
               <div>
-                <table className="min-w-full bg-white border border-blue-500 rounded-xl text-3xl">
-                  <thead className="bg-blue-300">
+                <table className="min-w-full bg-white border border-orange-500 rounded-xl text-3xl">
+                  <thead className="bg-orange-300">
                     <tr>
                       <th className="p-3 border-b text-center">โต๊ะ</th>
                       <th className="p-3 border-b text-center">จำนวน</th>

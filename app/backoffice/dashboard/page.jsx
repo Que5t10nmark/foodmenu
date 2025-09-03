@@ -3,7 +3,15 @@ import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Chart from "chart.js/auto";
 import Link from "next/link";
-import { LayoutDashboard, Utensils, ListOrdered, FileText, Grid, Users, DollarSign } from "lucide-react";
+import {
+  LayoutDashboard,
+  Utensils,
+  ListOrdered,
+  FileText,
+  Grid,
+  Users,
+  DollarSign,
+} from "lucide-react";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -88,7 +96,12 @@ export default function DashboardPage() {
         let errorMessage = "ไม่สามารถดึงข้อมูลแดชบอร์ดได้";
         if (contentType && contentType.includes("text/html")) {
           const text = await response.text();
-          throw new Error(`ได้รับ HTML แทน JSON (สถานะ: ${response.status}): ${text.slice(0, 100)}`);
+          throw new Error(
+            `ได้รับ HTML แทน JSON (สถานะ: ${response.status}): ${text.slice(
+              0,
+              100
+            )}`
+          );
         }
         const errorData = await response.json();
         throw new Error(errorData.message || errorMessage);
@@ -114,7 +127,9 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-gray-50 font-kanit">
-        <div className="text-2xl text-red-500 mb-4">เกิดข้อผิดพลาด: {error}</div>
+        <div className="text-2xl text-red-500 mb-4">
+          เกิดข้อผิดพลาด: {error}
+        </div>
         <button
           onClick={fetchDashboardData}
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
@@ -126,7 +141,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-orange-50 to-red-50 font-kanit">
+    <div className="bg-gradient-to-br from-orange-50 to-red-50 font-kanit">
       {/* Header */}
       <header className="bg-gradient-to-br from-amber-700 via-amber-500 to-orange-300 text-white shadow-lg">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
@@ -137,7 +152,9 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold">Dashboard</h1>
-                <p className="text-white text-opacity-80 text-xl">ระบบบริหารจัดการร้านอาหาร</p>
+                <p className="text-white text-opacity-80 text-xl">
+                  ระบบบริหารจัดการร้านอาหาร
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -176,9 +193,8 @@ export default function DashboardPage() {
               <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
                 <ListOrdered className="w-6 h-6 text-green-600" />
               </div>
-             
 
- <p className="text-2xl font-bold text-black">จัดการโต๊ะ</p>
+              <p className="text-2xl font-bold text-black">จัดการโต๊ะ</p>
             </button>
           </Link>
           <Link href="/backoffice/reportmenu">
@@ -197,7 +213,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-800 text-xl font-bold">เมนูอาหาร</p>
-                <p className="text-3xl font-bold text-gray-800 mt-1">{dashboardData.menuCount}</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">
+                  {dashboardData.menuCount}
+                </p>
                 {/* <p className="text-green-500 text-xl mt-2">
                   <span className="font-medium">+0</span> เมนูใหม่
                 </p> */}
@@ -211,9 +229,14 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-800 text-xl font-bold">โต๊ะในร้าน</p>
-                <p className="text-3xl font-bold text-gray-800 mt-1">{dashboardData.tableCount}</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">
+                  {dashboardData.tableCount}
+                </p>
                 <p className="text-blue-500 text-xl mt-2">
-                  <span className="font-medium">{dashboardData.tablesAvailable}</span> โต๊ะว่าง
+                  <span className="font-medium">
+                    {dashboardData.tablesAvailable}
+                  </span>{" "}
+                  โต๊ะว่าง
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
@@ -225,7 +248,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-800 text-xl font-bold">พนักงาน</p>
-                <p className="text-3xl font-bold text-gray-800 mt-1">{dashboardData.staffCount}</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">
+                  {dashboardData.staffCount}
+                </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
                 <Users className="w-8 h-8 text-green-600" />
@@ -236,7 +261,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-800 text-xl font-bold">ยอดขายวันนี้</p>
-                <p className="text-3xl font-bold text-gray-800 mt-1">฿{dashboardData.dailySales.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">
+                  ฿{dashboardData.dailySales.toLocaleString()}
+                </p>
                 {/* <p className="text-green-500 text-xl mt-2">
                   <span className="font-medium">+0%</span> จากเมื่อวาน
                 </p> */}
@@ -251,7 +278,9 @@ export default function DashboardPage() {
         {/* Chart and Status Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white border border-gray-300 rounded-xl shadow-md p-6">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">สัดส่วนเมนูยอดนิยม (กราฟแท่ง)</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">
+              สัดส่วนเมนูยอดนิยม (กราฟแท่ง)
+            </h3>
             <div className="h-64">
               <canvas id="menuChart"></canvas>
             </div>
@@ -263,7 +292,9 @@ export default function DashboardPage() {
                 <div
                   key={seat.seat_id}
                   className={`aspect-square rounded-lg flex items-center justify-center text-3xl font-bold ${
-                    !seat.isOccupied ? "bg-green-300 text-green-800" : "bg-red-300 text-red-800"
+                    !seat.isOccupied
+                      ? "bg-green-300 text-green-800"
+                      : "bg-red-300 text-red-800"
                   }`}
                 >
                   {seat.seat_qrcode}
@@ -273,11 +304,16 @@ export default function DashboardPage() {
             <div className="flex justify-between mt-4 text-2xl">
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-green-300 rounded"></div>
-                <span className="text-gray-600">ว่าง ({dashboardData.tablesAvailable})</span>
+                <span className="text-gray-600">
+                  ว่าง ({dashboardData.tablesAvailable})
+                </span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-red-300 rounded"></div>
-                <span className="text-gray-600">มีออเดอร์ ({dashboardData.tableCount - dashboardData.tablesAvailable})</span>
+                <span className="text-gray-600">
+                  มีออเดอร์ (
+                  {dashboardData.tableCount - dashboardData.tablesAvailable})
+                </span>
               </div>
             </div>
           </div>

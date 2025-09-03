@@ -6,38 +6,36 @@ import PropTypes from "prop-types";
 export default function Modal({ title, children, isOpen, onClose }) {
   const modalRef = useRef();
 
-  // ปิดด้วยปุ่ม Esc
+  // ปิดโมดัลด้วยปุ่ม Esc
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && typeof onClose === "function") {
         onClose();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  // ป้องกัน scroll เมื่อเปิด Modal
+  // ป้องกันการเลื่อนหน้าจอเมื่อโมดัลเปิด
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("overflow-hidden");
     } else {
       document.body.classList.remove("overflow-hidden");
     }
-
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-    };
+    return () => document.body.classList.remove("overflow-hidden");
   }, [isOpen]);
 
-  // ปิดเมื่อคลิกนอก Modal
+  // ปิดโมดัลเมื่อคลิกนอกโมดัล
   const handleBackdropClick = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
-      onClose();
+      if (typeof onClose === "function") {
+        onClose();
+      } else {
+        console.warn("onClose is not a function");
+      }
     }
   };
 
@@ -45,23 +43,17 @@ export default function Modal({ title, children, isOpen, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black/40 backdrop-blur-md flex justify-center items-center z-50 transition-opacity duration-300"
       onClick={handleBackdropClick}
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-lg max-w-lg w-full mx-4 animate-fade-in"
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform transition-all duration-300 scale-100 hover:scale-[1.02]"
       >
-        <div className="flex justify-between items-center border-b p-4">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <button
-            className="text-gray-500 hover:text-gray-700"
-            onClick={onClose}
-          >
-            <i className="fa-solid fa-xmark"></i>
-          </button>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="p-6 bg-gray-50">{children}</div>
       </div>
     </div>
   );

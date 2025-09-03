@@ -396,9 +396,6 @@ export default function SalesReportPage() {
                 </div>
               )}
             </div>
-            <div className="footer">
-              <p>หน้าที่ 1</p>
-            </div>
           </div>
         )}
       </div>

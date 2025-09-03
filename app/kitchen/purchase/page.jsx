@@ -191,7 +191,7 @@ export default function KitchenPage() {
             Object.entries(seatGroupedOrders).map(([seatId, seatOrders]) => (
               <div key={seatId} className="mb-10">
                 {/* Table Header */}
-                <div className="bg-gradient-to-r from-blue-500 to-blue-300 text-white p-6 rounded-xl mb-6">
+                <div className="bg-gradient-to-r from-orange-500 to-orange-300 text-white p-6 rounded-xl mb-6">
                   <h2 className="text-3xl sm:text-4xl font-bold flex items-center">
                     🪑 โต๊ะ {seatId}
                     <span className="ml-auto text-lg sm:text-xl text-black bg-white bg-opacity-20 px-4 py-2 rounded-full">

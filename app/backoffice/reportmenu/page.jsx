@@ -252,9 +252,6 @@ export default function FoodSummaryReport() {
               </tbody>
             </table>
           )}
-          <div className="footer">
-            <p>หน้าที่ 1</p>
-          </div>
         </div>
       </div>
     </>
