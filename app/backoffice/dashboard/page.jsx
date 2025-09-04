@@ -47,7 +47,7 @@ export default function DashboardPage() {
           labels: dashboardData.topMenus.map((menu) => menu.product_name),
           datasets: [
             {
-              label: "จำนวนที่ขาย (จาน)",
+              label: "จำนวนที่ขาย",
               data: dashboardData.topMenus.map((menu) => menu.total_sold),
               backgroundColor: "#667eea",
               borderRadius: 8,
@@ -279,7 +279,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white border border-gray-300 rounded-xl shadow-md p-6">
             <h3 className="text-2xl font-bold text-gray-800 mb-6">
-              สัดส่วนเมนูยอดนิยม (กราฟแท่ง)
+              เมนูยอดนิยม
             </h3>
             <div className="h-64">
               <canvas id="menuChart"></canvas>

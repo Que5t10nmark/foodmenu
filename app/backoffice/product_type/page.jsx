@@ -238,28 +238,28 @@ const ProductTypePage = () => {
             />
           </div>
 
-          <div className="mt-4 flex gap-4">
-            <button
-              type="submit"
-              className="bg-green-500 text-white px-6 py-2 rounded"
-            >
-              {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
-            </button>
-            <button
-              type="button"
-              onClick={clearForm}
-              className="bg-gray-500 text-white px-6 py-2 rounded"
-            >
-              เคลียร์
-            </button>
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-red-500 text-white px-6 py-2 rounded"
-            >
-              ยกเลิก
-            </button>
-          </div>
+        <div className="mt-6 flex gap-4 justify-end">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md"
+          >
+            {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
+          </button>
+          <button
+            type="button"
+            onClick={clearForm}
+            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-md"
+          >
+            เคลียร์
+          </button>
+          <button
+            type="button"
+            onClick={closeModal}
+            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md"
+          >
+            ยกเลิก
+          </button>
+        </div>
         </form>
       </Modal>
     {/* </div> */}

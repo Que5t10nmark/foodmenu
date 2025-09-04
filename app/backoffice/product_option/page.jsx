@@ -43,7 +43,7 @@ export default function ProductOptionPage() {
 
   const showNotification = (type, message) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), 2000);
   };
 
   const handleSubmit = async (e) => {

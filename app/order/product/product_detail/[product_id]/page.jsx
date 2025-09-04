@@ -31,7 +31,7 @@ function Page() {
               .then((res) => res.json())
               .then((optionData) => {
                 setProductOptions(optionData);
-                setTimeout(() => setLoading(false), 1000);
+                setTimeout(() => setLoading(false), 500);
               })
               .catch((err) => {
                 console.error("โหลดตัวเลือกไม่สำเร็จ", err);
@@ -39,7 +39,7 @@ function Page() {
               });
           } else {
             console.warn("product_type is missing in product data");
-            setTimeout(() => setLoading(false), 1000);
+            setTimeout(() => setLoading(false), 500);
           }
         })
         .catch((err) => {

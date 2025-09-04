@@ -28,7 +28,7 @@ export default function FoodSummaryReport() {
   const fetchReportData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/purchase?date=${date}`);
+      const response = await fetch(`/api/sale_report?date=${date}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch data: ${response.statusText}`);
       }
@@ -123,7 +123,7 @@ export default function FoodSummaryReport() {
 
   th {
     background-color: #fed7aa;
-    color: #c2410c;
+    color: #000000;
     font-size: 16pt;
   }
 
@@ -139,7 +139,7 @@ export default function FoodSummaryReport() {
   .header h1 {
     font-size: 24pt;
     font-weight: bold;
-    color: #c2410c;
+    color: #000000;
   }
 
   .header p {
@@ -198,7 +198,7 @@ export default function FoodSummaryReport() {
           className="bg-white p-4 rounded-lg shadow-md"
         >
           <div className="header">
-            <h1>Steak NiWha</h1>
+            <h1>สเต็กนี่หว่า</h1>
             <p>รายงานสรุปรายการอาหาร</p>
             <p>ประจำวันที่: {date || "—"}</p>
             <p>
@@ -212,11 +212,11 @@ export default function FoodSummaryReport() {
           {loading ? (
             <div className="flex flex-row gap-2 justify-center items-center mt-10">
               <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce"></div>
+              <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.1s]"></div>
               <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.3s]"></div>
-              <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.5s]"></div>
             </div>
           ) : (
-            <table className="min-w-full table-auto border-collapse">
+            <table className="min-w-full table-auto border-collapse ">
               <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
                 <tr>
                   <th className="px-4 py-3 border border-gray-300 text-3xl text-center">

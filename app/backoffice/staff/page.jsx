@@ -216,26 +216,53 @@ export default function Register() {
         </button>
 
         <div className="overflow-x-auto max-h-[70vh] shadow rounded border border-gray-200 bg-white mb-2">
-          <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">ข้อมูลพนักงาน</h2>
+          <h2 className="text-2xl font-bold mb-4 px-4 pt-4 text-orange-700">
+            ข้อมูลพนักงาน
+          </h2>
           <table className="min-w-full table-auto border-collapse">
             <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">ชื่อ</th>
-                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">อีเมล</th>
-                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">เบอร์โทร</th>
-                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">ที่อยู่</th>
-                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">บทบาท</th>
-                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">จัดการ</th>
+                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">
+                  ชื่อ
+                </th>
+                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">
+                  อีเมล
+                </th>
+                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">
+                  เบอร์โทร
+                </th>
+                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">
+                  ที่อยู่
+                </th>
+                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">
+                  บทบาท
+                </th>
+                <th className="px-4 py-3 border-b border-gray-300 text-3xl text-center">
+                  จัดการ
+                </th>
               </tr>
             </thead>
             <tbody>
               {account.map((account, index) => (
-                <tr key={account.account_id || index} className="hover:bg-gray-50">
-                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">{account.account_name}</td>
-                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">{account.account_email}</td>
-                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">{account.account_phone}</td>
-                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">{account.account_address}</td>
-                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">{account.account_role}</td>
+                <tr
+                  key={account.account_id || index}
+                  className="hover:bg-gray-50"
+                >
+                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">
+                    {account.account_name}
+                  </td>
+                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">
+                    {account.account_email}
+                  </td>
+                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">
+                    {account.account_phone}
+                  </td>
+                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">
+                    {account.account_address}
+                  </td>
+                  <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">
+                    {account.account_role}
+                  </td>
                   <td className="text-3xl px-4 py-3 border-b border-gray-300 text-center">
                     <div className="flex justify-center gap-2">
                       <button
@@ -302,7 +329,11 @@ export default function Register() {
                 value={account_password}
                 onChange={(e) => setAccountPassword(e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder={isEditing ? "กรอกรหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)" : "กรอกรหัสผ่าน"}
+                placeholder={
+                  isEditing
+                    ? "กรอกรหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)"
+                    : "กรอกรหัสผ่าน"
+                }
               />
             </div>
             <div>
@@ -342,24 +373,25 @@ export default function Register() {
                 <option value="พนักงาน">พนักงาน</option>
               </select>
             </div>
-            <div className="mt-4 flex gap-4">
+
+            <div className="mt-6 flex gap-4 justify-left">
               <button
                 type="submit"
-                className="bg-green-500 text-white px-6 py-2 rounded"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md"
               >
                 {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
               </button>
               <button
                 type="button"
                 onClick={clearForm}
-                className="bg-gray-500 text-white px-6 py-2 rounded"
+                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-md"
               >
                 เคลียร์
               </button>
               <button
                 type="button"
                 onClick={closeModal}
-                className="bg-red-500 text-white px-6 py-2 rounded"
+                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md"
               >
                 ยกเลิก
               </button>
@@ -367,7 +399,7 @@ export default function Register() {
           </form>
         </Modal>
       </div>
-    {/* </div> */}
+      {/* </div> */}
     </>
   );
 }

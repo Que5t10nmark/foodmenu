@@ -220,7 +220,7 @@ export default function SalesReportPage() {
 
   th {
     background-color: #fed7aa;
-    color: #c2410c;
+    color: #000000;
     font-size: 16pt;
   }
 
@@ -236,7 +236,7 @@ export default function SalesReportPage() {
   .header h1 {
     font-size: 24pt;
     font-weight: bold;
-    color: #c2410c;
+    color: #000000;
   }
 
   .header p {
@@ -320,7 +320,7 @@ export default function SalesReportPage() {
             className="bg-white p-0 rounded-lg shadow-md"
           >
             <div className="header">
-              <h1>Steak NiWha</h1>
+              <h1>สเต็กนี่หว่า</h1>
               <p>รายงานยอดขายอาหาร</p>
               <p>ประจำวันที่: {date || "—"}</p>
               <p>
@@ -341,8 +341,8 @@ export default function SalesReportPage() {
               {reportData.length > 0 ? (
                 reportData.map((seat) => (
                   <div key={seat.seat_id} className="seat-section">
-                    <h2 className="seat-title">โต๊ะ: {seat.seat_qrcode}</h2>
-                    <table className="min-w-full table-auto border-collapse">
+                    <h2 className="seat-title px-2 py-2">โต๊ะ: {seat.seat_qrcode}</h2>
+                    <table className="min-w-full table-auto border-collapse overflow-auto">
                       <thead className="bg-orange-100 text-orange-700 sticky top-0 z-10">
                         <tr>
                           <th className="px-4 py-3 border border-gray-300 text-3xl text-center">ชื่ออาหาร</th>
