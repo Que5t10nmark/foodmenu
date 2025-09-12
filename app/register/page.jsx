@@ -76,7 +76,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center py-16 px-6 sm:px-8 lg:px-12 bg-gray-50">
       {successMessage && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div className="fixed inset-0 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
           <div className="relative top-20 mx-auto p-6 border w-[28rem] shadow-lg rounded-md bg-white">
             <div className="mt-4 text-center">
               <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-5">

@@ -156,7 +156,7 @@ const ProductTypePage = () => {
   return (
     // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
     <>
-      <h1 className="text-4xl font-bold mb-6 text-orange-700">ประเภทอาหาร</h1>
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">จัดการประเภทอาหาร</h1>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {notification && (

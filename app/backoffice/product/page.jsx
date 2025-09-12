@@ -215,7 +215,7 @@ const ProductsPage = () => {
   return (
     // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
     <>
-      <h1 className="text-4xl font-bold mb-6 text-orange-700">รายการอาหาร</h1>
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">จัดการรายการอาหาร</h1>
 
       {error && (
         <p className="text-red-600 mb-4 bg-red-100 p-3 rounded shadow-sm">
@@ -396,152 +396,171 @@ const ProductsPage = () => {
         <h2 className="text-xl font-semibold mb-4">
           {isEditing ? "แก้ไขรายการอาหาร" : "เพิ่มอาหารใหม่"}
         </h2>
-<form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label htmlFor="product_name" className="block text-sm font-medium text-gray-700 mb-1">
-            ชื่ออาหาร
-          </label>
-          <input
-            type="text"
-            id="product_name"
-            name="product_name"
-            value={newProduct.product_name ?? ""}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            placeholder="กรอกชื่ออาหาร"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label
+              htmlFor="product_name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              ชื่ออาหาร
+            </label>
+            <input
+              type="text"
+              id="product_name"
+              name="product_name"
+              value={newProduct.product_name ?? ""}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              placeholder="กรอกชื่ออาหาร"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="product_type_id" className="block text-sm font-medium text-gray-700 mb-1">
-            ประเภทสินค้า
-          </label>
-          <select
-            id="product_type_id"
-            name="product_type_id"
-            value={newProduct.product_type_id ?? ""}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          >
-            <option value="">เลือกประเภทสินค้า</option>
-            {productType.length > 0 ? (
-              productType.map((product_type_id) => (
-                <option
-                  key={product_type_id.product_type_id}
-                  value={product_type_id.product_type_id}
-                >
-                  {product_type_id.product_type_name}
-                </option>
-              ))
-            ) : (
-              <option disabled>ไม่มีข้อมูลประเภทสินค้า</option>
+          <div>
+            <label
+              htmlFor="product_type_id"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              ประเภทสินค้า
+            </label>
+            <select
+              id="product_type_id"
+              name="product_type_id"
+              value={newProduct.product_type_id ?? ""}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            >
+              <option value="">เลือกประเภทสินค้า</option>
+              {productType.length > 0 ? (
+                productType.map((product_type_id) => (
+                  <option
+                    key={product_type_id.product_type_id}
+                    value={product_type_id.product_type_id}
+                  >
+                    {product_type_id.product_type_name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>ไม่มีข้อมูลประเภทสินค้า</option>
+              )}
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="product_price"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              ราคา
+            </label>
+            <input
+              type="number"
+              id="product_price"
+              name="product_price"
+              value={newProduct.product_price || ""}
+              onChange={(e) => {
+                const value =
+                  e.target.value === "" ? "" : Number(e.target.value);
+                setNewProduct((prev) => ({ ...prev, product_price: value }));
+              }}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              placeholder="กรอกราคา"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="product_image"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              รูปภาพ
+            </label>
+            <input
+              type="file"
+              id="product_image"
+              name="product_image"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="w-full p-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all duration-200"
+            />
+            {previewImage && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-2">ตัวอย่างรูปภาพ:</p>
+                <Image
+                  src={previewImage}
+                  alt="Preview"
+                  width={150}
+                  height={150}
+                  className="rounded-lg border border-gray-200 shadow-sm"
+                />
+              </div>
             )}
-          </select>
-        </div>
+          </div>
 
-        <div>
-          <label htmlFor="product_price" className="block text-sm font-medium text-gray-700 mb-1">
-            ราคา
-          </label>
-          <input
-            type="number"
-            id="product_price"
-            name="product_price"
-            value={newProduct.product_price || ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? "" : Number(e.target.value);
-              setNewProduct((prev) => ({ ...prev, product_price: value }));
-            }}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            placeholder="กรอกราคา"
-          />
-        </div>
+          <div>
+            <label
+              htmlFor="product_description"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              คําอธิบาย
+            </label>
+            <input
+              type="text"
+              id="product_description"
+              name="product_description"
+              value={newProduct.product_description || ""}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              placeholder="กรอกคำอธิบาย"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="product_image" className="block text-sm font-medium text-gray-700 mb-1">
-            รูปภาพ
-          </label>
-          <input
-            type="file"
-            id="product_image"
-            name="product_image"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="w-full p-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all duration-200"
-          />
-          {previewImage && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-600 mb-2">ตัวอย่างรูปภาพ:</p>
-              <Image
-                src={previewImage}
-                alt="Preview"
-                width={150}
-                height={150}
-                className="rounded-lg border border-gray-200 shadow-sm"
-              />
-            </div>
-          )}
-        </div>
+          <div>
+            <label
+              htmlFor="product_status"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              สถานะสินค้า
+            </label>
+            <select
+              id="product_status"
+              name="product_status"
+              value={String(newProduct.product_status)}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            >
+              <option value="true">พร้อมขาย</option>
+              <option value="false">หมด</option>
+            </select>
+          </div>
 
-        <div>
-          <label htmlFor="product_description" className="block text-sm font-medium text-gray-700 mb-1">
-            คําอธิบาย
-          </label>
-          <input
-            type="text"
-            id="product_description"
-            name="product_description"
-            value={newProduct.product_description || ""}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            placeholder="กรอกคำอธิบาย"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="product_status" className="block text-sm font-medium text-gray-700 mb-1">
-            สถานะสินค้า
-          </label>
-          <select
-            id="product_status"
-            name="product_status"
-            value={String(newProduct.product_status)}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          >
-            <option value="true">พร้อมขาย</option>
-            <option value="false">หมด</option>
-          </select>
-        </div>
-
-        <div className="mt-6 flex gap-4 justify-end">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md"
-          >
-            {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
-          </button>
-          <button
-            type="button"
-            onClick={clearForm}
-            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-md"
-          >
-            เคลียร์
-          </button>
-          <button
-            type="button"
-            onClick={closeModal}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md"
-          >
-            ยกเลิก
-          </button>
-        </div>
-      </form>
+          <div className="mt-6 flex gap-4 justify-end">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md"
+            >
+              {isEditing ? "บันทึกการแก้ไข" : "บันทึก"}
+            </button>
+            <button
+              type="button"
+              onClick={clearForm}
+              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-md"
+            >
+              เคลียร์
+            </button>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </form>
       </Modal>
-    {/* </div> */}
+      {/* </div> */}
     </>
   );
 };

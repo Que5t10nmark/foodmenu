@@ -208,7 +208,7 @@ const SeatPage = () => {
         </div>
       )}
 
-      <h1 className="text-4xl font-bold mb-6 text-orange-700">ที่นั่ง</h1>
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">จัดการที่นั่ง</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {notification && (
         <div className="mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm">

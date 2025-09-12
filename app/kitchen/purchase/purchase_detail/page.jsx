@@ -132,7 +132,7 @@ export default function KitchenGroupedByProduct() {
           return (
             <div key={productName} className="mb-10">
               <div className="font-bold text-5xl mb-4 bg-orange-100 p-4 rounded">
-                {productName} — ทั้งหมด {total} จาน
+                {productName} — ทั้งหมด {total} รายการ
               </div>
               {/* <div className="overflow-auto rounded-xl shadow-lg"> */}
               <div>
@@ -143,7 +143,7 @@ export default function KitchenGroupedByProduct() {
                       <th className="p-3 border-b text-center">จำนวน</th>
                       <th className="p-3 border-b text-center">ตัวเลือก</th>
                       <th className="p-3 border-b text-center">หมายเหตุ</th>
-                      <th className="p-3 border-b text-center">ราคา</th>
+                      {/* <th className="p-3 border-b text-center">ราคา</th> */}
                       {/* <th className="p-3 border-b text-center">วันที่สั่ง</th> */}
                       <th className="p-3 border-b text-center">สถานะ</th>
                       <th className="p-3 border-b text-center">การจัดการ</th>
@@ -167,9 +167,9 @@ export default function KitchenGroupedByProduct() {
                           <td className="p-3 text-center">
                             {order.purchase_description || "-"}
                           </td>
-                          <td className="p-3 text-center">
+                          {/* <td className="p-3 text-center">
                             {(order.product_price * order.purchase_quantity).toFixed(2)} บาท
-                          </td>
+                          </td> */}
                           {/* <td className="p-3 text-center">
                             {new Date(order.purchase_date).toLocaleString(
                               "th-TH",

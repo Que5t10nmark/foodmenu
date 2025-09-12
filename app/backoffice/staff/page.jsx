@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
-import { Trash2, Edit2, PlusCircle } from "lucide-react";
+import { Trash2, Edit2, PlusCircle,Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
   const [account_name, setAccountName] = useState("");
@@ -15,6 +15,7 @@ export default function Register() {
   const [account, setAccount] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [currentAccountId, setCurrentAccountId] = useState(null);
 
   const fetchAccount = async () => {
@@ -196,7 +197,7 @@ export default function Register() {
   return (
     // <div className="p-6 max-h-screen overflow-auto bg-gray-50 min-h-screen">
     <>
-      <h1 className="text-4xl font-bold mb-6 text-orange-700">ข้อมูลพนักงาน</h1>
+      <h1 className="text-4xl font-bold mb-6 text-orange-700">จัดการข้อมูลพนักงาน</h1>
       {message && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 text-center">
           <span className="block sm:inline">{message}</span>
@@ -320,22 +321,38 @@ export default function Register() {
                 placeholder="example@email.com"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                รหัสผ่าน
-              </label>
-              <input
-                type="password"
-                value={account_password}
-                onChange={(e) => setAccountPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder={
-                  isEditing
-                    ? "กรอกรหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)"
-                    : "กรอกรหัสผ่าน"
-                }
-              />
-            </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        รหัสผ่าน
+      </label>
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          value={account_password}
+          onChange={(e) => {
+            const value = e.target.value
+              .replace(/[^0-9]/g, "") // ให้กรอกได้เฉพาะเลข
+              .slice(0, 10);          // จำกัดความยาว 10 ตัว
+            setAccountPassword(value);
+          }}
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
+          placeholder={
+            isEditing
+              ? "กรอกรหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)"
+              : "กรอกรหัสผ่าน"
+          }
+          inputMode="numeric"
+          maxLength={10}
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+    </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 เบอร์โทรศัพท์
