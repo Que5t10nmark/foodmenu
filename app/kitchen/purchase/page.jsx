@@ -52,7 +52,6 @@ export default function KitchenPage() {
     }
   };
 
-  // ฟังก์ชันคำนวณราคาตัวเลือก
   const calculateOptionsPrice = (selectedOptions) => {
     if (!selectedOptions || typeof selectedOptions !== "object") return 0;
     let totalOptionPrice = 0;
@@ -70,7 +69,6 @@ export default function KitchenPage() {
     return totalOptionPrice;
   };
 
-  // ฟังก์ชันคำนวณราคารวม
   const calculateTotalPrice = (order) => {
     const basePrice = Number(order.product_price || 0);
     const quantity = Number(order.purchase_quantity || 1);
@@ -82,7 +80,6 @@ export default function KitchenPage() {
     return (basePrice + optionPrice) * quantity;
   };
 
-  // ฟังก์ชันแสดงผลตัวเลือก
   const renderSelectedOptions = (selectedOptions) => {
     if (!selectedOptions || typeof selectedOptions !== "object") return null;
     return Object.entries(selectedOptions).map(([optionType, optionValues]) => {
@@ -96,8 +93,8 @@ export default function KitchenPage() {
           0
         );
         return (
-          <div key={optionType} className="text-lg sm:text-xl text-gray-600">
-            {optionType}: {displayValue}
+          <div key={optionType} className="text-2xl text-gray-700">
+            <span className="font-semibold">{optionType}:</span> {displayValue}
             {totalPrice > 0 ? ` (+${totalPrice.toFixed(2)} บาท)` : ""}
           </div>
         );
@@ -105,8 +102,8 @@ export default function KitchenPage() {
         const displayValue = optionValues.product_option_value || "";
         const price = Number(optionValues.product_option_price) || 0;
         return (
-          <div key={optionType} className="text-lg sm:text-xl text-gray-600">
-            {optionType}: {displayValue}
+          <div key={optionType} className="text-2xl text-gray-700">
+            <span className="font-semibold">{optionType}:</span> {displayValue}
             {price > 0 ? ` (+${price.toFixed(2)} บาท)` : ""}
           </div>
         );
@@ -115,7 +112,6 @@ export default function KitchenPage() {
     });
   };
 
-  // ฟังก์ชันกำหนดสีตามสถานะ
   const getStatusColor = (status) => {
     switch (status) {
       case "รอดำเนินการ":
@@ -131,7 +127,6 @@ export default function KitchenPage() {
     }
   };
 
-  // ฟังก์ชันกำหนดไอคอนตามสถานะ
   const getStatusIcon = (status) => {
     switch (status) {
       case "รอดำเนินการ":
@@ -149,9 +144,7 @@ export default function KitchenPage() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-gray-600 text-3xl sm:text-4xl">
-        กำลังโหลด...
-      </div>
+      <div className="flex items-center justify-center h-screen text-4xl text-gray-600">กำลังโหลด...</div>
     );
   }
 
@@ -166,42 +159,33 @@ export default function KitchenPage() {
     return groupedBySeat;
   }, {});
 
+  // เรียงลำดับตามเวลาสั่ง (จากเก่าไปใหม่)
+  Object.keys(seatGroupedOrders).forEach((seatId) => {
+    seatGroupedOrders[seatId].sort((a, b) => new Date(a.purchase_date) - new Date(b.purchase_date));
+  });
+
   return (
-    // <div className="p-4 max-h-screen  text-base">
-    <>
-      <div className="overflow-auto max-h-screen shadow rounded border border-gray-200 bg-white">
-        {/* Message */}
-        {message && (
-          <div
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-            bg-green-700 text-white border border-green-300 px-10 py-6 
-            rounded-xl shadow-2xl z-50 animate-fade text-xl sm:text-2xl"
-          >
-            {message}
-          </div>
-        )}
+    <div className="min-h-screen bg-gray-50 p-8 font-sans">
+      <h1 className="text-4xl font-bold text-gray-800 mb-9 text-center">🍽️ คำสั่งซื้อ (จัดกลุ่มตามโต๊ะ)</h1>
 
-        {/* Orders Container */}
-        <div className="space-y-10">
-          {Object.keys(seatGroupedOrders).length === 0 ? (
-            <div className="text-center text-gray-600 text-3xl sm:text-4xl">
-              ยังไม่มีคำสั่งซื้อ
-            </div>
-          ) : (
-            Object.entries(seatGroupedOrders).map(([seatId, seatOrders]) => (
-              <div key={seatId} className="mb-10">
-                {/* Table Header */}
-                <div className="bg-gradient-to-r from-orange-500 to-orange-300 text-white p-6 rounded-xl mb-6">
-                  <h2 className="text-3xl sm:text-4xl font-bold flex items-center">
-                    🪑 โต๊ะ {seatId}
-                    <span className="ml-auto text-lg sm:text-xl text-black bg-white bg-opacity-20 px-4 py-2 rounded-full">
-                      {seatOrders.length} รายการ
-                    </span>
-                  </h2>
-                </div>
+      {message && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 text-green-800 px-8 py-6 rounded-lg shadow-lg z-50 text-4xl">
+          {message}
+        </div>
+      )}
 
-                {/* Items Horizontal Scroll */}
-                <div className="flex gap-8 overflow-x-auto pb-8">
+      {Object.keys(seatGroupedOrders).length === 0 ? (
+        <div className="text-center text-4xl text-gray-500 mt-40">ยังไม่มีคำสั่งซื้อที่ใช้งานอยู่</div>
+      ) : (
+        <div className="space-y-16">
+          {Object.entries(seatGroupedOrders).map(([seatId, seatOrders]) => (
+            <div key={seatId} className="bg-white rounded-2xl shadow-md p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-5xl font-semibold text-gray-800">🪑 โต๊ะ {seatId}</h2>
+                <span className="text-3xl text-gray-600">ทั้งหมด {seatOrders.length} รายการ</span>
+              </div>
+              <div className="overflow-x-auto">
+                <div className="flex gap-8">
                   {seatOrders.map((order) => {
                     const selectedOptions =
                       typeof order.selected_option === "string"
@@ -210,15 +194,14 @@ export default function KitchenPage() {
                     return (
                       <div
                         key={order.purchase_id}
-                        className="bg-white border border-gray-500 rounded-xl p-8 hover:shadow-xl transition-all duration-200 min-w-[90vw] sm:min-w-[26rem] flex-shrink-0"
+                        className="bg-white border border-gray-300 rounded-xl p-6 hover:shadow-xl transition-all duration-200 min-w-[22rem] flex-shrink-0"
                       >
-                        {/* Item Header */}
                         <div className="flex justify-between items-start mb-6">
-                          <h3 className="font-bold text-gray-800 text-2xl sm:text-3xl">
+                          <h3 className="font-bold text-gray-800 text-3xl">
                             {order.product_name}
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-lg sm:text-xl font-medium border ${getStatusColor(
+                            className={`px-4 py-2 rounded-full text-xl font-medium border ${getStatusColor(
                               order.purchase_status
                             )}`}
                           >
@@ -227,8 +210,7 @@ export default function KitchenPage() {
                           </span>
                         </div>
 
-                        {/* Order Details */}
-                        <div className="space-y-3 text-lg sm:text-xl mb-6">
+                        <div className="space-y-4 text-2xl mb-6">
                           <div className="flex justify-between">
                             <span className="text-gray-600">จำนวน:</span>
                             <span className="text-gray-800">
@@ -243,21 +225,19 @@ export default function KitchenPage() {
                           </div>
                         </div>
 
-                        {/* Options */}
                         {selectedOptions &&
                           Object.keys(selectedOptions).length > 0 && (
                             <div className="mb-6">
-                              <p className="font-medium text-gray-700 text-lg sm:text-xl mb-3">
+                              <p className="font-medium text-gray-700 text-2xl mb-3">
                                 ตัวเลือก:
                               </p>
-                              <div className="space-y-3">
+                              <div className="space-y-2">
                                 {renderSelectedOptions(selectedOptions)}
                               </div>
                             </div>
                           )}
 
-                        {/* Order Date */}
-                        <div className="text-base sm:text-lg text-gray-500 mb-6">
+                        <div className="text-xl text-gray-500 mb-6">
                           วันที่สั่ง:{" "}
                           {new Date(order.purchase_date).toLocaleString(
                             "th-TH",
@@ -265,10 +245,9 @@ export default function KitchenPage() {
                           )}
                         </div>
 
-                        {/* Status Buttons */}
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-3 gap-4">
                           <button
-                            className={`px-6 py-3 text-base sm:text-lg font-medium rounded-full transition-all duration-200 hover:scale-105 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer ${
+                            className={`px-6 py-3 text-xl font-medium rounded-full transition-all duration-200 hover:scale-105 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer ${
                               order.purchase_status === "กำลังทำ"
                                 ? "opacity-50 cursor-not-allowed"
                                 : "hover:shadow-md"
@@ -281,7 +260,7 @@ export default function KitchenPage() {
                             👨‍🍳 กำลังทำ
                           </button>
                           <button
-                            className={`px-6 py-3 text-base sm:text-lg font-medium rounded-full transition-all duration-200 hover:scale-105 bg-green-500 text-white hover:bg-green-600 cursor-pointer ${
+                            className={`px-6 py-3 text-xl font-medium rounded-full transition-all duration-200 hover:scale-105 bg-green-500 text-white hover:bg-green-600 cursor-pointer ${
                               order.purchase_status === "เสร็จแล้ว"
                                 ? "opacity-50 cursor-not-allowed"
                                 : "hover:shadow-md"
@@ -294,7 +273,7 @@ export default function KitchenPage() {
                             ✅ เสร็จแล้ว
                           </button>
                           <button
-                            className={`px-6 py-3 text-base sm:text-lg font-medium rounded-full transition-all duration-200 hover:scale-105 bg-red-500 text-white hover:bg-red-600 cursor-pointer ${
+                            className={`px-6 py-3 text-xl font-medium rounded-full transition-all duration-200 hover:scale-105 bg-red-500 text-white hover:bg-red-600 cursor-pointer ${
                               order.purchase_status === "ยกเลิก"
                                 ? "opacity-50 cursor-not-allowed"
                                 : "hover:shadow-md"
@@ -312,11 +291,10 @@ export default function KitchenPage() {
                   })}
                 </div>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
-      </div>
-    {/* </div> */}
-    </>
+      )}
+    </div>
   );
 }

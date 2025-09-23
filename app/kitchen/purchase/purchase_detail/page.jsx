@@ -123,7 +123,7 @@ export default function KitchenGroupedByProduct() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8 font-sans">
-      <h1 className="text-6xl font-bold text-gray-800 mb-12 text-center">🍽️ คำสั่งซื้อ (จัดกลุ่มตามเมนู)</h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-9 text-center">🍽️ คำสั่งซื้อ (จัดกลุ่มตามเมนู)</h1>
 
       {message && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 text-green-800 px-8 py-6 rounded-lg shadow-lg z-50 text-4xl">
@@ -174,22 +174,22 @@ export default function KitchenGroupedByProduct() {
                     </tbody>
                   </table>
                 </div>
-                <div className="mt-8 flex justify-end space-x-6">
+                <div className="mt-6 flex justify-end space-x-4">
                   <button
                     onClick={() => handleStatusUpdate(productName, "กำลังทำ")}
-                    className="bg-blue-500 text-white px-10 py-4 rounded-lg text-3xl font-medium hover:bg-blue-600 transition"
+                    className="bg-blue-500 text-white px-10 py-4 rounded-lg text-3xl font-medium hover:bg-blue-600 transition cursor-pointer"
                   >
                     กำลังทำ
                   </button>
                   <button
                     onClick={() => handleStatusUpdate(productName, "เสร็จแล้ว")}
-                    className="bg-green-500 text-white px-10 py-4 rounded-lg text-3xl font-medium hover:bg-green-600 transition"
+                    className="bg-green-500 text-white px-10 py-4 rounded-lg text-3xl font-medium hover:bg-green-600 transition cursor-pointer"
                   >
                     เสร็จแล้ว
                   </button>
                   <button
                     onClick={() => handleStatusUpdate(productName, "ยกเลิก")}
-                    className="bg-red-500 text-white px-10 py-4 rounded-lg text-3xl font-medium hover:bg-red-600 transition"
+                    className="bg-red-500 text-white px-10 py-4 rounded-lg text-3xl font-medium hover:bg-red-600 transition cursor-pointer"
                   >
                     ยกเลิก
                   </button>

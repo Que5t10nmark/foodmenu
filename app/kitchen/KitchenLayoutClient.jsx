@@ -72,30 +72,38 @@ export default function KitchenLayoutClient({ children }) {
   );
 
   return (
-    // <div className="flex h-screen overflow-hidden">
-    <>
-      {/* Sidebar slide-in */}
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
       <div
-        className={`bg-gradient-to-b from-orange-400 to-orange-700 text-white  w-64 p-6 h-full z-40 transition-transform duration-300 absolute
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`bg-gradient-to-b from-orange-400 to-orange-700 text-white w-64 p-6 h-full z-40 transition-all duration-300
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        fixed md:static top-0 left-0`}
       >
         <button
           onClick={() => setSidebarOpen(false)}
-          className="text-white text-2xl mb-4 block"
+          className={`text-white text-2xl mb-4 block md:hidden`}
         >
           <X className="w-8 h-8" />
         </button>
         <SidebarContent />
       </div>
 
+      {/* Overlay when sidebar is open on mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Main content */}
-      <div
-        className={`flex-1 flex flex-col w-full transition-all duration-300
-        ${sidebarOpen ? "ml-64" : "ml-0"}`}
-      >
+      <div className="flex-1 flex flex-col w-full transition-all duration-300">
         {/* Top bar */}
-        <div className="bg-white shadow p-4 flex items-center z-10 relative">
-          <button onClick={() => setSidebarOpen(true)} className="text-3xl mr-4">
+        <div className="bg-white shadow p-4 flex items-center z-10">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-3xl mr-4 md:hidden"
+          >
             <AlignJustify className="w-9 h-9 text-black" />
           </button>
           <h1 className="text-2xl font-bold">ห้องครัว</h1>
@@ -103,7 +111,6 @@ export default function KitchenLayoutClient({ children }) {
 
         <main className="flex-1 p-4 overflow-y-auto">{children}</main>
       </div>
-    {/* </div> */}
-    </>
+    </div>
   );
 }
