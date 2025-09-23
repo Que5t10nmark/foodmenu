@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
-    container_name: foodmenu
+    image: mysql:5.7
+    container_name: foodmysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123456
@@ -13,7 +13,7 @@ services:
     ports:
       - "3388:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_food:/var/lib/mysql
 
 volumes:
-  mysql_data:
+  mysql_food:
