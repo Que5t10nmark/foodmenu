@@ -31,9 +31,10 @@ export default function Sidebar() {
     { label: "ข้อมูลโต๊ะ", icon: <ListOrdered className="w-5 h-5" />, href: "/backoffice/seat" },
     { label: "ข้อมูลพนักงาน", icon: <UserCog className="w-5 h-5" />, href: "/backoffice/staff" },
     { label: "สั่งซื้อ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/order/product/${seatQRCode}" },
-    { label: "คำสั่งซื้อตามโต๊ะ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/kitchen/purchase" },
-    { label: "คำสั่งซื้อตามเมนู", icon: <HandPlatter className="w-5 h-5" />, href: "/kitchen/purchase/purchase_detail" },
-    { label: "ชำระเงิน", icon: <BadgeDollarSign className="w-5 h-5" />, href: "/kitchen/payment" },
+    // { label: "สั่งซื้อ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/backoffice/order" },
+    { label: "คำสั่งซื้อตามโต๊ะ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/backoffice/kitchenontable" },
+    { label: "คำสั่งซื้อตามเมนู", icon: <HandPlatter className="w-5 h-5" />, href: "/backoffice/kitchenonmenu" },
+    { label: "ชำระเงิน", icon: <BadgeDollarSign className="w-5 h-5" />, href: "/backoffice/payment" },
   ];
 
   const reportItems = [
