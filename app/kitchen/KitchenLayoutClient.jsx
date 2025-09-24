@@ -13,7 +13,7 @@ export default function KitchenLayoutClient({ children }) {
 
   const menuItems = [
     { label: "คำสั่งซื้อตามโต๊ะ", icon: <ShoppingBasket className="w-5 h-5" />, href: "/kitchen/purchase" },
-    { label: "คำสั่งซื้อตามเมนู", icon: <HandPlatter className="w-5 h-5" />, href: "/kitchen/purchase/purchase_detail" },
+    { label: "คำสั่งซื้อตามเมนู", icon: <HandPlatter className="w-5 h-5" />, href: "/kitchen/purchase_detail" },
     { label: "ชำระเงิน", icon: <BadgeDollarSign className="w-5 h-5" />, href: "/kitchen/payment" },
   ];
 
@@ -26,31 +26,28 @@ export default function KitchenLayoutClient({ children }) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full justify-between">
-      {/* Logo */}
       <div>
         <div className="text-3xl font-bold mb-2">สเต็กนี่หว่า</div>
         <p className="text-xl text-white mb-4">NiWha Steak</p>
 
-        {/* Menu */}
         <nav className="space-y-2">
           {menuItems.map((item) => (
             <Link key={item.href} href={item.href}>
               <div
-                className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-orange-300 transition
-                ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-orange-700 text-white" : ""}`}
+                className={`flex items-center text-lg gap-3 p-3 rounded-md cursor-pointer hover:bg-orange-300 transition 
+                ${pathname === item.href || pathname.startsWith(item.href + "/") ? "bg-orange-700" : ""}`}
               >
                 {item.icon}
-                <span className="truncate">{item.label}</span>
+                <span>{item.label}</span>
               </div>
             </Link>
           ))}
         </nav>
       </div>
 
-      {/* User info & logout */}
       {session && (
         <div className="mt-4 pt-4 border-t border-white/20">
-          <div className="flex items-center gap-3 mb-2"> 
+          <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
               <span className="text-lg font-semibold">{session.user.name ? session.user.name[0] : "U"}</span>
             </div>
@@ -73,42 +70,28 @@ export default function KitchenLayoutClient({ children }) {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
       <div
         className={`bg-gradient-to-b from-orange-400 to-orange-700 text-white w-64 p-6 h-full z-40 transition-all duration-300
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         fixed md:static top-0 left-0`}
       >
-        <button
-          onClick={() => setSidebarOpen(false)}
-          className={`text-white text-2xl mb-4 block md:hidden`}
-        >
+        <button onClick={() => setSidebarOpen(false)} className="text-white text-2xl mb-4 block md:hidden">
           <X className="w-8 h-8" />
         </button>
         <SidebarContent />
       </div>
 
-      {/* Overlay when sidebar is open on mobile */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        ></div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col w-full transition-all duration-300">
-        {/* Top bar */}
         <div className="bg-white shadow p-4 flex items-center z-10">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-3xl mr-4 md:hidden"
-          >
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-3xl mr-4 md:hidden">
             <AlignJustify className="w-9 h-9 text-black" />
           </button>
           <h1 className="text-2xl font-bold">ห้องครัว</h1>
         </div>
-
         <main className="flex-1 p-4 overflow-y-auto">{children}</main>
       </div>
     </div>
